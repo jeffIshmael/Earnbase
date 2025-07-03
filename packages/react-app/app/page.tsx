@@ -9,6 +9,7 @@ import { celo } from 'wagmi/chains';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 
 interface Task {
@@ -24,12 +25,12 @@ interface Task {
 const tasks: Task[] = [
   {
     id: '1',
-    title: 'Watch Educational Video',
-    reward: '0.5 cUSD',
+    title: 'Chamapay Beta testers',
+    reward: '3+ cUSD',
     difficulty: 'Easy',
     icon: <TrendingUp className="w-5 h-5 text-indigo-600" />,
-    description: 'Watch a 5-minute video about DeFi basics',
-    participants: 1234
+    description: 'Do the daily tasks and submit a solid feedback',
+    participants: 15
   },
   {
     id: '2',
@@ -223,39 +224,41 @@ export default function Home() {
               
               <div className="space-y-3">
                 {tasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group hover:border-indigo-200"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-3 flex-1">
-                        <div className="bg-indigo-50 rounded-lg p-2 group-hover:bg-indigo-100 transition-colors">
-                          {task.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-gray-900 mb-1">{task.title}</h4>
-                          <p className="text-sm text-gray-600 mb-2">{task.description}</p>
-                          <div className="flex items-center space-x-2">
-                            <span className={cn(
-                              'px-2 py-1 rounded-full text-xs font-medium border',
-                              getDifficultyColor(task.difficulty)
-                            )}>
-                              {task.difficulty}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {task.participants.toLocaleString()} participants
-                            </span>
+                  <Link href={`/Task/${task.id}`}>
+                    <div
+                      key={task.id}
+                      className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group hover:border-indigo-200"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-3 flex-1">
+                          <div className="bg-indigo-50 rounded-lg p-2 group-hover:bg-indigo-100 transition-colors">
+                            {task.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-gray-900 mb-1">{task.title}</h4>
+                            <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                            <div className="flex items-center space-x-2">
+                              <span className={cn(
+                                'px-2 py-1 rounded-full text-xs font-medium border',
+                                getDifficultyColor(task.difficulty)
+                              )}>
+                                {task.difficulty}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {task.participants.toLocaleString()} participants
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-2 ml-2">
-                        <div className="text-right">
-                          <p className="font-semibold text-indigo-600">{task.reward}</p>
+                        <div className="flex items-center space-x-2 ml-2">
+                          <div className="text-right">
+                            <p className="font-semibold text-indigo-600">{task.reward}</p>
+                          </div>
+                          <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-indigo-500 transition-colors" />
                         </div>
-                        <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-indigo-500 transition-colors" />
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
