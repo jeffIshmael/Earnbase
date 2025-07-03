@@ -226,7 +226,6 @@ export default function Home() {
                   <div
                     key={task.id}
                     className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group hover:border-indigo-200"
-                    onClick={() => router.push(`/task/${task.id}`)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-3 flex-1">
