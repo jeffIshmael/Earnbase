@@ -9,6 +9,7 @@ import { celo } from 'wagmi/chains';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface Task {
   id: string;
@@ -63,7 +64,8 @@ export default function Home() {
   const { address, isConnected, chain } = useAccount();
   const { connect, connectors } = useConnect();
   const { switchChain, isPending } = useSwitchChain();
-  const [currency, setCurrency] = useState('cusd')
+  const [currency, setCurrency] = useState('cusd');
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'home' | 'wallet'>('home');
 
   useEffect(() => {
@@ -224,7 +226,7 @@ export default function Home() {
                   <div
                     key={task.id}
                     className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group hover:border-indigo-200"
-                    onClick={() => window.location.href = `/task/${task.id}`}
+                    onClick={() => router.push(`/task/${task.id}`)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-3 flex-1">
