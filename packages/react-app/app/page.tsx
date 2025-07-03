@@ -224,9 +224,8 @@ export default function Home() {
               
               <div className="space-y-3">
                 {tasks.map((task) => (
-                  <Link href={`/Task/${task.id}`}>
-                    <div
-                      key={task.id}
+                  <Link key={task.id} href={`/Task/${task.id}`}>
+                    <div                      
                       className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group hover:border-indigo-200"
                     >
                       <div className="flex items-start justify-between">
