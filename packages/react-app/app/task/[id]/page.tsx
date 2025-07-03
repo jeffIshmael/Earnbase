@@ -55,7 +55,7 @@ const taskDetails: TaskDetails = {
   claimableRewards: '0.2 cUSD'
 };
 
-export default function TaskPage({ params }: { params: { id: string } }) {
+const TaskPage = ({ params }: { params: { id: string } }) => {
   const [activeTab, setActiveTab] = useState<'tasks' | 'leaderboard' | 'earnings'>('tasks');
 
   const getRankColor = (rank: number) => {
@@ -289,3 +289,5 @@ export default function TaskPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+
+export default TaskPage;
