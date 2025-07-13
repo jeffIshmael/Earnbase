@@ -152,10 +152,16 @@ useEffect(() => {
   
   // 2. Auto-connect MetaMask if MiniPay & not Farcaster
   useEffect(() => {
-    if (window.ethereum?.isMiniPay && !isFarcaster) {
+    if (
+      farcasterChecked &&         
+      !isFarcaster &&                  
+      window.ethereum?.isMiniPay && 
+      !isConnected                    
+    ) {
       connect({ connector: injected({ target: "metaMask" }) });
     }
-  }, [isFarcaster]);
+  }, [farcasterChecked, isFarcaster, isConnected]);
+  
   
   // 3. Register user if not already registered
   useEffect(() => {
