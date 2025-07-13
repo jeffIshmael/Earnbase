@@ -9,7 +9,6 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { celo } from 'wagmi/chains';
-import { pimlicoApiKey } from '@/contexts/EnvtVariables';
 import Layout from '../components/Layout';
 import { injectedWallet } from '@rainbow-me/rainbowkit/wallets';
 import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector';
@@ -41,7 +40,7 @@ const config = createConfig({
 const capabilities = {
   paymasterService: {
     [celo.id]: {
-        url: `https://api.pimlico.io/v2/${celo.id}/rpc?apikey=${pimlicoApiKey}`
+        url: '/api/pimlico',
     }
   }
 }
