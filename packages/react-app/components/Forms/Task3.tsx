@@ -182,7 +182,7 @@ const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
             <div>
               <h3 className="font-medium text-emerald-800">Task 1 & 2 Completed!</h3>
               <p className="text-sm text-emerald-700 mt-1">
-                You're now ready for the daily commitment challenge.
+                You&apos;re now ready for the daily commitment challenge.
               </p>
             </div>
           </div>
@@ -201,7 +201,7 @@ const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
                 <div>
                   <h3 className="font-medium text-indigo-800">Daily Earnings</h3>
                   <p className="text-sm text-gray-700 mt-1">
-                    You'll receive <span className="font-semibold">1.5 cUSD</span> daily to your wallet
+                    You&apos;ll receive <span className="font-semibold">1.5 cUSD</span> daily to your wallet
                   </p>
                 </div>
               </div>
@@ -225,7 +225,7 @@ const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
                 <div>
                   <h3 className="font-medium text-indigo-800">Reminders</h3>
                   <p className="text-sm text-gray-700 mt-1">
-                    We'll send you daily reminders via Farcaster
+                    We&apos;ll send you daily reminders via Farcaster
                   </p>
                 </div>
               </div>
@@ -243,7 +243,7 @@ const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
               <div>
                 <h3 className="font-medium text-amber-800">Important Note</h3>
                 <p className="text-sm text-amber-700 mt-1">
-                  You don't need to return to this platform - just complete your daily payments as instructed in the reminders.
+                  You don&apos;t need to return to this platform - just complete your daily payments as instructed in the reminders.
                 </p>
               </div>
             </div>

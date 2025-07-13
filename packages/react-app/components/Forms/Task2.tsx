@@ -167,7 +167,7 @@ useEffect(() => {
                 <CheckCircle2 className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-2xl font-bold mb-1">Task Completed!</h1>
-              <p className="text-emerald-100">You've successfully joined your group</p>
+              <p className="text-emerald-100">You&apos;ve successfully joined your group</p>
             </div>
           </div>
   
@@ -188,7 +188,7 @@ useEffect(() => {
                     <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full">Verified</span>
                   </div>
                   <div className="relative group">
-                    <img 
+                    <Image 
                       src={`https://ipfs.io/ipfs/${imageIpfs}`}
                       alt="Your submission" 
                       className="w-full rounded-lg border border-gray-300 shadow-sm transition-transform duration-200 group-hover:scale-[1.02]"
@@ -226,7 +226,7 @@ useEffect(() => {
                 <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
-                What's Next?
+                What&apos;s Next?
               </h2>
               <ul className="space-y-3">
                 {[

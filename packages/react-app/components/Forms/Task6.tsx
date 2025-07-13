@@ -93,7 +93,7 @@ const Task6Form = () => {
               <div>
                 <h3 className="font-semibold text-amber-800">Your Position</h3>
                 <p className="text-sm text-amber-700 mt-2">
-                  You're currently ranked <span className="font-bold text-indigo-800">#7</span> on the leaderboard.
+                  You&apos;re currently ranked <span className="font-bold text-indigo-800">#7</span> on the leaderboard.
                 </p>
               </div>
             </div>

@@ -41,7 +41,7 @@ const Task4Form = () => {
 
         <div className="p-6 space-y-6">
           <p className="text-gray-700">
-            The ChamaPay Beta Program doesn't stop at completing tasks — you can earn even more through your actions and consistency!
+            The ChamaPay Beta Program doesn&apos;t stop at completing tasks — you can earn even more through your actions and consistency!
           </p>
 
           <div className="space-y-4">

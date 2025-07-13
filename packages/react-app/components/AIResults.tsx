@@ -122,7 +122,7 @@ const AIResults = ({ aiRating, loading, changeLoading, afterSuccess, onClose, ha
             ))}
             <span className="text-xs font-bold ml-2">{aiRating.rating}/10</span>
           </div>
-          <p className="text-sm text-gray-700 italic">"{aiRating.explanation}"</p>
+          <p className="text-sm text-gray-700 italic">&quot{aiRating.explanation}&quot</p>
         </div>
     
         <div className="flex gap-3">
