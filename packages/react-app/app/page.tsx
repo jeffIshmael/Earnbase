@@ -117,21 +117,27 @@ useEffect(() => {
 
 // 2. Only call sdk.actions after confirming it's a Farcaster environment
 useEffect(() => {
-  const setupFarcasterActions = async () => {
-    if (isFarcaster) {
-      try {
-        await sdk.actions.ready();
-        await sdk.actions.addFrame();
-      } catch (err) {
-        console.error("Farcaster action setup failed:", err);
+  const initializeFarcaster = async () => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      await sdk.actions.ready(); // ✅ This is the first step
+      const context = await sdk.context;
+
+      if (context?.user) {
+        setIsFarcaster(true);
+        setFcDetails(context.user);
       }
+    } catch (err) {
+      console.log("Not in Farcaster or sdk.actions.ready() failed:", err);
+      setIsFarcaster(false);
+    } finally {
+      setFarcasterChecked(true);
     }
   };
 
-  setupFarcasterActions();
-}, [isFarcaster]);
-
-  
+  initializeFarcaster();
+}, []);
   
   // 2. Auto-connect MetaMask if MiniPay & not Farcaster
   useEffect(() => {
@@ -148,27 +154,27 @@ useEffect(() => {
         !isConnected ||
         !farcasterChecked ||
         (isFarcaster && !fcDetails)
-      ) {
-        return;
-      }
+      ) return;
   
       try {
-        const user = await getUser(address as string);
+        const user = await getUser(address);
         setUserContext(user);
+  
         if (!user) {
-          const username = isFarcaster ? fcDetails?.username ?? "anonymous" : "non-fc.";
+          const username = isFarcaster ? fcDetails?.username ?? "anonymous" : "non-fc";
           const fid = isFarcaster ? fcDetails?.fid : null;
   
-          const user =await registerUser(username, fid!, address, smartAccount?.address ?? null);
-          setUserContext(user)
+          const newUser = await registerUser(username, fid!, address, smartAccount?.address ?? null);
+          setUserContext(newUser);
         }
       } catch (err) {
-        console.error("Error checking user:", err);
+        console.error("User registration error:", err);
       }
     };
   
     registerIfNeeded();
   }, [address, isConnected, isFarcaster, farcasterChecked, fcDetails, smartAccount]);
+  
   
   // 4. Fetch token balances
   useEffect(() => {
