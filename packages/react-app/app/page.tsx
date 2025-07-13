@@ -170,9 +170,9 @@ useEffect(() => {
     console.log('trying');
   
   }
-  if (!isClient) {
-    return <div className="min-h-screen bg-indigo-50"></div>; // Or a proper loading component
-  }
+  // if (!isClient) {
+  //   return <div className="min-h-screen bg-indigo-50"></div>; // Or a proper loading component
+  // }
 
   function HoverTagButton() {
     const [isHovering, setIsHovering] = useState(false);
