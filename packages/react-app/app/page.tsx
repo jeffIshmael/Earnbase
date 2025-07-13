@@ -88,38 +88,43 @@ export default function Home() {
   const [userContext, setUserContext] = useState <Tester | null> (null)
   const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    const init = async () => {
-      if (typeof window === "undefined" || isConnected) return;
-  
-      try {
-        await sdk.actions.ready();
-  
-        // Optional short delay to ensure Farcaster fully loads
-        await new Promise((r) => setTimeout(r, 300));
-  
-        const context = await sdk.context;
-  
-        if (context?.user) {
-          // Farcaster wallet
-          setIsFarcaster(true);
-          setFcDetails(context.user);
-          await connect({ connector: connectors[1] });
-        } else if (window.ethereum?.isMiniPay) {
-          // MetaMask via MiniPay
-          await connect({ connector: injected({ target: "metaMask" }) });
-        } else {
-          console.log("No wallet environment matched.");
-        }
-      } catch (err) {
-        console.error("SDK init or wallet connection failed:", err);
-      } finally {
-        setFarcasterChecked(true);
+  // Immediately trigger sdk.actions.ready() as early as possible
+if (typeof window !== 'undefined') {
+  (async () => {
+    try {
+      await sdk.actions.ready(); // this informs Farcaster the app is ready
+    } catch (err) {
+      console.warn("sdk.actions.ready() failed or not in Farcaster:", err);
+    }
+  })();
+}
+
+
+useEffect(() => {
+  const init = async () => {
+    if (typeof window === 'undefined' || isConnected) return;
+
+    try {
+      await new Promise((r) => setTimeout(r, 300)); // wait for context to be ready
+      const context = await sdk.context;
+
+      if (context?.user) {
+        setIsFarcaster(true);
+        setFcDetails(context.user);
+        await connect({ connector: connectors[1] });
+      } else if (window.ethereum?.isMiniPay) {
+        await connect({ connector: injected({ target: "metaMask" }) });
       }
-    };
-  
-    init();
-  }, [isConnected]);
+    } catch (err) {
+      console.error("Wallet auto-connect failed:", err);
+    } finally {
+      setFarcasterChecked(true);
+    }
+  };
+
+  init();
+}, [isConnected]);
+
   
   
   const handleConnect = async () => {
