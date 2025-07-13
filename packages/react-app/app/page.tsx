@@ -11,6 +11,13 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
+import { sdk } from '@farcaster/miniapp-sdk';
+import { useIsFarcaster } from './context/isFarcasterContext';
+import { getBalances } from '@/lib/Balance';
+import { formatEther } from 'viem';
+import {registerUser,getUser} from '../lib/Prismafnctns';
+import { useUserSmartAccount } from './hooks/useUserSmartAccount';
+
 
 interface Task {
   id: string;
@@ -22,6 +29,36 @@ interface Task {
   participants: number;
 }
 
+interface miniTasks{
+  id    :number;
+  subTaskId :number;
+  completed:boolean;
+  claimed :boolean;
+  feedback ?:string| null;
+  reward  : bigint;
+  aiRating? :string| null;
+  createdAt :Date;
+  userId: number;
+}
+
+interface User {
+  fid: number;
+  username?: string;
+  displayName?: string;
+}
+
+export interface Tester{
+  id :number;
+  userName :string;  
+  fid?:  number| null;      
+  totalEarned :bigint;
+  claimable    :bigint;
+  walletAddress :string;
+  smartAddress ?:string | null;
+  isTester    :boolean;
+  tasks: miniTasks[];
+}
+
 const tasks: Task[] = [
   {
     id: '1',
@@ -30,34 +67,7 @@ const tasks: Task[] = [
     difficulty: 'Easy',
     icon: <TrendingUp className="w-5 h-5 text-indigo-600" />,
     description: 'Do the daily tasks and submit a solid feedback',
-    participants: 15
-  },
-  {
-    id: '2',
-    title: 'Share on Twitter',
-    reward: '1.0 cUSD',
-    difficulty: 'Easy',
-    icon: <Users className="w-5 h-5 text-indigo-600" />,
-    description: 'Share our latest announcement on Twitter',
-    participants: 856
-  },
-  {
-    id: '3',
-    title: 'Complete Quiz',
-    reward: '2.0 cUSD',
-    difficulty: 'Medium',
-    icon: <Gift className="w-5 h-5 text-indigo-600" />,
-    description: 'Test your knowledge with our crypto quiz',
-    participants: 542
-  },
-  {
-    id: '4',
-    title: 'Invite Friends',
-    reward: '5.0 cUSD',
-    difficulty: 'Hard',
-    icon: <Coins className="w-5 h-5 text-indigo-600" />,
-    description: 'Invite 3 friends to join ProofEarn',
-    participants: 234
+    participants: 7
   },
 ];
 
@@ -68,25 +78,118 @@ export default function Home() {
   const [currency, setCurrency] = useState('cusd');
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'home' | 'wallet'>('home');
+  const [isInterfaceReady, setIsInterfaceReady] = useState(false);
+  const { isFarcaster, setIsFarcaster } = useIsFarcaster();
+  const [farcasterChecked, setFarcasterChecked] = useState(false);
+  const [fcDetails, setFcDetails] = useState<User | null>(null)
+  const [cUSDBalance, setCUSDBalance] = useState <string | null>(null);
+  const [usdcBalance, setUsdcBalance] = useState <string | null>(null);
+  const { smartAccount ,smartAccountClient } = useUserSmartAccount();
+  const [userContext, setUserContext] = useState <Tester | null> (null)
+  const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    if (isConnected) {
-      console.log('Connected to:', address);
-    }
-  }, [isConnected, address]);
+// make sure its loaded.
+useEffect(() => {
+  setIsClient(true);
+}, []);
   
+  // 1. Detect Farcaster and fetch user context
   useEffect(() => {
-    if (window.ethereum?.isMiniPay) {
+    if (typeof window !== 'undefined') {
+      // Farcaster SDK initialization
+      const initializeFarcaster = async () => {
+        try {
+          const context = await sdk.context;
+          if (context?.user) {
+            setIsFarcaster(true);
+            setFcDetails(context.user);
+          }
+        } catch (err) {
+          console.error("Farcaster context error:", err);
+        } finally {
+          setFarcasterChecked(true);
+        }
+      };
+  
+      initializeFarcaster();
+    }
+  }, []);
+
+// 2. Only call sdk.actions after confirming it's a Farcaster environment
+useEffect(() => {
+  const setupFarcasterActions = async () => {
+    if (isFarcaster) {
+      try {
+        await sdk.actions.ready();
+        await sdk.actions.addFrame();
+      } catch (err) {
+        console.error("Farcaster action setup failed:", err);
+      }
+    }
+  };
+
+  setupFarcasterActions();
+}, [isFarcaster]);
+
+  
+  
+  // 2. Auto-connect MetaMask if MiniPay & not Farcaster
+  useEffect(() => {
+    if (window.ethereum?.isMiniPay && !isFarcaster) {
       connect({ connector: injected({ target: "metaMask" }) });
     }
-  }, [connect]);
-
+  }, [isFarcaster]);
+  
+  // 3. Register user if not already registered
   useEffect(() => {
-    if (chain?.id !== celo.id) {
+    const registerIfNeeded = async () => {
+      if (
+        !address ||
+        !isConnected ||
+        !farcasterChecked ||
+        (isFarcaster && !fcDetails)
+      ) {
+        return;
+      }
+  
+      try {
+        const user = await getUser(address as string);
+        setUserContext(user);
+        if (!user) {
+          const username = isFarcaster ? fcDetails?.username ?? "anonymous" : "non-fc.";
+          const fid = isFarcaster ? fcDetails?.fid : null;
+  
+          const user =await registerUser(username, fid!, address, smartAccount?.address ?? null);
+          setUserContext(user)
+        }
+      } catch (err) {
+        console.error("Error checking user:", err);
+      }
+    };
+  
+    registerIfNeeded();
+  }, [address, isConnected, isFarcaster, farcasterChecked, fcDetails, smartAccount]);
+  
+  // 4. Fetch token balances
+  useEffect(() => {
+    const fetchBalances = async () => {
+      if (!address || !isConnected) return;
+  
+      const {cUSDBalance, USDCBalance} = await getBalances(address as `0x${string}`);
+      setCUSDBalance(Number(formatEther(cUSDBalance)).toFixed(3));
+      setUsdcBalance((Number(USDCBalance) / 10 ** 6).toFixed(3));
+    };
+  
+    fetchBalances();
+  }, [address, isConnected]);
+  
+  // 5. Auto-switch to Celo chain
+  useEffect(() => {
+    if (chain?.id !== celo.id && isConnected) {
       switchChain({ chainId: celo.id });
     }
-  }, [chain, isConnected, switchChain]);
-
+  }, [chain?.id, isConnected]);
+  
   const handleConnect = async () => {
     try {
       connect({ connector: injected({ target: "metaMask" }) });
@@ -94,6 +197,21 @@ export default function Home() {
       console.error(error);
     }
   };
+
+  const sendEmails = async () =>{
+    try {
+      console.log("logging now.");
+       // 1. Add the reward to the user
+    const res = await fetch('/api/email', {
+      method: 'GET',
+      
+    });
+    } catch (error) {
+      console.log(error);
+      
+    }
+   
+  }
 
 
   const getDifficultyColor = (difficulty: string) => {
@@ -114,6 +232,14 @@ export default function Home() {
     navigator.clipboard.writeText(text);
     toast('Address copied to clipboard');
   };
+
+  const loadingPimlico = async () =>{
+    console.log('trying');
+  
+  }
+  if (!isClient) {
+    return <div className="min-h-screen bg-indigo-50"></div>; // Or a proper loading component
+  }
 
   function HoverTagButton() {
     const [isHovering, setIsHovering] = useState(false);
@@ -177,18 +303,16 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <AnimatePresence>
-  {!isConnected && activeTab === 'home' && (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="fixed top-10 z-50"
-    >
-      <HoverTagButton />
-    </motion.div>
-  )}
-</AnimatePresence>
+      {!isConnected && activeTab === 'home' && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-10 left-1/2 transform -translate-x-1/2 z-50"
+          >
+            <HoverTagButton />
+          </motion.div>
+        )}
 
      
 
@@ -209,7 +333,7 @@ export default function Home() {
               </div>
               <div className="mt-6 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
                 <p className="text-sm text-indigo-200 mb-1">Total Earned</p>
-                <p className="text-2xl font-bold">12.5 cUSD</p>
+                <p className="text-2xl font-bold">{Number(formatEther(userContext?.totalEarned ?? BigInt(0))).toFixed(2)} cUSD</p>
               </div>
             </div>
 
@@ -300,23 +424,23 @@ export default function Home() {
                </div>
                <p className="text-sm font-medium">cUSD Balance</p>
              </div>
-             <p className="text-2xl font-bold">12.5</p>
+             <p className="text-2xl font-bold">{cUSDBalance}</p>
            </div>
    
            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-4 text-white shadow-lg">
              <div className="flex items-center space-x-2 mb-2">
                <div className="bg-white p-1 rounded-full">
-                 <Image src="/static/ethLogo.png" alt="ETH" width={24} height={24} className="rounded-full" />
+                 <Image src="/static/usdclogo.png" alt="usdc" width={24} height={24} className="rounded-full" />
                </div>
-               <p className="text-sm font-medium">ETH Balance</p>
+               <p className="text-sm font-medium">USDC Balance</p>
              </div>
-             <p className="text-2xl font-bold">0.025</p>
+             <p className="text-2xl font-bold">{usdcBalance}</p>
            </div>
          </div>
    
          {/* Single Send Button */}
          <div className="text-right">
-           <button className="mt-4 px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg shadow hover:bg-indigo-700 transition">
+           <button onClick={()=>sendEmails() } className="mt-4 px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg shadow hover:bg-indigo-700 transition">
              Send
            </button>
          </div>
@@ -342,7 +466,7 @@ export default function Home() {
              <div className="flex items-center justify-between">
                <div className="flex items-center space-x-2">
                  <Image
-                   src={ currency === 'cusd' ? "/static/cusdLogo.jpg" : "/static/ethLogo.png"}
+                   src={ currency === 'cusd' ? "/static/cusdLogo.jpg" : "/static/usdclogo.png"}
                    alt="CUSD"
                    width={28}
                    height={28}
@@ -355,7 +479,7 @@ export default function Home() {
   className="bg-white border border-gray-200 text-sm font-medium text-gray-800 rounded-md px-2 py-1 shadow-sm focus:outline-none"
 >
   <option value="cusd">cUSD</option>
-  <option value="eth">ETH</option>
+  <option value="usdc">USDC</option>
 </select>
 
                </div>
@@ -378,13 +502,13 @@ export default function Home() {
              <div className="flex items-center justify-between">
                <div className="flex items-center space-x-3">
                  <Image
-                    src={ currency !== 'cusd' ? "/static/cusdLogo.jpg" : "/static/ethLogo.png"}
+                    src={ currency !== 'cusd' ? "/static/cusdLogo.jpg" : "/static/usdclogo.png"}
                    alt="ETH"
                    width={28}
                    height={28}
                    className="rounded-full"
                  />
-                 <span className="font-medium text-gray-800">{ currency !== 'cusd' ? "cUSD" : "ETH"}</span>
+                 <span className="font-medium text-gray-800">{ currency !== 'cusd' ? "cUSD" : "USDC"}</span>
                </div>
                <input
                  type="text"
@@ -394,26 +518,24 @@ export default function Home() {
                />
              </div>
              <div className="mt-2 text-right">
-               <span className="text-sm text-gray-500">Balance: 0.025 ETH</span>
+               <span className="text-sm text-gray-500">Balance: 0.025 USDC</span>
              </div>
            </div>
+         </div>
+
+         {/* Exchange Rate */}
+         <div className="text-center pt-2">
+           <p className="text-sm text-gray-600">Exchange rate: 1 cUSD = 1 USDC</p>
          </div>
    
          {/* Swap Button */}
          <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98]">
            Swap Tokens
          </button>
-   
-         {/* Exchange Rate */}
-         <div className="text-center pt-2">
-           <p className="text-sm text-gray-600">Exchange rate: 1 cUSD = 0.0002 ETH</p>
-         </div>
+            
        </div>
      </div>
-   </div>
-   
-       
-        
+   </div>        
         )}
       </div>
 

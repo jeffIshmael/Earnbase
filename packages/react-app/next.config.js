@@ -8,7 +8,7 @@ const nextConfig = {
     return config;
   },
   images: {
-    domains: ['cdn-production-opera-website.operacdn.com'],
+    domains: ['cdn-production-opera-website.operacdn.com', 'ipfs.io', 'gateway.pinata.cloud'],
   },
 };
 

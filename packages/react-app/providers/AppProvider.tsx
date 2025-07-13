@@ -8,10 +8,12 @@ import {
   connectorsForWallets,
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider, createConfig, http } from 'wagmi';
-import { celo, celoAlfajores } from 'wagmi/chains';
-
+import { celo } from 'wagmi/chains';
+import { pimlicoApiKey } from '@/contexts/EnvtVariables';
 import Layout from '../components/Layout';
 import { injectedWallet } from '@rainbow-me/rainbowkit/wallets';
+import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector';
+import { PermissionlessProvider } from "@permissionless/wagmi";
 
 const connectors = connectorsForWallets(
   [
@@ -27,13 +29,22 @@ const connectors = connectorsForWallets(
 );
 
 const config = createConfig({
-  connectors,
-  chains: [celo, celoAlfajores],
+  
+  chains: [celo],
   transports: {
     [celo.id]: http(),
-    [celoAlfajores.id]: http(),
+    // [celoAlfajores.id]: http(),
   },
+   connectors: [...connectors, miniAppConnector()],
 });
+
+const capabilities = {
+  paymasterService: {
+    [celo.id]: {
+        url: `https://api.pimlico.io/v2/${celo.id}/rpc?apikey=${pimlicoApiKey}`
+    }
+  }
+}
 
 const queryClient = new QueryClient();
 
@@ -41,9 +52,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
+      <PermissionlessProvider
+              capabilities={capabilities}
+          >
         <RainbowKitProvider>
           <Layout>{children}</Layout>
         </RainbowKitProvider>
+        </PermissionlessProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
