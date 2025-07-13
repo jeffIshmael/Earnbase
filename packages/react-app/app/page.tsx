@@ -88,130 +88,39 @@ export default function Home() {
   const [userContext, setUserContext] = useState <Tester | null> (null)
   const [isClient, setIsClient] = useState(false);
 
-// make sure its loaded.
-useEffect(() => {
-  setIsClient(true);
-}, []);
-  
-  // 1. Detect Farcaster and fetch user context
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Farcaster SDK initialization
-      const initializeFarcaster = async () => {
-        try {
-          const context = await sdk.context;
-          if (context?.user) {
-            setIsFarcaster(true);
-            setFcDetails(context.user);
-          }
-        } catch (err) {
-          console.error("Farcaster context error:", err);
-        } finally {
-          setFarcasterChecked(true);
-        }
-      };
-  
-      initializeFarcaster();
-    }
-  }, []);
-
-// 2. Only call sdk.actions after confirming it's a Farcaster environment
-useEffect(() => {
-  const initializeFarcaster = async () => {
-    if (typeof window === 'undefined') return;
-
-    try {
-      await sdk.actions.ready(); // ✅ This is the first step
-      const context = await sdk.context;
-
-      if (context?.user) {
-        setIsFarcaster(true);
-        setFcDetails(context.user);
-      }
-    } catch (err) {
-      console.log("Not in Farcaster or sdk.actions.ready() failed:", err);
-      setIsFarcaster(false);
-    } finally {
-      setFarcasterChecked(true);
-    }
-  };
-
-  initializeFarcaster();
-}, []);
-
-useEffect(() => {
-  if (
-    isFarcaster &&
-    farcasterChecked &&
-    !isConnected
-  ) {
-    connect({ connector: connectors[1] });
-  }
-}, [isFarcaster, farcasterChecked, isConnected]);
-
-  
-  // 2. Auto-connect MetaMask if MiniPay & not Farcaster
-  useEffect(() => {
-    if (
-      farcasterChecked &&         
-      !isFarcaster &&                  
-      window.ethereum?.isMiniPay && 
-      !isConnected                    
-    ) {
-      connect({ connector: injected({ target: "metaMask" }) });
-    }
-  }, [farcasterChecked, isFarcaster, isConnected]);
-  
-  
-  // 3. Register user if not already registered
-  useEffect(() => {
-    const registerIfNeeded = async () => {
-      if (
-        !address ||
-        !isConnected ||
-        !farcasterChecked ||
-        (isFarcaster && !fcDetails)
-      ) return;
+    const init = async () => {
+      if (typeof window === "undefined" || isConnected) return;
   
       try {
-        const user = await getUser(address);
-        setUserContext(user);
+        await sdk.actions.ready();
   
-        if (!user) {
-          const username = isFarcaster ? fcDetails?.username ?? "anonymous" : "non-fc";
-          const fid = isFarcaster ? fcDetails?.fid : null;
+        // Optional short delay to ensure Farcaster fully loads
+        await new Promise((r) => setTimeout(r, 300));
   
-          const newUser = await registerUser(username, fid!, address, smartAccount?.address ?? null);
-          setUserContext(newUser);
+        const context = await sdk.context;
+  
+        if (context?.user) {
+          // Farcaster wallet
+          setIsFarcaster(true);
+          setFcDetails(context.user);
+          await connect({ connector: connectors[1] });
+        } else if (window.ethereum?.isMiniPay) {
+          // MetaMask via MiniPay
+          await connect({ connector: injected({ target: "metaMask" }) });
+        } else {
+          console.log("No wallet environment matched.");
         }
       } catch (err) {
-        console.error("User registration error:", err);
+        console.error("SDK init or wallet connection failed:", err);
+      } finally {
+        setFarcasterChecked(true);
       }
     };
   
-    registerIfNeeded();
-  }, [address, isConnected, isFarcaster, farcasterChecked, fcDetails, smartAccount]);
+    init();
+  }, [isConnected]);
   
-  
-  // 4. Fetch token balances
-  useEffect(() => {
-    const fetchBalances = async () => {
-      if (!address || !isConnected) return;
-  
-      const {cUSDBalance, USDCBalance} = await getBalances(address as `0x${string}`);
-      setCUSDBalance(Number(formatEther(cUSDBalance)).toFixed(3));
-      setUsdcBalance((Number(USDCBalance) / 10 ** 6).toFixed(3));
-    };
-  
-    fetchBalances();
-  }, [address, isConnected]);
-  
-  // 5. Auto-switch to Celo chain
-  useEffect(() => {
-    if (chain?.id !== celo.id && isConnected) {
-      switchChain({ chainId: celo.id });
-    }
-  }, [chain?.id, isConnected]);
   
   const handleConnect = async () => {
     try {
