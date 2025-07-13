@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, ChevronRight, Star, ThumbsUp, Meh, ThumbsDown, ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAccount } from 'wagmi';
-import { recordTask } from '@/lib/Trial';
+import { recordTask } from '@/lib/Prismafnctns'; 
 
 const Task1Form = ({id, searchParams}: {id: string, searchParams?: {completed?: string}}) => {
   const [feedback, setFeedback] = useState('');

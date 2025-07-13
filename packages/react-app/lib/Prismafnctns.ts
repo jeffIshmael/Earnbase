@@ -1,7 +1,7 @@
 "use server"
-import { parseEther } from 'viem';
 // this file contains prisma functions
 import { PrismaClient } from "@prisma/client";
+import { parseEther } from 'viem';
 
 const prisma = new PrismaClient();
 
