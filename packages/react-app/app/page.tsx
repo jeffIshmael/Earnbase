@@ -138,6 +138,18 @@ useEffect(() => {
 
   initializeFarcaster();
 }, []);
+
+useEffect(() => {
+  if (
+    isFarcaster &&
+    farcasterChecked &&
+    !isConnected && // only connect if not connected already
+    typeof window !== 'undefined'
+  ) {
+    connect({ connector: connectors[1] });
+  }
+}, [isFarcaster, farcasterChecked, isConnected]);
+
   
   // 2. Auto-connect MetaMask if MiniPay & not Farcaster
   useEffect(() => {
