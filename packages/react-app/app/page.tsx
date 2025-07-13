@@ -201,16 +201,12 @@ useEffect(() => {
   const sendEmails = async () =>{
     try {
       console.log("logging now.");
-       // 1. Add the reward to the user
     const res = await fetch('/api/email', {
       method: 'GET',
-      
     });
     } catch (error) {
       console.log(error);
-      
     }
-   
   }
 
 
