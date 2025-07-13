@@ -143,8 +143,7 @@ useEffect(() => {
   if (
     isFarcaster &&
     farcasterChecked &&
-    !isConnected && // only connect if not connected already
-    typeof window !== 'undefined'
+    !isConnected
   ) {
     connect({ connector: connectors[1] });
   }
