@@ -40,7 +40,7 @@ const Task6Form = () => {
           </div>
 
           <p className="text-gray-700">
-            As we wrap up this incredible journey, we'll be celebrating the top contributors!
+            As we wrap up this incredible journey, we&apos;ll be celebrating the top contributors!
           </p>
 
           {/* Rewards Card */}
