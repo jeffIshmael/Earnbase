@@ -2,19 +2,19 @@
     "frame": {
       "name": "Earnbase",
       "version": "1",
-      "iconUrl": "https://earnbase.vercel.app/icon.png",
+      "iconUrl": "https://earnbase.vercel.app/logo.png",
       "homeUrl": "https://earnbase.vercel.app",
-      "imageUrl": "https://earnbase.vercel.app/image.png",
-      "splashImageUrl": "https://earnbase.vercel.app/splash.png",
+      "imageUrl": "https://earnbase.vercel.app/bg_image.png",
+      "splashImageUrl": "https://earnbase.vercel.app/logo.png",
       "splashBackgroundColor": "#C5CAE9",
       "webhookUrl": "https://earnbase.vercel.app/api/webhook",
-      "primaryCategory": "finance",
       "subtitle": "AI powered feedback-reward platform",
-      "description": "Complete tasks, share feedback, and earn rewards based on your impact."
+      "description": "Complete tasks, share feedback, and earn rewards based on your impact.",
+      "primaryCategory": "finance"
     },
     "accountAssociation": {
-      "header": "eyJmaWQiOjEwNzc5MzIsInR5cGUiOiJhdXRoIiwia2V5IjoiMHgxZkYxMjdGMzE5ODJFMEVmODJmNUVDMjA2NEI2MTg1RDU3NDE3YTFhIn0",
+      "header": "eyJmaWQiOjEwNzc5MzIsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhiYzM1OGM5OEI4OEI5Mjg4NjRlMmMzYzVkMTc2NjcxMzU0MTAzNTg3In0",
       "payload": "eyJkb21haW4iOiJlYXJuYmFzZS52ZXJjZWwuYXBwIn0",
-      "signature": "Pza9jhtopXgm8Kn9zG1047gN85e31in+NfXh/os6rkw8PasWv70GlsYuMMvDIW9QBSJ67+GYR9F5fTSPkkrlZRs="
+      "signature": "MHg2YWUxOGZiOTIxMWQwMzJmNjM3YjRkMjdmNzhkMmE3MzU4Y2ZhZTI0ODdkYmRjOWIzMTZlMWVjZDA2OWM0MWVlMjA0N2Q5MmE1ZjhiODAzZGM5Njc1MTIyOWFkMTM0ZDc4OWM5Nzg5NmY5ZDc5NjQ3OTU1ZTJmYTI1ZDdhYzk0OTFj"
     }
   }
