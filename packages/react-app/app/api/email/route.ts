@@ -27,7 +27,8 @@ export async function GET(request: Request) {
   ]
  
     try {
-        await addTestersToBc(Testers);
+        // await addTestersToBc(Testers);
+        await addTester(1,"1",Testers);
     } catch (error) {
         console.log(error);
     }

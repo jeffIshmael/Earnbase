@@ -112,7 +112,7 @@ useEffect(() => {
       const testersString = await getTesters();
       const testersArray: string[] = JSON.parse(testersString || '[]');
 
-      const isTester = testersArray.includes(address.toLowerCase());
+      const isTester = testersArray.includes(address.toString());
 
       if (isTester && !individual?.isTester) {
         await updateAsTasker(address as string);
