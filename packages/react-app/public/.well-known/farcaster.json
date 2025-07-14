@@ -4,7 +4,7 @@
       "version": "1",
       "iconUrl": "https://earnbase.vercel.app/logo.png",
       "homeUrl": "https://earnbase.vercel.app",
-      "imageUrl": "https://earnbase.vercel.app/bg_image.png",
+      "imageUrl": "https://earnbase.vercel.app/logo.png",
       "splashImageUrl": "https://earnbase.vercel.app/logo.png",
       "splashBackgroundColor": "#C5CAE9",
       "webhookUrl": "https://earnbase.vercel.app/api/webhook",
