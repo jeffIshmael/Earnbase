@@ -2,7 +2,7 @@ export const fcEmbed = {
     version: "next",
     imageUrl: "https://earnbase.vercel.app/bg_image.png",
     button: {
-      title: "🧠 Submit Feedback & Earn Rewards",
+      title: "🧠Submit feedback get Rewards",
       action: {
         type: "launch_frame",
         name: "Earnbase – AI-powered feedback-reward platform",

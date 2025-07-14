@@ -56,8 +56,8 @@ const taskDetails: TaskDetails = {
   difficulty: 'Easy',
   progress: 65,
   subtasks: [
-    { id: '1', title: 'Explore the chamapay app', completed: true, reward: '2 cUSD' },
-    { id: '2', title: 'Join your assigned chama.', completed: true, reward: '2 cUSD' },
+    { id: '1', title: 'Explore the chamapay app', completed: true, reward: '' },
+    { id: '2', title: 'Join your assigned chama.', completed: true, reward: '' },
     { id: '3', title: 'Daily activity', completed: false, reward: 'upto 3 cUSD' },
     { id: '4', title: 'Additional rewards', completed: false, reward:` ∞ cUSD` },
     { id: '5', title: 'Feedback & bug report', completed: false, reward: '∞ cUSD' },
