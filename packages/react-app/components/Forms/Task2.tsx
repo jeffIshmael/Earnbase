@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import { recordTask, getTaskOutput, getUser } from '@/lib/Prismafnctns';
 import Image from 'next/image';
 
+
+
 const Task2Form = ({id, searchParams}: {id: string, searchParams?: {completed?: string}}) => {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [feedback, setFeedback] = useState('');
@@ -31,6 +33,7 @@ const Task2Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
   const {address} = useAccount();
   const [isCompleted, setIsCompleted] = useState(false);
   const { smartAccount ,smartAccountClient } = useUserSmartAccount();
+  const [isTester,  setIsTester  ]= useState(false);
   
   // Get the completed status either from props or URL
   useEffect(() => {
@@ -42,6 +45,17 @@ const Task2Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
     const params = new URLSearchParams(window.location.search);
     setIsCompleted(params.get('completed') === 'true');
   }, []);
+
+  useEffect(()=>{
+
+    const fetchUser = async() =>{
+      if(!address) return;
+      const user = await getUser(address as string);
+      if(!user) return;
+      setIsTester(user.isTester)
+    }
+    fetchUser();
+  },[address])
   
 // Get the completed status either from props or URL
 useEffect(() => {
@@ -83,6 +97,10 @@ useEffect(() => {
 
     if (!screenshot || !feedback.trim() || !confirmed) {
       toast('Please provide a screenshot, feedback, and confirm the action.');
+      return;
+    }
+    if(!isTester ){
+      toast("only the selected testers can participate.");
       return;
     }
    
@@ -353,7 +371,7 @@ useEffect(() => {
               Task Steps
             </h2>
             <ol className="list-decimal ml-6 text-sm text-gray-700 space-y-2">
-              <li>Explore the ChamaPay app → Explore section</li>
+              <li>Go to ChamaPay miniapp → Explore section</li>
               <li>Join your assigned group</li>
               <li>Make a payment of 1 cUSD</li>
               <li>Take a screenshot of the Chama details</li>

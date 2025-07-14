@@ -13,6 +13,7 @@ import Congrats from '../Congrats';
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
 import { recordTask, getTaskOutput, getUser } from '@/lib/Prismafnctns';
 
+
 export interface FeedbackRating {
   rating: number;
   explanation: string;
@@ -28,7 +29,19 @@ const Task5Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
   const [showRewardModal, setShowRewardModal] = useState(false);
   const { address } = useAccount();
   const [isClaiming, setIsClaiming] = useState(false);
+  const [isTester, setIsTester] = useState(false);
 
+
+  useEffect(()=>{
+
+    const fetchUser = async() =>{
+      if(!address) return;
+      const user = await getUser(address as string);
+      if(!user) return;
+      setIsTester(user.isTester)
+    }
+    fetchUser();
+  },[address])
 
     const handleGoBack = async (amount: string) => {
       await addTaskToDb(false, amount)
@@ -38,6 +51,11 @@ const Task5Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    if(!isTester ){
+      toast("only the selected testers can participate.");
+      return;
+    }
     
     try {
       const message = feedback + `\n\nBug Report: ${bugReport}`;

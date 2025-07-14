@@ -211,3 +211,71 @@ export async function updateUnclaimed(address: string, amount: bigint) {
         throw error;
     }
 }
+
+// function to get the testers
+export async function getTesters(){
+    const testers = await prisma.taskers.findMany();
+    if(testers.length > 0) return testers[0].taskersArray;
+    return JSON.stringify([]);
+    
+}
+
+// function to register taskers.
+export async function addTester(testerId: number, taskId: string, addresses: string[]) {
+    try {
+      // Check if the tasker already exists by id
+      const existingTasker = await prisma.taskers.findUnique({
+        where: { id: testerId },
+        select: { taskersArray: true },
+      });
+  
+      if (!existingTasker) {
+        // If not found, create a new tasker
+        const newTasker = await prisma.taskers.create({
+          data: {
+            id: testerId,
+            taskId,
+            taskersArray: JSON.stringify(addresses),
+          },
+        });
+        return newTasker;
+      }
+  
+      // If found, merge new addresses (without duplicates)
+      const currentAddresses: string[] = JSON.parse(existingTasker.taskersArray);
+      const uniqueAddresses = Array.from(new Set([...currentAddresses, ...addresses]));
+  
+      const updatedTasker = await prisma.taskers.update({
+        where: { id: testerId },
+        data: {
+          taskersArray: JSON.stringify(uniqueAddresses),
+        },
+      });
+  
+      return updatedTasker;
+    } catch (error) {
+      console.error("Error updating taskers:", error);
+      throw error;
+    }
+  }
+
+// function to update the tasker boolean of a user
+export async function updateAsTasker( address: string) {
+    try {
+      const user = getUser(address);
+      if(!user) return;
+      const updateUser = await prisma.user.update({
+        where:{
+            walletAddress: address,
+        },
+        data:{
+            isTester: true,
+        }
+      });
+      return updateUser;
+    } catch (error) {
+      console.error("Error updating taskers:", error);
+      throw error;
+    }
+  }
+  

@@ -1,15 +1,14 @@
 // hooks/useUserSmartAccount.ts
 'use client';
 
-import {
-  createSmartAccountClient,
-} from 'permissionless';
+import { createSmartAccountClient} from 'permissionless';
 import { toSimpleSmartAccount } from "permissionless/accounts"
 import { createPimlicoClient } from "permissionless/clients/pimlico"
 import { http, createWalletClient, custom } from 'viem';
 import { celo } from 'viem/chains';
 import { entryPoint07Address } from 'viem/account-abstraction';
 import { useEffect, useState } from 'react';
+import { getPimlicoUrl } from '@/lib/Pimlico'; 
 
 export function useUserSmartAccount() {
   const [smartAccount, setSmartAccount] = useState<any>(null);
@@ -21,9 +20,10 @@ export function useUserSmartAccount() {
       if (typeof window === 'undefined' || !(window as any).ethereum) return;
 
       const ethereum = (window as any).ethereum;
+      const pimlicoUrl = await getPimlicoUrl();
 
       const pimlicoClient = createPimlicoClient({
-        transport: http(`https://api.pimlico.io/v2/42220/rpc?apikey=pim_evJNjZYLJJAUhWNMEp9QLX`),
+        transport: http(`${pimlicoUrl}`),
         entryPoint: {
           address: entryPoint07Address,
           version: '0.7',
@@ -45,10 +45,12 @@ export function useUserSmartAccount() {
         },
       });
 
+     
+
       const client = createSmartAccountClient({
         account,
         chain: celo,
-        bundlerTransport: http(`https://api.pimlico.io/v2/42220/rpc?apikey=pim_evJNjZYLJJAUhWNMEp9QLX`),
+        bundlerTransport: http(`${pimlicoUrl}`),
         paymaster: pimlicoClient,
         userOperation: {
           estimateFeesPerGas: async () => {

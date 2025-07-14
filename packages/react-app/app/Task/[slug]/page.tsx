@@ -5,7 +5,7 @@ import { ArrowLeft, Clock, Users, Trophy, Gift, CheckCircle, Star, ChevronRight,
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useCapabilities } from 'wagmi/experimental';
-import { checkIfSmartAccount, getTaskTesters, setSmartAccount, getTestersLeaderboard, getUser } from '@/lib/Prismafnctns';
+import { checkIfSmartAccount, getTesters, updateAsTasker, setSmartAccount, getTestersLeaderboard, getUser } from '@/lib/Prismafnctns';
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
 import { Tester } from '@/app/Start/page';
 import { useAccount } from 'wagmi';
@@ -42,8 +42,8 @@ interface TaskDetails {
 
 interface LeaderboardTester{
   userName: string;
-    totalEarned: bigint;
-    walletAddress: string;
+  totalEarned: bigint;
+  walletAddress: string;
 }
 
 const taskDetails: TaskDetails = {
@@ -52,7 +52,7 @@ const taskDetails: TaskDetails = {
   description: 'Perform the daily tasks and submit solid feedback.',
   reward: '20+ cUSD',
   timeRemaining: '2d 14h',
-  participants: 7,
+  participants: 12,
   difficulty: 'Easy',
   progress: 65,
   subtasks: [
@@ -72,7 +72,7 @@ const taskDetails: TaskDetails = {
   ],
   totalEarnings: '0.2 cUSD',
   claimableRewards: '0.2 cUSD',
-  started: false,
+  started: true,
 };
 
 const Page = ({ params }: { params: Promise<{ slug: string }>}) => {
@@ -84,38 +84,93 @@ const Page = ({ params }: { params: Promise<{ slug: string }>}) => {
   const { smartAccount ,smartAccountClient } = useUserSmartAccount();
  const [isClaiming, setIsClaiming] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
+   const[testerStatusChecked, setTesterStatusChecked] = useState(false);
+   const [isNotTester, setIsNotTester] = useState(true);
  
   
   // checks if the smart account of the address has been set
   useEffect(()=>{
      const checkSetSmartAccount = async() =>{
-      if(!smartAccount) return;
+      if(!smartAccount || !address) return;
       const isRegistered = await checkIfSmartAccount(address as string);
       if(isRegistered) return;
-      const user = await setSmartAccount(address as string, smartAccount.address as string);
+      // set smart account
+      const hash = await setSmartAccountToDB(address, smartAccount.address);
+      if(!hash) return;
+      await setSmartAccount(address as string, smartAccount.address as string);
      }
      checkSetSmartAccount();
   }, [address, smartAccount])
 
  
+ // Check if user is a tester
+useEffect(() => {
+  const getTesterStatus = async () => {
+    if (!address) return;
 
-  // Update your useEffect for leaderboard
-  useEffect(() => {
-    const getLeaderboard = async() => {
-      setIsLoading(true);
-      try {
-        const currentUser = await getUser(address as string);
-        setIndividual(currentUser);
-        const users = await getTestersLeaderboard();
-        setLeaderboardArray(users);
-      } catch (error) {
-        console.error("Failed to load leaderboard:", error);
-      } finally {
-        setIsLoading(false);
+    try {
+      const testersString = await getTesters();
+      const testersArray: string[] = JSON.parse(testersString || '[]');
+
+      const isTester = testersArray.includes(address.toLowerCase());
+
+      if (isTester && !individual?.isTester) {
+        await updateAsTasker(address as string);
       }
+
+      setTesterStatusChecked(true);
+    } catch (error) {
+      console.error("Failed to load TesterStatus:", error);
     }
-    getLeaderboard();
-  }, [address]);
+  };
+
+  getTesterStatus();
+}, [address, individual]);
+
+//  Load leaderboard only when address is ready and tester status check is done
+useEffect(() => {
+  const getLeaderboard = async () => {
+    if (!address || !testerStatusChecked) return;
+
+    setIsLoading(true);
+
+    try {
+      const currentUser = await getUser(address);
+      setIndividual(currentUser);
+
+      const leaderboard = await getTestersLeaderboard();
+      setLeaderboardArray(leaderboard);
+    } catch (error) {
+      console.error("Failed to load leaderboard:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  getLeaderboard();
+}, [address, testerStatusChecked]);
+
+// function to set the smartaccount on bc
+const setSmartAccountToDB = async (userAddress: `0x${string}`,smartAddress: string) =>{
+  try {
+    // 1. Add the reward to the user
+    const res = await fetch('/api/add-smartAccount', {
+      method: 'POST',
+      body: JSON.stringify({
+        userAddress: userAddress as string,
+        smartAddress: smartAddress,
+      }),
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    return data;
+  } catch (error) {
+    console.log("unable to register s.a", error);
+    return null;
+  }
+
+}
 
   const isSubtaskCompleted = (subtaskId: number): boolean => {
     if (!individual?.tasks || individual.tasks.length === 0) return false;

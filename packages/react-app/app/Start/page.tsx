@@ -67,7 +67,7 @@ const tasks: Task[] = [
     difficulty: 'Easy',
     icon: <TrendingUp className="w-5 h-5 text-indigo-600" />,
     description: 'Do the daily tasks and submit a solid feedback',
-    participants: 7
+    participants: 12
   },
 ];
 
@@ -435,93 +435,114 @@ export default function Page() {
      </div>
    
      {/* Swap Section */}
-     <div className="relative max-w-md mx-auto bg-white rounded-2xl p-6 border border-gray-100 shadow-md">
-       <h3 className="text-lg font-semibold text-gray-900 mb-6">Swap Tokens</h3>
-   
-       {/* Arrow Floating Between */}
-       <div className="absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 z-10">
-         <div className="bg-indigo-100 rounded-full p-2 border border-indigo-200 shadow-md">
-           <ArrowDownUp className="w-5 h-5 text-indigo-600" />
-         </div>
-       </div>
-   
-       <div className="space-y-6 relative z-0">
-         {/* From */}
-         <div className="relative z-0">
-           <label className="text-sm text-gray-600 mb-2 block">From</label>
-           <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100 focus-within:border-indigo-300 transition-colors">
-             <div className="flex items-center justify-between">
-               <div className="flex items-center space-x-2">
-                 <Image
-                   src={ currency === 'cusd' ? "/static/cusdLogo.jpg" : "/static/usdclogo.png"}
-                   alt="CUSD"
-                   width={28}
-                   height={28}
-                   className="rounded-full"
-                 />
-                 <select
-  onChange={(e) => {
-    setCurrency(e.target.value);}}
-    value={currency}
-  className="bg-white border border-gray-200 text-sm font-medium text-gray-800 rounded-md px-2 py-1 shadow-sm focus:outline-none"
->
-  <option value="cusd">cUSD</option>
-  <option value="usdc">USDC</option>
-</select>
+    {/* Swap Section */}
+<div className="relative max-w-md mx-auto bg-white rounded-2xl p-6 border border-gray-100 shadow-md">
+  {/* Improved Under Development Banner */}
+  <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+    <div className="flex items-start">
+      <div className="flex-shrink-0">
+        <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <div className="ml-3">
+        <h3 className="text-sm font-medium text-yellow-800">Under Development</h3>
+        <div className="mt-2 text-sm text-yellow-700">
+          <p>This feature is coming soon. Token swapping functionality will be available in the next update.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-               </div>
-               <input
-                 type="text"
-                 placeholder="0.0"
-                 className="bg-transparent text-right text-lg font-semibold text-gray-800 placeholder-gray-400 outline-none w-1/2"
-               />
-             </div>
-             <div className="mt-2 text-right">
-               <span className="text-sm text-gray-500">Balance: {currency === 'cusd' ? `${cUSDBalance} cUSD`  :`${usdcBalance} USDC`}</span>
-             </div>
-           </div>
-         </div>
-   
-         {/* To */}
-         <div>
-           <label className="text-sm text-gray-600 mb-2 block">To</label>
-           <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100">
-             <div className="flex items-center justify-between">
-               <div className="flex items-center space-x-3">
-                 <Image
-                    src={ currency !== 'cusd' ? "/static/cusdLogo.jpg" : "/static/usdclogo.png"}
-                   alt="ETH"
-                   width={28}
-                   height={28}
-                   className="rounded-full"
-                 />
-                 <span className="font-medium text-gray-800">{ currency !== 'cusd' ? "cUSD" : "USDC"}</span>
-               </div>
-               <input
-                 type="text"
-                 placeholder="0.0"
-                 className="bg-transparent text-right text-lg font-semibold text-gray-800 placeholder-gray-400 outline-none w-1/2"
-                 readOnly
-               />
-             </div>
-             <div className="mt-2 text-right">
-               <span className="text-sm text-gray-500">Balance:  {currency !== 'cusd' ? `${cUSDBalance} cUSD`  :`${usdcBalance} USDC`}</span>
-             </div>
-           </div>
-         </div>
+  <h3 className="text-lg font-semibold text-gray-900 mb-6">Swap Tokens</h3>
 
-         {/* Exchange Rate */}
-         <div className="text-center pt-2">
-           <p className="text-sm text-gray-600">Exchange rate: 1 cUSD = 1 USDC</p>
-         </div>
-   
-         {/* Swap Button */}
-         <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98]">
-           Swap Tokens
-         </button>
-            
-       </div>
-     </div>
+  {/* Arrow Floating Between */}
+  <div className="absolute left-1/2 top-[57%] -translate-x-1/2 -translate-y-1/2 z-10">
+    <div className="bg-indigo-100 rounded-full p-2 border border-indigo-200 shadow-md">
+      <ArrowDownUp className="w-5 h-5 text-indigo-600" />
+    </div>
+  </div>
+
+  <div className="space-y-6 relative z-0">
+    {/* From */}
+    <div className="relative z-0 opacity-75">
+      <label className="text-sm text-gray-600 mb-2 block">From</label>
+      <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Image
+              src={currency === 'cusd' ? "/static/cusdLogo.jpg" : "/static/usdclogo.png"}
+              alt="CUSD"
+              width={28}
+              height={28}
+              className="rounded-full"
+            />
+            <select
+              disabled
+              onChange={(e) => setCurrency(e.target.value)}
+              value={currency}
+              className="bg-white border border-gray-200 text-sm font-medium text-gray-800 rounded-md px-2 py-1 shadow-sm focus:outline-none cursor-not-allowed"
+            >
+              <option value="cusd">cUSD</option>
+              <option value="usdc">USDC</option>
+            </select>
+          </div>
+          <input
+            type="text"
+            placeholder="0.0"
+            disabled
+            className="bg-transparent text-right text-lg font-semibold text-gray-500 placeholder-gray-400 outline-none w-1/2 cursor-not-allowed"
+          />
+        </div>
+        <div className="mt-2 text-right">
+          <span className="text-sm text-gray-400">Balance: {currency === 'cusd' ? `${cUSDBalance} cUSD` : `${usdcBalance} USDC`}</span>
+        </div>
+      </div>
+    </div>
+
+    {/* To */}
+    <div className="opacity-75">
+      <label className="text-sm text-gray-600 mb-2 block">To</label>
+      <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Image
+              src={currency !== 'cusd' ? "/static/cusdLogo.jpg" : "/static/usdclogo.png"}
+              alt="ETH"
+              width={28}
+              height={28}
+              className="rounded-full"
+            />
+            <span className="font-medium text-gray-500">{currency !== 'cusd' ? "cUSD" : "USDC"}</span>
+          </div>
+          <input
+            type="text"
+            placeholder="0.0"
+            disabled
+            className="bg-transparent text-right text-lg font-semibold text-gray-500 placeholder-gray-400 outline-none w-1/2 cursor-not-allowed"
+          />
+        </div>
+        <div className="mt-2 text-right">
+          <span className="text-sm text-gray-400">Balance: {currency !== 'cusd' ? `${cUSDBalance} cUSD` : `${usdcBalance} USDC`}</span>
+        </div>
+      </div>
+    </div>
+
+    {/* Exchange Rate */}
+    <div className="text-center pt-2">
+      <p className="text-sm text-gray-400">Exchange rate: 1 cUSD = 1 USDC</p>
+    </div>
+
+    {/* Swap Button */}
+    <button 
+      onClick={() => toast.info("Token swap functionality coming soon!")}
+      className="w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg cursor-not-allowed"
+      disabled
+    >
+      Coming Soon
+    </button>
+  </div>
+</div>
    </div>        
         )}
       </div>

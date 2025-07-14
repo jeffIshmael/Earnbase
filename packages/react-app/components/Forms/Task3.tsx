@@ -4,13 +4,14 @@ import React, { useEffect, useState } from 'react';
 import { CalendarDays, CircleDollarSign, Bell, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAccount } from 'wagmi';
-import { recordTask, getTaskOutput } from '@/lib/Prismafnctns';
+import { recordTask, getTaskOutput, getUser } from '@/lib/Prismafnctns';
 
 const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: string}}) => {
   // const [play] = useSound('/sounds/success-notification.mp3'); // Add this sound file to your public/sounds folder
   const [isLoading, setIsLoading] = useState(false);
   const {address} = useAccount();
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isTester,setIsTester ] = useState(false);
 
 
     // Get the completed status either from props or URL
@@ -24,6 +25,16 @@ const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
       setIsCompleted(params.get('completed') === 'true');
     }, []);
   
+    useEffect(()=>{
+
+      const fetchUser = async() =>{
+        if(!address) return;
+        const user = await getUser(address as string);
+        if(!user) return;
+        setIsTester(user.isTester)
+      }
+      fetchUser();
+    },[address])
   const handleGoBack = () => {
     window.history.back();
   };
@@ -33,6 +44,11 @@ const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
       setIsLoading(true);
       if(!address){
         toast("please connect wallet.");
+        return;
+      }
+
+      if(!isTester ){
+        toast("only the selected testers can participate.");
         return;
       }
 
@@ -201,7 +217,7 @@ const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
                 <div>
                   <h3 className="font-medium text-indigo-800">Daily Earnings</h3>
                   <p className="text-sm text-gray-700 mt-1">
-                    You&apos;ll receive <span className="font-semibold">1.5 cUSD</span> daily to your wallet
+                    You&apos;ll receive <span className="font-semibold">1.2 cUSD</span> daily to your wallet
                   </p>
                 </div>
               </div>

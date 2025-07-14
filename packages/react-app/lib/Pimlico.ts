@@ -65,3 +65,13 @@ export async function getAgentSmartAccount() {
 	
 }
 
+
+
+export async function getPimlicoUrl() {
+
+  if ( !pimlicoUrl) throw new Error("PIMLICO_API_KEY is not set");
+
+  return pimlicoUrl;
+}
+
+

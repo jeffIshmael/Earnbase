@@ -1,23 +1,61 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Trophy, Award, BarChart2, Calendar, Gift } from 'lucide-react';
+import { useAccount } from 'wagmi';
+import { getTestersLeaderboard } from '@/lib/Prismafnctns'; 
+import { formatEther } from 'viem';
+
+interface LeaderboardUser {
+  userName: string;
+  walletAddress: string;
+  totalEarned: number;
+}
 
 const Task6Form = () => {
-  const handleGoBack = () => {
-    window.history.back();
-  };
+  const { address } = useAccount();
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+  const [userRank, setUserRank] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const handleGoBack = () => window.history.back();
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const data = await getTestersLeaderboard();
+        const leaderboardData = data.map((u) => ({
+          ...u,
+          totalEarned: typeof u.totalEarned === 'bigint'
+            ? Number(formatEther(u.totalEarned))
+            : u.totalEarned,
+        }));
+        setLeaderboard(leaderboardData);
+
+        if (address) {
+          const rank = data.findIndex((u) => u.walletAddress.toLowerCase() === address.toLowerCase());
+          if (rank !== -1) {
+            setUserRank(rank + 1); // ranks start from 1
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch leaderboard', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeaderboard();
+  }, [address]);
+
+  const top3 = leaderboard.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-gray-50">
       <div className="max-w-md mx-auto bg-white shadow-sm border border-gray-100">
-        {/* Header with back button */}
+        {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 text-white relative">
-          <button 
-            onClick={handleGoBack}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 p-2 rounded-full transition"
-            aria-label="Go back"
-          >
+          <button onClick={handleGoBack} className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 p-2 rounded-full">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="text-center px-8">
@@ -25,13 +63,12 @@ const Task6Form = () => {
               <Gift className="w-6 h-6" />
               <h1 className="text-xl font-bold">Final Day Wrap-Up</h1>
             </div>
-            <p className="text-indigo-100 text-sm mt-1">
-              Celebrating our beta testers
-            </p>
+            <p className="text-indigo-100 text-sm mt-1">Celebrating our beta testers</p>
           </div>
         </div>
 
         <div className="p-6 space-y-6">
+          {/* End Date Notice */}
           <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-4 border border-blue-100">
             <Calendar className="flex-shrink-0 text-blue-600 mt-0.5" />
             <p className="text-sm text-gray-700">
@@ -39,12 +76,8 @@ const Task6Form = () => {
             </p>
           </div>
 
-          <p className="text-gray-700">
-            As we wrap up this incredible journey, we&apos;ll be celebrating the top contributors!
-          </p>
-
           {/* Rewards Card */}
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
+          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <div className="flex items-start gap-3">
               <div className="bg-purple-100 p-2 rounded-full">
                 <Trophy className="w-5 h-5 text-purple-600" />
@@ -52,90 +85,76 @@ const Task6Form = () => {
               <div>
                 <h3 className="font-semibold text-gray-900">Top Tester Rewards</h3>
                 <ul className="space-y-3 mt-3">
-                  <li className="flex items-center gap-3">
-                    <div className="bg-yellow-100 w-8 h-8 rounded-full flex items-center justify-center">
-                      <span className="text-yellow-800 font-bold">1</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">1st Place</p>
-                      <p className="text-emerald-600 font-bold">5 cUSD</p>
-                    </div>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center">
-                      <span className="text-gray-700 font-bold">2</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">2nd Place</p>
-                      <p className="text-emerald-600 font-bold">3 cUSD</p>
-                    </div>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="bg-amber-100 w-8 h-8 rounded-full flex items-center justify-center">
-                      <span className="text-amber-800 font-bold">3</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">3rd Place</p>
-                      <p className="text-emerald-600 font-bold">2 cUSD</p>
-                    </div>
-                  </li>
+                  {[
+                    { place: '1st', reward: '5 cUSD' },
+                    { place: '2nd', reward: '3 cUSD' },
+                    { place: '3rd', reward: '2 cUSD' },
+                  ].map(({ place, reward }, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        i === 0 ? 'bg-yellow-100 text-yellow-800'
+                        : i === 1 ? 'bg-gray-200 text-gray-700'
+                        : 'bg-amber-100 text-amber-800'
+                      } font-bold`}>
+                        {i + 1}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{place} Place</p>
+                        <p className="text-emerald-600 font-bold">{reward}</p>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Your Position */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <div className="bg-amber-100 p-2 rounded-full">
-                <Award className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-amber-800">Your Position</h3>
-                <p className="text-sm text-amber-700 mt-2">
-                  You&apos;re currently ranked <span className="font-bold text-indigo-800">#7</span> on the leaderboard.
-                </p>
+          {/* User Rank */}
+          {userRank && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="bg-amber-100 p-2 rounded-full">
+                  <Award className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-amber-800">Your Position</h3>
+                  <p className="text-sm text-amber-700 mt-2">
+                    You&apos;re currently ranked <span className="font-bold text-indigo-800">#{userRank}</span> on the leaderboard.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Leaderboard */}
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
+          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <div className="flex items-start gap-3">
               <div className="bg-indigo-100 p-2 rounded-full">
                 <BarChart2 className="w-5 h-5 text-indigo-600" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900">Top 3 Leaderboard</h3>
-                <ul className="mt-3 space-y-3">
-                  <li className="flex items-center justify-between py-2 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-yellow-100 w-6 h-6 rounded-full flex items-center justify-center">
-                        <span className="text-yellow-800 text-xs font-bold">1</span>
-                      </div>
-                      <span className="font-medium">CryptoMaster</span>
-                    </div>
-                    <span className="text-emerald-600 font-bold">25 cUSD</span>
-                  </li>
-                  <li className="flex items-center justify-between py-2 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-gray-200 w-6 h-6 rounded-full flex items-center justify-center">
-                        <span className="text-gray-700 text-xs font-bold">2</span>
-                      </div>
-                      <span className="font-medium">DeFiExplorer</span>
-                    </div>
-                    <span className="text-emerald-600 font-bold">23 cUSD</span>
-                  </li>
-                  <li className="flex items-center justify-between py-2">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-amber-100 w-6 h-6 rounded-full flex items-center justify-center">
-                        <span className="text-amber-800 text-xs font-bold">3</span>
-                      </div>
-                      <span className="font-medium">BlockchainPro</span>
-                    </div>
-                    <span className="text-emerald-600 font-bold">21 cUSD</span>
-                  </li>
-                </ul>
+                {loading ? (
+                  <p className="text-gray-500 mt-3">Loading...</p>
+                ) : (
+                  <ul className="mt-3 space-y-3">
+                    {top3.map((user, i) => (
+                      <li key={i} className="flex items-center justify-between py-2 border-b border-gray-100">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                            i === 0 ? 'bg-yellow-100 text-yellow-800'
+                            : i === 1 ? 'bg-gray-200 text-gray-700'
+                            : 'bg-amber-100 text-amber-800'
+                          } text-xs font-bold`}>
+                            {i + 1}
+                          </div>
+                          <span className="font-medium">{user.userName || 'Anonymous'}</span>
+                        </div>
+                        <span className="text-emerald-600 font-bold">{user.totalEarned.toFixed(2)} cUSD</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           </div>

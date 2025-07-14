@@ -25,8 +25,10 @@ export default function RootLayout({
       >
         <AppProvider>
           <IsFarcasterProvider>
+
           {children}
           <Toaster />
+
           </IsFarcasterProvider>
         </AppProvider>
       </body>

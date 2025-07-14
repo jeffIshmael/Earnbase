@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, ChevronRight, Star, ThumbsUp, Meh, ThumbsDown, ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAccount } from 'wagmi';
-import { recordTask } from '@/lib/Prismafnctns'; 
+import { recordTask, getUser } from '@/lib/Prismafnctns'; 
+import { toast } from 'sonner';
 
 const Task1Form = ({id, searchParams}: {id: string, searchParams?: {completed?: string}}) => {
   const [feedback, setFeedback] = useState('');
@@ -15,6 +16,7 @@ const Task1Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
   const router = useRouter();
   const {address} = useAccount();
   const [isCompleted, setIsCompleted] = useState(false);
+  const [ isTester ,setIsTester ] = useState(false);
   
   // Get the completed status either from props or URL
   useEffect(() => {
@@ -28,10 +30,25 @@ const Task1Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
     setIsCompleted(params.get('completed') === 'true');
   }, []);
 
+  useEffect(()=>{
+
+    const fetchUser = async() =>{
+      if(!address) return;
+      const user = await getUser(address as string);
+      if(!user) return;
+      setIsTester(user.isTester)
+    }
+    fetchUser();
+  },[address])
+
   // fu
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isCompleted) return;
+    if(!isTester ){
+      toast("only the selected testers can participate.");
+      return;
+    }
     
     try {
       setIsSubmitting(true);
@@ -118,7 +135,7 @@ const Task1Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
                   <p className={`${
                     isCompleted ? 'text-gray-500' : 'text-gray-700'
                   }`}>
-                    {step === 1 && 'Visit Bank of Celo and claim 0.5 CELO for gas fees.'}
+                    {step === 1 && 'Confirm you have received 0.5 CELO for gas fees.'}
                     {step === 2 && 'Explore the ChamaPay miniapp (no action needed — just look around).'}
                     {step === 3 && 'Return and fill the form below to complete the task.'}
                   </p>

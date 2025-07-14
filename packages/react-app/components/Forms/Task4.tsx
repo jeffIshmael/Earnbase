@@ -4,6 +4,7 @@ import React from 'react';
 import { ArrowLeft, Gift, Users, Share2, MessageSquare, Award, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
+
 const Task4Form = () => {
   const handleGoBack = () => {
     window.history.back();
@@ -45,21 +46,6 @@ const Task4Form = () => {
           </p>
 
           <div className="space-y-4">
-            {/* Group Participation */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
-              <div className="flex items-start gap-3">
-                <div className="bg-indigo-100 p-2 rounded-full">
-                  <Users className="w-5 h-5 text-indigo-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Group Participation</h3>
-                  <ul className="list-disc list-inside text-sm text-gray-700 mt-2 space-y-1.5 ml-5">
-                    <li>Earn <span className="font-semibold text-indigo-700">1 cUSD</span> for every successful group payout</li>
-                    <li>Earn an extra <span className="font-semibold text-indigo-700">2 cUSD</span> once everyone completes a full cycle</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
 
             {/* Referral Rewards */}
             <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
@@ -85,7 +71,7 @@ const Task4Form = () => {
                 <div>
                   <h3 className="font-semibold text-gray-900">Feedback Bonus</h3>
                   <p className="text-sm text-gray-700 mt-2">
-                    Earn up to <span className="font-semibold text-blue-700">1 cUSD</span> extra based on feedback quality (AI-rated), on top of the regular <span className="font-semibold">2 cUSD</span>.
+                    Earn up to <span className="font-semibold text-blue-700">1 cUSD</span> extra based on feedback quality (AI-rated), on top of the regular <span className="font-semibold">0.5 cUSD</span>.
                   </p>
                 </div>
               </div>

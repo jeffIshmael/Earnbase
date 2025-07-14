@@ -15,6 +15,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     IERC20 public cUSDToken;
     address public agent;
     uint256 public totalTesters;
+    address[] public testerAddresses;
 
     constructor() Ownable(msg.sender) {
         cUSDToken = IERC20(0x765DE816845861e75A25fCA122bb6898B8B1282a); // Mainnet
@@ -26,6 +27,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         uint256 id;
         uint256 unclaimedAmount;
         uint256 claimedAmount;
+        address smartWallet;
     }
 
     struct Payment {
@@ -45,22 +47,84 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     event Deposited(address indexed depositor, uint256 amount);
     event AgentSet(address indexed agent);
     event AmountWithdrawn(address indexed to, uint256 amount);
+    event SmartWalletUpdated(address indexed tester, address indexed newSmartWallet);
+    event AmountSent(address indexed to, uint256 amount, uint256 timestamp);
+
 
     // ────────────────────────────────
     // Admin Functions
     // ────────────────────────────────
 
-    function addTesters(address[] memory testerAddresses) external onlyAuthorised {
-        for (uint256 i = 0; i < testerAddresses.length; i++) {
-            address tester = testerAddresses[i];
-            require(tester != address(0), "Invalid address.");
-            require(!isTester[tester], "Already added.");
+   function addTesters(address[] memory newTesters) external onlyAuthorised {
+    for (uint256 i = 0; i < newTesters.length; i++) {
+        address tester = newTesters[i];
+        require(tester != address(0), "Invalid address.");
+        require(!isTester[tester], "Already added.");
 
-            testers[tester] = Tester(totalTesters, 0, 0);
-            isTester[tester] = true;
-            emit TesterAdded(tester, totalTesters);
-            totalTesters++;
+        testers[tester] = Tester(totalTesters, 0, 0, address(0));
+        isTester[tester] = true;
+        testerAddresses.push(tester);
+        emit TesterAdded(tester, totalTesters);
+        totalTesters++;
+    }
+}
+   // function to add a single tester
+   function addTester(address tester) external onlyAuthorised {
+    require(tester != address(0), "Invalid address.");
+    require(!isTester[tester], "Already added.");
+
+    testers[tester] = Tester(totalTesters, 0, 0, address(0));
+    isTester[tester] = true;
+    testerAddresses.push(tester);
+    emit TesterAdded(tester, totalTesters);
+    totalTesters++;
+    }
+
+   // function to remove one tester
+   function removeTester(address tester) external onlyAuthorised {
+    require(isTester[tester], "Not a tester");
+
+    // Remove from mappings
+    delete isTester[tester];
+    delete testers[tester];
+
+    // Remove from array
+    for (uint256 i = 0; i < testerAddresses.length; i++) {
+        if (testerAddresses[i] == tester) {
+            testerAddresses[i] = testerAddresses[testerAddresses.length - 1]; // swap with last
+            testerAddresses.pop(); // remove last
+            totalTesters--; // optional: reflect real count
+            break;
         }
+    }
+    }
+
+    // fuction to update the smartAddress
+   function updateSmartWallet(address _smartWallet, address _normalAddress) external onlyAuthorised {
+    require(_smartWallet != address(0), "Invalid smart wallet address");
+    require(_normalAddress != address(0), "Invalid normal address");
+    require(isTester[_normalAddress], "Address not registered as tester");
+
+    testers[_normalAddress].smartWallet = _smartWallet;
+    emit SmartWalletUpdated(_normalAddress, _smartWallet);
+    }
+
+    // function to send amount to the testers (used during the beta phase)
+    function sendAmount(uint256 _amount) external whenNotPaused onlyAuthorised {
+    require(_amount > 0, "Amount must be > 0");
+    require(testerAddresses.length > 0, "No testers");
+
+    uint256 totalRequired = _amount * testerAddresses.length;
+    require(totalRequired > 0, "Amount too small per tester");
+
+    require(cUSDToken.balanceOf(address(this)) >= totalRequired, "Insufficient funds");
+
+    for (uint256 i = 0; i < testerAddresses.length; i++) {
+        address tester = testerAddresses[i];
+        bool sent = cUSDToken.transfer(tester,_amount);
+        require(sent,"Unable to send.");
+        emit AmountSent(tester, _amount, block.timestamp);
+    }
     }
 
     function depositCUSD(uint256 amount) external whenNotPaused {
@@ -94,8 +158,8 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     // Tester Interaction
     // ────────────────────────────────
 
-    function claimRewards(uint256 amount) external nonReentrant whenNotPaused onlyTester {
-        Tester storage tester = testers[msg.sender];
+    function claimRewards(uint256 amount, address _userNormalAddresss) external nonReentrant whenNotPaused onlyTester {
+        Tester storage tester = testers[_userNormalAddresss];
         require(amount > 0, "Amount must be > 0");
         require(amount <= tester.unclaimedAmount, "Exceeds unclaimed balance");
         require(cUSDToken.balanceOf(address(this)) >= amount, "Contract underfunded");
@@ -103,12 +167,12 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         tester.unclaimedAmount -= amount;
         tester.claimedAmount += amount;
 
-        bool success = cUSDToken.transfer(msg.sender, amount);
+        bool success = cUSDToken.transferFrom(address(this),_userNormalAddresss, amount);
         require(success, "Transfer failed");
 
-        payments.push(Payment(payments.length, msg.sender, amount, block.timestamp));
+        payments.push(Payment(payments.length, _userNormalAddresss, amount, block.timestamp));
 
-        emit RewardClaimed(msg.sender, amount, tester.claimedAmount, tester.unclaimedAmount);
+        emit RewardClaimed(_userNormalAddresss, amount, tester.claimedAmount, tester.unclaimedAmount);
     }
 
     function getTestersRewards(address _tester) external view returns (uint256 claimed, uint256 unclaimed) {
@@ -124,9 +188,19 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
 
     function addRewards(address tester, uint256 amount) external onlyAuthorised {
         require(tester != address(0), "Invalid address");
-        require(isTester[tester], "Not a tester");
         testers[tester].unclaimedAmount += amount;
     }
+
+    // function to get all testers
+    function getAllTesterDetails() external view returns (Tester[] memory) {
+    uint256 count = testerAddresses.length;
+    Tester[] memory details = new Tester[](count);
+    for (uint256 i = 0; i < count; i++) {
+        details[i] = testers[testerAddresses[i]];
+    }
+    return details;
+    }
+
 
     // ────────────────────────────────
     // Modifiers
