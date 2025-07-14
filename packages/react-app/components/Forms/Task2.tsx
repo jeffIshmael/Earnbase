@@ -378,7 +378,7 @@ useEffect(() => {
             </ol>
   <div className="mt-2 border rounded-lg overflow-hidden">
     <Image
-      src={`https://ipfs.io/ipfs/${imageIpfs}`} // Update this path
+      src={`https://ipfs.io/ipfs/bafkreifkhmm2ergyvxfbayjjdhybz35337ku2u5shgc66o47bcdfuyuwcu`} // Update this path
       alt="Example of Chama details page"
       width={600}
       height={400}
