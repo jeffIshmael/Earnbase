@@ -88,7 +88,7 @@ const Page = ({ params }: { params: Promise<{ slug: string }>}) => {
    const [isNotTester, setIsNotTester] = useState(true);
  
   
-  // checks if the smart account of the address has been set
+  // checks if the smart account of the address is been set
   useEffect(()=>{
      const checkSetSmartAccount = async() =>{
       if(!smartAccount || !address) return;

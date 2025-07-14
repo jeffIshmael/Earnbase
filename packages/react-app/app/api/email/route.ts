@@ -31,8 +31,7 @@ export async function GET(request: Request) {
     } catch (error) {
         console.log(error);
     }
-  
-  
+   
 
   console.log("Cron job executed at:", new Date().toISOString());
 
