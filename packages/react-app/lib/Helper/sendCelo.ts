@@ -24,12 +24,12 @@ export async function sendCelo(addresses: string[]) {
     const valueToSend = parseEther('0.5'); // 0.5 CELO => BigInt
 
     for (const address of addresses) {
-      const hash = await smartAccountClient.sendTransaction({
-        to: address,
-        value: valueToSend,
-      });
+      // const hash = await smartAccountClient.sendTransaction({
+      //   to: address,
+      //   value: valueToSend,
+      // });
 
-      console.log(`Sent 0.5 CELO to ${address} | Tx Hash: ${hash}`);
+      console.log(`Sent 0.5 CELO to ${address} | Tx Hash:`);
     }
 
     const updatedBalance = await publicClient.getBalance({ address: account.address });
