@@ -1,0 +1,20 @@
+{
+    "frame": {
+      "name": "Earnbase",
+      "version": "1",
+      "iconUrl": "https://earnbase.vercel.app/icon.png",
+      "homeUrl": "https://earnbase.vercel.app",
+      "imageUrl": "https://earnbase.vercel.app/image.png",
+      "splashImageUrl": "https://earnbase.vercel.app/splash.png",
+      "splashBackgroundColor": "#C5CAE9",
+      "webhookUrl": "https://earnbase.vercel.app/api/webhook",
+      "primaryCategory": "finance",
+      "subtitle": "AI powered feedback-reward platform",
+      "description": "Complete tasks, share feedback, and earn rewards based on your impact."
+    },
+    "accountAssociation": {
+      "header": "eyJmaWQiOjEwNzc5MzIsInR5cGUiOiJhdXRoIiwia2V5IjoiMHgxZkYxMjdGMzE5ODJFMEVmODJmNUVDMjA2NEI2MTg1RDU3NDE3YTFhIn0",
+      "payload": "eyJkb21haW4iOiJlYXJuYmFzZS52ZXJjZWwuYXBwIn0",
+      "signature": "Pza9jhtopXgm8Kn9zG1047gN85e31in+NfXh/os6rkw8PasWv70GlsYuMMvDIW9QBSJ67+GYR9F5fTSPkkrlZRs="
+    }
+  }
