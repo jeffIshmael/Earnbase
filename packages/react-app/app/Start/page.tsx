@@ -63,7 +63,7 @@ const tasks: Task[] = [
   {
     id: '1',
     title: 'Chamapay Beta testers',
-    reward: '3+ cUSD',
+    reward: '20+ cUSD',
     difficulty: 'Easy',
     icon: <TrendingUp className="w-5 h-5 text-indigo-600" />,
     description: 'Do the daily tasks and submit a solid feedback',
@@ -86,7 +86,6 @@ export default function Page() {
   const [usdcBalance, setUsdcBalance] = useState <string | null>(null);
   const { smartAccount ,smartAccountClient } = useUserSmartAccount();
   const [userContext, setUserContext] = useState <Tester | null> (null)
-  const [isClient, setIsClient] = useState(false);
 
   // checkUserRegistered effect
   useEffect(() => {
@@ -227,11 +226,7 @@ export default function Page() {
 
   const loadingPimlico = async () =>{
     console.log('trying');
-  
   }
-//   if (!isClient) {
-//     return <div className="min-h-screen bg-indigo-50"></div>; // Or a proper loading component
-//   }
 
   function HoverTagButton() {
     const [isHovering, setIsHovering] = useState(false);
@@ -482,7 +477,7 @@ export default function Page() {
                />
              </div>
              <div className="mt-2 text-right">
-               <span className="text-sm text-gray-500">Balance: 12.5 cUSD</span>
+               <span className="text-sm text-gray-500">Balance: {currency === 'cusd' ? `${cUSDBalance} cUSD`  :`${usdcBalance} USDC`}</span>
              </div>
            </div>
          </div>
@@ -510,7 +505,7 @@ export default function Page() {
                />
              </div>
              <div className="mt-2 text-right">
-               <span className="text-sm text-gray-500">Balance: 0.025 USDC</span>
+               <span className="text-sm text-gray-500">Balance:  {currency !== 'cusd' ? `${cUSDBalance} cUSD`  :`${usdcBalance} USDC`}</span>
              </div>
            </div>
          </div>

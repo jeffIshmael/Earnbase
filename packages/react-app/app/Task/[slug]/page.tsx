@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useCapabilities } from 'wagmi/experimental';
 import { checkIfSmartAccount, getTaskTesters, setSmartAccount, getTestersLeaderboard, getUser } from '@/lib/Prismafnctns';
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
-import { Tester } from '@/app/page';
+import { Tester } from '@/app/Start/page';
 import { useAccount } from 'wagmi';
 import { formatEther } from 'viem';
 import { toast } from 'sonner';
