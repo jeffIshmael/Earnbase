@@ -6,9 +6,10 @@ import { FeedbackRating } from './Forms/Task5';
 import { baseReward } from '@/contexts/Terms';
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
 import { toast } from 'sonner';
-import { addUserReward } from '@/lib/WriteFunctions';
 import { contractAbi, contractAddress } from '@/contexts/constants';
 import { parseEther } from 'viem';
+import { useAccount } from 'wagmi';
+import { setSmartAccount, checkIfSmartAccount } from '@/lib/Prismafnctns';
 
 interface AIResultsProps {
   aiRating: FeedbackRating;
@@ -22,12 +23,35 @@ interface AIResultsProps {
 const AIResults = ({ aiRating, loading, changeLoading, afterSuccess, onClose, handlePrismaRecord }: AIResultsProps) => {
   const { smartAccount, smartAccountClient } = useUserSmartAccount();
   const [isClaiming, setIsClaiming] = useState(false);
+  const {address} = useAccount();
 
-  const bonusReward = (aiRating.rating / 1000000).toFixed(6);
-  const totalReward = (baseReward + parseFloat(bonusReward)).toFixed(6);
+  const bonusReward = (aiRating.rating / 10).toFixed(2);
+  const totalReward = (baseReward + parseFloat(bonusReward)).toFixed(2);
+
+  // function to set the smartaccount on bc
+const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: string) =>{
+  try {
+    // 1. Add the reward to the user
+    const res = await fetch('/api/add-smartAccount', {
+      method: 'POST',
+      body: JSON.stringify({
+        userAddress: userAddress as string,
+        smartAddress: smartAddress,
+      }),
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    return data;
+  } catch (error) {
+    console.log("unable to register s.a", error);
+    return null;
+  }
+
+}
 
   const handleClaimReward = async () => {
-    if (!smartAccount || !smartAccountClient) {
+    if (!smartAccount || !smartAccountClient ||!address) {
       toast.error("Wallet not connected. Please try again.");
       return;
     }
@@ -36,6 +60,16 @@ const AIResults = ({ aiRating, loading, changeLoading, afterSuccess, onClose, ha
     changeLoading(true);
 
     try {
+      const smartWalletRegistered = await checkIfSmartAccount(address as string);
+
+      if(!smartWalletRegistered){
+        // register the smart wallet address
+        const hash = await setSmartAccountToBC(address, smartAccount.address);
+        if(hash){
+          await setSmartAccount(address as string, smartAccount.address as string);
+        }
+      
+      }
       // 1. Add the reward to the user
       const res = await fetch('/api/add-reward', {
         method: 'POST',
@@ -54,7 +88,7 @@ const AIResults = ({ aiRating, loading, changeLoading, afterSuccess, onClose, ha
         abi: contractAbi,
         address: contractAddress,
         functionName: 'claimRewards',
-        args: [amountInWei],
+        args: [amountInWei, address],
       });
 
       if (!hash) {

@@ -95,7 +95,7 @@ const Page = ({ params }: { params: Promise<{ slug: string }>}) => {
       const isRegistered = await checkIfSmartAccount(address as string);
       if(isRegistered) return;
       // set smart account
-      const hash = await setSmartAccountToDB(address, smartAccount.address);
+      const hash = await setSmartAccountToBC(address, smartAccount.address);
       if(!hash) return;
       await setSmartAccount(address as string, smartAccount.address as string);
      }
@@ -151,7 +151,7 @@ useEffect(() => {
 }, [address, testerStatusChecked]);
 
 // function to set the smartaccount on bc
-const setSmartAccountToDB = async (userAddress: `0x${string}`,smartAddress: string) =>{
+const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: string) =>{
   try {
     // 1. Add the reward to the user
     const res = await fetch('/api/add-smartAccount', {
@@ -180,7 +180,7 @@ const setSmartAccountToDB = async (userAddress: `0x${string}`,smartAddress: stri
 
   // function to claim rewards
   const handleClaimReward = async (amount: bigint) => {
-    if (!smartAccount || !smartAccountClient) {
+    if (!smartAccount || !smartAccountClient || !address) {
       toast.error("Wallet not connected. Please try again.");
       return;
     }
@@ -191,12 +191,22 @@ const setSmartAccountToDB = async (userAddress: `0x${string}`,smartAddress: stri
     const toastId = toast.loading("Claiming rewards...");
   
     try {
+      const smartWalletRegistered = await checkIfSmartAccount(address as string);
+
+      if(!smartWalletRegistered){
+        // register the smart wallet address
+        const hash = await setSmartAccountToBC(address, smartAccount.address);
+        if(hash){
+          await setSmartAccount(address as string, smartAccount.address as string);
+        }
+      
+      }
       // 1. Claim the reward
       const hash = await smartAccountClient.writeContract({
         abi: contractAbi,
         address: contractAddress,
         functionName: 'claimRewards',
-        args: [amount],
+        args: [amount, address],
       });
   
       if (!hash) {
