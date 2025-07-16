@@ -9,7 +9,7 @@ import { checkIfSmartAccount, getTesters, updateAsTasker, setSmartAccount, getTe
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
 import { Tester } from '@/app/Start/page';
 import { useAccount, useWriteContract } from 'wagmi';
-import { formatEther } from 'viem';
+import { formatEther, parseEther } from 'viem';
 import { toast } from 'sonner';
 import { contractAbi, contractAddress } from '@/contexts/constants';
 import { updateUnclaimed } from '@/lib/Prismafnctns';
@@ -199,7 +199,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
         method: 'POST',
         body: JSON.stringify({
           userAddress: address,
-          amount: amountInWei,
+          amount: parseEther(amountInWei),
         }),
       });
   

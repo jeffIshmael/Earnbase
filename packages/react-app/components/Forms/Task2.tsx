@@ -158,7 +158,7 @@ useEffect(() => {
         toast("please connect wallet.");
         return;
       }
-      const message = bugReport !== '' ? feedback + `\n\nBug Report: ${bugReport}` : feedback;
+      const message = bugReport !== '' ? feedback + `Bug Report: ${bugReport}` : feedback;
       const aiRatingJson = JSON.stringify(aiRating);
       const individualFeedback = JSON.stringify(message);
       await recordTask(Number(id),claimed,amount,aiRatingJson,individualFeedback,address);
