@@ -199,7 +199,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
         method: 'POST',
         body: JSON.stringify({
           userAddress: address,
-          amount: parseEther(amountInWei),
+          amount: formatEther(amountInWei),
         }),
       });
   
