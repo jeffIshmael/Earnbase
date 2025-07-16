@@ -8,7 +8,7 @@ export const publicClient = createPublicClient({
   transport: http(),
 });
 
-export async function sendCelo(addresses: string[]) {
+export async function sendCelo(address: string) {
   try {
 
     const { account, smartAccountClient } = await getAgentSmartAccount();
@@ -16,21 +16,28 @@ export async function sendCelo(addresses: string[]) {
     console.log("Smart account address:", account.address);
 
     const celoBalance = await publicClient.getBalance({
-      address: account.address,
+      address: address,
     });
 
     console.log("CELO Balance:", formatEther(celoBalance));
 
-    const valueToSend = parseEther('0.5'); // 0.5 CELO => BigInt
+    const valueToSend = parseEther('0.3'); // 0.5 CELO => BigInt
 
-    for (const address of addresses) {
-      // const hash = await smartAccountClient.sendTransaction({
-      //   to: address,
-      //   value: valueToSend,
-      // });
+    // const hash = await smartAccountClient.sendTransaction({
+    //     to: address,
+    //     value: valueToSend,
+    //   });
 
-      console.log(`Sent 0.5 CELO to ${address} | Tx Hash:`);
-    }
+    //   console.log(`Sent 0.3 CELO to ${address} | Tx Hash: ${hash}`);
+
+    // for (const address of addresses) {
+    //   // const hash = await smartAccountClient.sendTransaction({
+    //   //   to: address,
+    //   //   value: valueToSend,
+    //   // });
+
+    //   console.log(`Sent 0.5 CELO to ${address} | Tx Hash:`);
+    // }
 
     const updatedBalance = await publicClient.getBalance({ address: account.address });
     console.log("Updated CELO Balance:", formatEther(updatedBalance));

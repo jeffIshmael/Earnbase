@@ -8,7 +8,7 @@ import { useCapabilities } from 'wagmi/experimental';
 import { checkIfSmartAccount, getTesters, updateAsTasker, setSmartAccount, getTestersLeaderboard, getUser } from '@/lib/Prismafnctns';
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
 import { Tester } from '@/app/Start/page';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
 import { formatEther } from 'viem';
 import { toast } from 'sonner';
 import { contractAbi, contractAddress } from '@/contexts/constants';
@@ -86,6 +86,7 @@ const Page = ({ params }: { params: Promise<{ slug: string }>}) => {
    const [isLoading, setIsLoading] = useState(true);
    const[testerStatusChecked, setTesterStatusChecked] = useState(false);
    const [isNotTester, setIsNotTester] = useState(true);
+   const {writeContractAsync } = useWriteContract();
  
   
   // checks if the smart account of the address is been set
@@ -180,7 +181,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
 
   // function to claim rewards
   const handleClaimReward = async (amount: bigint) => {
-    if (!smartAccount || !smartAccountClient || !address) {
+    if (!address) {
       toast.error("Wallet not connected. Please try again.");
       return;
     }
@@ -191,18 +192,21 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
     const toastId = toast.loading("Claiming rewards...");
   
     try {
-      const smartWalletRegistered = await checkIfSmartAccount(address as string);
 
-      if(!smartWalletRegistered){
-        // register the smart wallet address
-        const hash = await setSmartAccountToBC(address, smartAccount.address);
-        if(hash){
-          await setSmartAccount(address as string, smartAccount.address as string);
-        }
-      
-      }
+       // 1. Add the reward to the user
+       const res = await fetch('/api/add-reward', {
+        method: 'POST',
+        body: JSON.stringify({
+          userAddress: address,
+          amount: amount,
+        }),
+      });
+  
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
       // 1. Claim the reward
-      const hash = await smartAccountClient.writeContract({
+      const hash = await writeContractAsync({
         abi: contractAbi,
         address: contractAddress,
         functionName: 'claimRewards',

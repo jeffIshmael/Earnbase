@@ -74,7 +74,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
       const res = await fetch('/api/add-reward', {
         method: 'POST',
         body: JSON.stringify({
-          userAddress: smartAccount.address,
+          userAddress: address,
           amount: totalReward,
         }),
       });
