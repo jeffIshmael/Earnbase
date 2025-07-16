@@ -1,10 +1,11 @@
-export const contractAddress = "0xF871324471df19D9da84dA5067b1085155Dd1036";
+export const contractAddress = "0x162Cda2faF1EE18492eC3362C6E78982673FA6Fc";
+// 0x162Cda2faF1EE18492eC3362C6E78982673FA6Fc - latest''
 // 0xF871324471df19D9da84dA5067b1085155Dd1036 - latest'
 // 0x2F19FdB8E80224abE0bEC83b289a726bF3280460 - latest
 // 0x30B1898Eeb4D4E35364EA65C79A807998A70f07c 
 export const cUSDAddress = "0x765DE816845861e75A25fCA122bb6898B8B1282a";
 export const USDCAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-export const contractAbi =  [
+export const contractAbi = [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -184,6 +185,25 @@ export const contractAbi =  [
       }
     ],
     "name": "RewardClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tester",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "RewardsAwarded",
     "type": "event"
   },
   {

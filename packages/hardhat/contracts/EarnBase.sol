@@ -49,6 +49,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     event AmountWithdrawn(address indexed to, uint256 amount);
     event SmartWalletUpdated(address indexed tester, address indexed newSmartWallet);
     event AmountSent(address indexed to, uint256 amount, uint256 timestamp);
+    event RewardsAwarded(address indexed tester, uint256 amount);
 
 
     // ────────────────────────────────
@@ -164,11 +165,10 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         require(amount <= tester.unclaimedAmount, "Exceeds unclaimed balance");
         require(cUSDToken.balanceOf(address(this)) >= amount, "Contract underfunded");
 
+        bool success = cUSDToken.transfer(_userNormalAddresss, amount);
+        require(success, "Transfer failed");
         tester.unclaimedAmount -= amount;
         tester.claimedAmount += amount;
-
-        bool success = cUSDToken.transferFrom(address(this),_userNormalAddresss, amount);
-        require(success, "Transfer failed");
 
         payments.push(Payment(payments.length, _userNormalAddresss, amount, block.timestamp));
 
@@ -188,7 +188,9 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
 
     function addRewards(address tester, uint256 amount) external onlyAuthorised {
         require(tester != address(0), "Invalid address");
+        require(isTester[tester], "Not a tester.");
         testers[tester].unclaimedAmount += amount;
+        emit RewardsAwarded(tester, amount);
     }
 
     // function to get all testers

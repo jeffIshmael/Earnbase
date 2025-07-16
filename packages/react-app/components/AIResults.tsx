@@ -80,6 +80,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
       });
   
       const data = await res.json();
+      console.log("data from add reward", data);
       if (!data.success) throw new Error(data.error);
 
       // 2. Claim the reward
