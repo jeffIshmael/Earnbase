@@ -243,7 +243,6 @@ export async function updateEarnings(address: string, amount: bigint) {
   }
 }
 
-
 // function to get the testers
 export async function getTesters(){
     const testers = await prisma.taskers.findMany();
@@ -251,6 +250,34 @@ export async function getTesters(){
     return JSON.stringify([]);
     
 }
+
+// function to get fids from the testers
+export async function getFids() {
+  const taskersAddresses = await getTesters();
+  const taskerAddressesArray: string[] = JSON.parse(taskersAddresses);
+
+  if (taskerAddressesArray.length == 0) return;
+
+  // Query all users with those wallet addresses
+  const users = await prisma.user.findMany({
+    where: {
+      walletAddress: {
+        in: taskerAddressesArray,
+      },
+    },
+    select: {
+      fid: true,
+    },
+  });
+
+  // Filter out null fids and return array
+  const fids = users
+    .map((user) => user.fid)
+    .filter((fid): fid is number => fid !== null);
+
+  return fids;
+}
+
 
 // function to register taskers.
 export async function addTester(testerId: number, taskId: string, addresses: string[]) {

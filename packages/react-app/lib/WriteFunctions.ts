@@ -71,3 +71,26 @@ export async function addTester( address: `0x${string}`[]):Promise <string | nul
     }
 }
 
+
+// function to send funds to all testers
+export async function sendFundsToTesters( amount: string):Promise <string | null>{
+    try {
+    const amountInWei = parseEther(amount);
+    const {account, smartAccountClient} = await getAgentSmartAccount();
+    console.log("The agent account address", account.address);
+    const hash = await smartAccountClient.writeContract({
+        address: contractAddress,
+        abi: contractAbi,
+        functionName: 'sendAmount',
+        args:[amountInWei],
+      })
+
+      console.log("The agent smart account txHash", hash);
+
+    return hash;
+        
+    } catch (error) {
+        console.log('the error', error);
+        return null;        
+    }
+}

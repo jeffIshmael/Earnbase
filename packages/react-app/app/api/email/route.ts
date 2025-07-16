@@ -3,6 +3,8 @@ import { sendEmail } from "@/lib/SendEmail";
 import { sendCelo } from "@/lib/Helper/sendCelo";
 import { addTester } from "@/lib/Prismafnctns";
 import { addTestersToBc } from "@/lib/Helper/Testers";
+import { sendFundsToTesters } from "@/lib/WriteFunctions";
+import { sendMoneyAndNotify } from "@/lib/Helper/registerUser";
 
 
 export async function GET(request: Request) {
@@ -28,7 +30,8 @@ export async function GET(request: Request) {
  
     try {
         // await addTestersToBc(Testers);
-        await addTester(1,"1",Testers);
+        // await addTester(1,"1",Testers);
+        await sendMoneyAndNotify("2.5");
     } catch (error) {
         console.log(error);
     }

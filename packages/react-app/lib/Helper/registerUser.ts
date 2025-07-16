@@ -1,8 +1,9 @@
 // this file has a function to register user on earnbase and bc
 
 import { parseEther } from "viem";
-import { getUser, registerUser, updateEarnings } from "../Prismafnctns";
-import { addTester, addUserReward } from "../WriteFunctions";
+import { getFids, getUser, registerUser, updateEarnings } from "../Prismafnctns";
+import { addTester, addUserReward, sendFundsToTesters } from "../WriteFunctions";
+import { sendFarcasterNotification } from "../FarcasterNotify";
 
 export async function registerRewardingUser(address: string): Promise<boolean>{
     try {
@@ -46,5 +47,42 @@ export async function rewardingUser(address: string): Promise<boolean>{
         return false;
         
     }
+
+}
+
+// function to send funds to all the testers and notify them
+export async function sendMoneyAndNotify(amount:string){
+   // send the funds
+   const hash = await sendFundsToTesters(amount);
+
+   if(!hash) return;
+
+
+    const fids = await getFids();
+    if(!fids) return;
+
+    const title =`You have received ${amount} cUSD.`
+    const message = "Please join your assigned chama and make a 1cUSD payment."
+
+    const notification = {
+        title,
+        body: message,
+        target_url: "https://chamapay-minipay.vercel.app/",
+      };
+
+
+    const options = {
+        method: 'POST',
+        headers: {'x-api-key': '5FB6C273-0BEE-469A-80B4-D6378685E460', 'Content-Type': 'application/json'},
+        body: `{"target_fids": {fids},"notification":${notification}}`
+      };
+      
+      fetch('https://api.neynar.com/v2/farcaster/frame/notifications/', options)
+        .then(response => response.json())
+        .then(response => console.log(response))
+        .catch(err => console.error(err));
+
+    // send farcaster notification
+    // await sendFarcasterNotification(fids,title, message);
 
 }

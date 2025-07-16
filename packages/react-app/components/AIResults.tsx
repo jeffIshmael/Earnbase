@@ -8,7 +8,7 @@ import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
 import { toast } from 'sonner';
 import { contractAbi, contractAddress } from '@/contexts/constants';
 import { parseEther } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
 import { setSmartAccount, checkIfSmartAccount } from '@/lib/Prismafnctns';
 
 interface AIResultsProps {
@@ -24,7 +24,7 @@ const AIResults = ({ aiRating, loading, changeLoading, afterSuccess, onClose, ha
   const { smartAccount, smartAccountClient } = useUserSmartAccount();
   const [isClaiming, setIsClaiming] = useState(false);
   const {address} = useAccount();
-
+  const {writeContractAsync} = useWriteContract();
   const bonusReward = (aiRating.rating / 10).toFixed(2);
   const totalReward = (baseReward + parseFloat(bonusReward)).toFixed(2);
 
@@ -51,7 +51,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
 }
 
   const handleClaimReward = async () => {
-    if (!smartAccount || !smartAccountClient ||!address) {
+    if (!address) {
       toast.error("Wallet not connected. Please try again.");
       return;
     }
@@ -60,16 +60,16 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
     changeLoading(true);
 
     try {
-      const smartWalletRegistered = await checkIfSmartAccount(address as string);
+      // const smartWalletRegistered = await checkIfSmartAccount(address as string);
 
-      if(!smartWalletRegistered){
-        // register the smart wallet address
-        const hash = await setSmartAccountToBC(address, smartAccount.address);
-        if(hash){
-          await setSmartAccount(address as string, smartAccount.address as string);
-        }
+      // if(!smartWalletRegistered){
+      //   // register the smart wallet address
+      //   const hash = await setSmartAccountToBC(address, smartAccount.address);
+      //   if(hash){
+      //     await setSmartAccount(address as string, smartAccount.address as string);
+      //   }
       
-      }
+      // }
       // 1. Add the reward to the user
       const res = await fetch('/api/add-reward', {
         method: 'POST',
@@ -84,7 +84,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
 
       // 2. Claim the reward
       const amountInWei = parseEther(totalReward);
-      const hash = await smartAccountClient.writeContract({
+      const hash = await writeContractAsync({
         abi: contractAbi,
         address: contractAddress,
         functionName: 'claimRewards',
@@ -96,7 +96,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
       }
 
        // 3. Record in Prisma
-    await handlePrismaRecord(true, totalReward);
+      await handlePrismaRecord(true, totalReward);
 
       toast.success(`Successfully claimed ${totalReward} cUSD!`);
       afterSuccess();
@@ -156,7 +156,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
             ))}
             <span className="text-xs font-bold ml-2">{aiRating.rating}/10</span>
           </div>
-          <p className="text-sm text-gray-700 italic">&quot{aiRating.explanation}&quot</p>
+          <p className="text-sm text-gray-700 italic">"{aiRating.explanation}"</p>
         </div>
     
         <div className="flex gap-3">
