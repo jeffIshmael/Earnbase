@@ -16,7 +16,7 @@ export async function sendCelo(address: string) {
     console.log("Smart account address:", account.address);
 
     const celoBalance = await publicClient.getBalance({
-      address: address,
+      address: address as `0x${string}`,
     });
 
     console.log("CELO Balance:", formatEther(celoBalance));
