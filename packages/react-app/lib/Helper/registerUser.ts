@@ -71,13 +71,9 @@ export async function sendMoneyAndNotify(amount:string){
       };
 
 
-    const options = {
-        method: 'POST',
-        headers: {'x-api-key': '5FB6C273-0BEE-469A-80B4-D6378685E460', 'Content-Type': 'application/json'},
-        body: `{"target_fids": {fids},"notification":${notification}}`
-      };
+   
       
-      fetch('https://api.neynar.com/v2/farcaster/frame/notifications/', options)
+      fetch('https://api.neynar.com/v2/farcaster/frame/notifications/')
         .then(response => response.json())
         .then(response => console.log(response))
         .catch(err => console.error(err));
