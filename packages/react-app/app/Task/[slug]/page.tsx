@@ -198,12 +198,13 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
        const res = await fetch('/api/add-reward', {
         method: 'POST',
         body: JSON.stringify({
-          userAddress: address,
+          userAddress: address as string,
           amount: formatEther(amountInWei),
         }),
       });
   
       const data = await res.json();
+      console.log(data);
       if (!data.success) throw new Error(data.error);
 
       // 1. Claim the reward
