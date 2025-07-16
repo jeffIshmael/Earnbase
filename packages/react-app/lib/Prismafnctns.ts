@@ -201,7 +201,7 @@ export async function updateUnclaimed(address: string, amount: bigint) {
             data: {
                 claimable: {
                     decrement: amount
-                }
+                },
             }
         });
 
@@ -211,6 +211,38 @@ export async function updateUnclaimed(address: string, amount: bigint) {
         throw error;
     }
 }
+
+// function to update the earned
+export async function updateEarnings(address: string, amount: bigint) {
+  try {
+      // Get user
+      const user = await getUser(address);
+      if (!user) {
+          throw new Error("User not found");
+      }
+
+      // Update both totalEarned (increment) and claimable (decrement)
+      await prisma.user.update({
+          where: {
+              walletAddress: address,
+          },
+          data: {
+              claimable: {
+                  increment: amount
+              },
+              totalEarned:{
+                increment: amount,
+              }
+          }
+      });
+
+      return true;
+  } catch (error) {
+      console.error("Error updating unclaimed amounts:", error);
+      throw error;
+  }
+}
+
 
 // function to get the testers
 export async function getTesters(){

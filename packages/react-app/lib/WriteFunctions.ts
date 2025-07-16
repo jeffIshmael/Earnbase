@@ -49,4 +49,25 @@ export async function addUserSmartAccount(smartAccountAddress: `0x${string}`, us
     }
 }
 
+// function to add a reward on the user 
+export async function addTester( address: `0x${string}`[]):Promise <string | null>{
+    try {
+    const {account, smartAccountClient} = await getAgentSmartAccount();
+    console.log("The agent account address", account.address);
+    const hash = await smartAccountClient.writeContract({
+        address: contractAddress,
+        abi: contractAbi,
+        functionName: 'addTesters',
+        args:[address],
+      })
+
+      console.log("The agent smart account txHash", hash);
+
+    return hash;
+        
+    } catch (error) {
+        console.log('the error', error);
+        return null;        
+    }
+}
 
