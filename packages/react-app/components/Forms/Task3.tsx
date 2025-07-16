@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { CalendarDays, CircleDollarSign, Bell, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAccount } from 'wagmi';
-import { recordTask, getTaskOutput, getUser } from '@/lib/Prismafnctns';
+import { recordTask, getTaskOutput, getUser, getUserFeedback } from '@/lib/Prismafnctns';
 
 const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: string}}) => {
   // const [play] = useSound('/sounds/success-notification.mp3'); // Add this sound file to your public/sounds folder
@@ -26,7 +26,6 @@ const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
     }, []);
   
     useEffect(()=>{
-
       const fetchUser = async() =>{
         if(!address) return;
         const user = await getUser(address as string);
@@ -35,6 +34,16 @@ const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
       }
       fetchUser();
     },[address])
+
+    useEffect(()=>{
+      const fetchUserFeedback = async() =>{
+        if(!address) return;
+        if(isCompleted){
+          const task3Feedback = await getUserFeedback(address as string,3);
+        }
+      }
+      fetchUserFeedback();
+    },[address, isCompleted])
   const handleGoBack = () => {
     window.history.back();
   };

@@ -338,3 +338,22 @@ export async function updateAsTasker( address: string) {
     }
   }
   
+// function to get the user's feedback from a task
+export async function getUserFeedback(address:string, taskId:number){
+  try {
+    // check if is a 
+  const task = await prisma.task.findMany({
+    where:{
+      user:{
+        walletAddress: address,
+      },
+      subTaskId: taskId,
+    }
+  })
+  if(!task) return null;
+  return task;
+    
+  } catch (error) {
+    return null;
+  }
+}

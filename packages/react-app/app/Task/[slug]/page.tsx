@@ -192,13 +192,14 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
     const toastId = toast.loading("Claiming rewards...");
   
     try {
+      const amountInWei = BigInt(amount);
 
        // 1. Add the reward to the user
        const res = await fetch('/api/add-reward', {
         method: 'POST',
         body: JSON.stringify({
           userAddress: address,
-          amount: amount,
+          amount: amountInWei,
         }),
       });
   
@@ -210,7 +211,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
         abi: contractAbi,
         address: contractAddress,
         functionName: 'claimRewards',
-        args: [amount, address],
+        args: [amountInWei, address],
       });
   
       if (!hash) {

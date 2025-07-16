@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
 import { toast } from 'sonner';
-import { recordTask, getTaskOutput, getUser } from '@/lib/Prismafnctns';
+import { recordTask, getTaskOutput, getUser, getUserFeedback } from '@/lib/Prismafnctns';
 import Image from 'next/image';
 
 
@@ -61,8 +61,9 @@ const Task2Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
 useEffect(() => {
   // check if is Completetd
   const checkIsComplete = async () =>{
-    if(isCompleted)
-    {await getPastResponse(address as string);}
+    if(isCompleted){
+      await getPastResponse(address as string);
+    }
   }
   checkIsComplete()
 }, [address, isCompleted]);
@@ -137,9 +138,12 @@ useEffect(() => {
 
   // function to fetch past response
   const getPastResponse =  async ( address: string) =>{
-    const task2Res = await getTaskOutput(address, Number(id));
-    if(!task2Res) return;
-    setImageIpfs(task2Res[0].ipfsHash?? "")
+    const task2Res = await getUserFeedback(address, Number(id));
+    if (task2Res) {
+      const [feedbackPart, bugPart] = (task2Res[0]?.feedback ?? '').split("Bug Report:");
+      setFeedback(feedbackPart?.trim() || "");
+      setBugReport(bugPart?.trim() || "");
+    }
   }
 
   const afterSuccess = () => {
