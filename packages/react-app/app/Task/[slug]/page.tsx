@@ -13,6 +13,7 @@ import { formatEther, parseEther } from 'viem';
 import { toast } from 'sonner';
 import { contractAbi, contractAddress } from '@/contexts/constants';
 import { updateUnclaimed } from '@/lib/Prismafnctns';
+import confetti from 'canvas-confetti';
 
 interface TaskDetails {
   id: string;
@@ -179,6 +180,15 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
     return task?.completed || false;
   };
 
+  const showConfetti = () => {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#4f46e5', '#10b981', '#f59e0b'],
+    });
+  };
+
   // function to claim rewards
   const handleClaimReward = async (amount: bigint) => {
     if (!address) {
@@ -222,9 +232,22 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
       // 2. update the total earned & unClaimed
       await updateUnclaimed(address as string, amount);
   
-      toast.success(`Successfully claimed ${formatEther(amount)} cUSD!`, {
-        id: toastId
-      });
+    // Show success with confetti effect
+    toast.success(
+      <div className="flex flex-col items-center">
+        <div className="text-2xl mb-2">🎉</div>
+        <div>Successfully claimed {formatEther(amount)} cUSD!</div>
+      </div>, 
+      {
+        id: toastId,
+        duration: 3000,
+      }
+    );
+    showConfetti();
+
+    // Refresh user data
+    const currentUser = await getUser(address);
+    setIndividual(currentUser);
     } catch (error) {
       console.error("Claiming error:", error);
       toast.error("Failed to claim reward. Please try again.", {
