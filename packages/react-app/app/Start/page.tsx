@@ -575,11 +575,11 @@ const performASwap = async (amount: string) => {
          </div>
    
          {/* Single Send Button */}
-         <div className="text-right">
+         {/* <div className="text-right">
            <button onClick={()=>sendEmails() } className="mt-4 px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg shadow hover:bg-indigo-700 transition">
              Send
            </button>
-         </div>
+         </div> */}
        </div>
      </div>
    
