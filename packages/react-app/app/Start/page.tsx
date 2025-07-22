@@ -27,7 +27,7 @@ import { ethers } from "ethers";
 import { useEthersSwap } from '@/Test';
 
 // Get signer and connect wallet only if needed
-export const getSigner = async (): Promise<ethers.Signer | null> => {
+const getSigner = async (): Promise<ethers.Signer | null> => {
   if (typeof window === "undefined" || !window.ethereum) {
     console.error("🦊 MetaMask not found.");
     return null;
