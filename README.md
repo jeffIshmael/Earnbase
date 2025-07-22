@@ -18,6 +18,17 @@ Originally created to support the beta testing of the ChamaPay miniapp, EarnBase
 
 ## Solution
 
+EarnBase solves this by creating a gamified, AI-assisted feedback loop:
+- **Task Assignment** — Users are given purposeful tasks (testing, reviews, surveys, etc.) tied to Web3 products or research initiatives.
+- **Feedback Submission** — Users complete the tasks and submit written feedback or results.
+- **AI Evaluation** — Feedback is scored using AI models that assess clarity, helpfulness, and depth.
+- **Reward Distribution** — Every participant earns a base reward. High-quality feedback earns bonus rewards calculated based on AI scores.
+- **Leaderboard & Rankings** — Users compete for top spots on the leaderboard, driving friendly competition and continuous engagement.
+
 ---
 
 ## Objectives
+
+- Create a structured, gamified environment for crowdsourced task execution.
+- Reward contributors based on effort and value, not just participation.
+- Enable projects to collect high-quality, AI-filtered user insights at scale.

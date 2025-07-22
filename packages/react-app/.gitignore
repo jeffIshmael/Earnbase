@@ -41,3 +41,5 @@ yarn.lock
 package-lock.json
 
 /generated/prisma
+
+.Test.ts

@@ -24,7 +24,7 @@ import { cUSDAddress, USDCAddress } from '@/contexts/constants';
 import { useWalletClient } from 'wagmi';
 import { Web3Provider } from "@ethersproject/providers";
 import { ethers } from "ethers";
-import { useEthersSwap } from '@/Test';
+
 
 // Get signer and connect wallet only if needed
 const getSigner = async (): Promise<ethers.Signer | null> => {
@@ -126,7 +126,6 @@ export default function Page() {
   const [exchangeRate, setExchangeRate] = useState('1 cUSD = 1 USDC');
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const { data: walletClient } = useWalletClient();
-  const {swap} = useEthersSwap();
   const provider = new providers.JsonRpcProvider(
     "https://forno.celo.org"
   );
@@ -246,7 +245,7 @@ export default function Page() {
     // await getSwapping();
     // await performing("0.00001");
 
-    await swap();
+    // await swap();
     } catch (error) {
       console.log(error);
     }
