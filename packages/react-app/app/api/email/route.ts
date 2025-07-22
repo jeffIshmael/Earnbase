@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     try {
         // await addTestersToBc(Testers);
         // await addTester(1,"1",Testers);
-        // await sendMoneyAndNotify("2.5");
+        await sendMoneyAndNotify();
         // await sendCelo("0x1C059486B99d6A2D9372827b70084fbfD014E978");
         // await getSwapping();
         // await swap();

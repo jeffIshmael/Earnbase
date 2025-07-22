@@ -13,6 +13,8 @@ export async function sendCelo(address: string) {
 
     const { account, smartAccountClient } = await getAgentSmartAccount();
 
+   
+
     console.log("Smart account address:", account.address);
 
     const celoBalance = await publicClient.getBalance({

@@ -18,6 +18,7 @@
     "@google/generative-ai": "^0.24.1",
     "@headlessui/react": "^2.1.10",
     "@heroicons/react": "^2.1.5",
+    "@mento-protocol/mento-core-ts": "^0.2.3",
     "@mento-protocol/mento-sdk": "^1.10.3",
     "@neynar/nodejs-sdk": "^3.25.0",
     "@permissionless/wagmi": "^0.1.4",

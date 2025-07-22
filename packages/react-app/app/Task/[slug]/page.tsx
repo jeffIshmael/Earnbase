@@ -84,7 +84,7 @@ const Page = ({ params }: { params: Promise<{ slug: string }>}) => {
   const [individual, setIndividual] = useState < Tester | null> (null)
   const {address} = useAccount();
   const { smartAccount ,smartAccountClient } = useUserSmartAccount();
- const [isClaiming, setIsClaiming] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
    const[testerStatusChecked, setTesterStatusChecked] = useState(false);
    const [isNotTester, setIsNotTester] = useState(true);
@@ -200,26 +200,26 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
     if (isClaiming) return; // Prevent multiple clicks while claiming
   
     setIsClaiming(true);
-    const toastId = toast.loading("Claiming rewards...");
+    toast.loading("Claiming rewards...");
   
     try {
-      const amountInWei = BigInt(amount);
 
        // 1. Add the reward to the user
        const res = await fetch('/api/add-reward', {
         method: 'POST',
         body: JSON.stringify({
           userAddress: address as string,
-          amount: formatEther(amountInWei),
+          amount: formatEther(amount),
         }),
       });
   
       const data = await res.json();
       console.log(data);
+      toast("successfully added to db.");
       if (!data.success) throw new Error(data.error);
 
       // 1. Claim the reward
-      const args = [amountInWei, address];
+      const args = [amount, address];
       const hash = await writeContractAsync({
         abi: contractAbi,
         address: contractAddress,
@@ -241,7 +241,6 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
         <div>Successfully claimed {formatEther(amount)} cUSD!</div>
       </div>, 
       {
-        id: toastId,
         duration: 3000,
       }
     );
@@ -252,9 +251,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
     setIndividual(currentUser);
     } catch (error) {
       console.error("Claiming error:", error);
-      toast.error("Failed to claim reward. Please try again.", {
-        id: toastId
-      });
+      toast.error("Failed to claim reward. Please try again.");
     } finally {
       setIsClaiming(false);
     }
