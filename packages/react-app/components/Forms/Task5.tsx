@@ -88,6 +88,27 @@ const Task5Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
     }
   };
 
+      // function to record the task
+      const addTaskToDb = async(claimed:boolean, amount:string) => {
+        try {
+          if(!address){
+            toast("please connect wallet.");
+            return;
+          }
+          const message = bugReport !== '' ? feedback + `\n\nBug Report: ${bugReport}` : feedback;
+          const aiRatingJson = JSON.stringify(aiRating);
+          const individualFeedback = JSON.stringify(message);
+          const task = await recordTask(Number(id),claimed,amount,aiRatingJson,individualFeedback,address as string);
+          if(!task){
+            toast.error("Unable to update database.");
+          }
+          
+        } catch (error) {
+          console.log("error", error);
+          toast('something happened.try again.');
+        }
+      }
+
   const handleGoBack = async (amount: string) => {
     await addTaskToDb(false, amount)
     window.history.back();
@@ -100,26 +121,7 @@ const Task5Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
     setIsSubmitted(true);
   };
 
-    // function to record the task
-    const addTaskToDb = async(claimed:boolean, amount:string) => {
-      try {
-        if(!address){
-          toast("please connect wallet.");
-          return;
-        }
-        const message = bugReport !== '' ? feedback + `\n\nBug Report: ${bugReport}` : feedback;
-        const aiRatingJson = JSON.stringify(aiRating);
-        const individualFeedback = JSON.stringify(message);
-        const task = await recordTask(Number(id),claimed,amount,aiRatingJson,individualFeedback,address as string);
-        if(!task){
-          toast.error("Unable to update database.");
-        }
-        
-      } catch (error) {
-        console.log("error", error);
-        toast('something happened.try again.');
-      }
-    }
+
   
 
   const afterSuccess = () => {

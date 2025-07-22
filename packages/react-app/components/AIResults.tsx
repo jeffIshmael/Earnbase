@@ -22,7 +22,6 @@ interface AIResultsProps {
 }
 
 const AIResults = ({ aiRating, loading, changeLoading, afterSuccess, onClose, handlePrismaRecord }: AIResultsProps) => {
-  const { smartAccount, smartAccountClient } = useUserSmartAccount();
   const [isClaiming, setIsClaiming] = useState(false);
   const {address} = useAccount();
   const {writeContractAsync} = useWriteContract();
@@ -98,7 +97,6 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
       if (!hash) {
         throw new Error("Failed to claim reward");
       }
-
        // 3. Record in Prisma
       await handlePrismaRecord(true, totalReward);
 
@@ -173,7 +171,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
           </button>
           <button
             onClick={handleClaimReward}
-            disabled={loading || isClaiming || !smartAccount}
+            disabled={ isClaiming }
             className="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-600 transition shadow-md disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isClaiming ? (
