@@ -200,7 +200,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
     if (isClaiming) return; // Prevent multiple clicks while claiming
   
     setIsClaiming(true);
-    toast.loading("Claiming rewards...");
+    const toastId = toast.loading("Claiming rewards...");
   
     try {
 
@@ -215,7 +215,6 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
   
       const data = await res.json();
       console.log(data);
-      toast("successfully added to db.");
       if (!data.success) throw new Error(data.error);
 
       // 1. Claim the reward
@@ -241,6 +240,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
         <div>Successfully claimed {formatEther(amount)} cUSD!</div>
       </div>, 
       {
+        id: toastId,
         duration: 3000,
       }
     );
@@ -251,7 +251,9 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
     setIndividual(currentUser);
     } catch (error) {
       console.error("Claiming error:", error);
-      toast.error("Failed to claim reward. Please try again.");
+      toast.error("Failed to claim reward. Please try again.", {
+        id: toastId
+      });
     } finally {
       setIsClaiming(false);
     }

@@ -73,9 +73,11 @@ EarnBase solves this by creating a gamified, AI-assisted feedback loop:
 ## Upcoming Features
 
 **🛠 Cross-Chain Swapping**
+
 Allow users to seamlessly convert their earned cUSD into USDC on the Base network — ideal for Farcaster, where USDC is widely used.
 
 **🛠 Public Task Creation**
+
 Earnbase will be opened up to everyone. Anyone will be able to:
  - Create tasks
  - Define specific expectations and requirements (which will help guide the AI evaluation)
