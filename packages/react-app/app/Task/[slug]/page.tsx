@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { contractAbi, contractAddress } from '@/contexts/constants';
 import { updateUnclaimed } from '@/lib/Prismafnctns';
 import confetti from 'canvas-confetti';
+import { registrationTx } from '@/lib/DivviRegistration';
 
 interface TaskDetails {
   id: string;
@@ -218,11 +219,12 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
       if (!data.success) throw new Error(data.error);
 
       // 1. Claim the reward
+      const args = [amountInWei, address];
       const hash = await writeContractAsync({
         abi: contractAbi,
         address: contractAddress,
-        functionName: 'claimRewards',
-        args: [amountInWei, address],
+        functionName: "claimRewards",
+        args: args,
       });
   
       if (!hash) {

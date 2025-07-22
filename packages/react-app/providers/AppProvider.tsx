@@ -27,7 +27,7 @@ const connectors = connectorsForWallets(
   }
 );
 
-const config = createConfig({
+export const config = createConfig({
   
   chains: [celo],
   transports: {

@@ -4,6 +4,13 @@ import { parseEther } from "viem";
 import { getFids, getUser, registerUser, updateEarnings } from "../Prismafnctns";
 import { addTester, addUserReward, sendFundsToTesters } from "../WriteFunctions";
 import { sendFarcasterNotification } from "../FarcasterNotify";
+import { NeynarAPIClient, Configuration } from "@neynar/nodejs-sdk";
+
+const config = new Configuration({
+  apiKey: "5FB6C273-0BEE-469A-80B4-D6378685E460",
+});
+
+const client = new NeynarAPIClient(config);
 
 export async function registerRewardingUser(address: string): Promise<boolean>{
     try {
@@ -62,7 +69,7 @@ export async function sendMoneyAndNotify(amount:string){
     if(!fids) return;
 
     const title =`You have received ${amount} cUSD.`
-    const message = "Please join your assigned chama and make a 1cUSD payment."
+    const message = "Please make a 2cUSD payment to your chama."
 
     const notification = {
         title,
@@ -71,13 +78,9 @@ export async function sendMoneyAndNotify(amount:string){
       };
 
 
-   
-      
-      fetch('https://api.neynar.com/v2/farcaster/frame/notifications/')
-        .then(response => response.json())
-        .then(response => console.log(response))
-        .catch(err => console.error(err));
-
+    client.publishFrameNotifications({ targetFids:fids, notification }).then((response) => {
+    console.log("response:", response);
+    });
     // send farcaster notification
     // await sendFarcasterNotification(fids,title, message);
 

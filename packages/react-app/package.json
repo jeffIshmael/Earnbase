@@ -10,12 +10,15 @@
     "postinstall": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
+    "@divvi/referral-sdk": "^2.2.0",
+    "@farcaster/frame-sdk": "^0.1.7",
     "@farcaster/miniapp-sdk": "^0.1.4",
     "@farcaster/miniapp-wagmi-connector": "^1.0.0",
     "@google/genai": "^1.8.0",
     "@google/generative-ai": "^0.24.1",
     "@headlessui/react": "^2.1.10",
     "@heroicons/react": "^2.1.5",
+    "@mento-protocol/mento-sdk": "^1.10.3",
     "@neynar/nodejs-sdk": "^3.25.0",
     "@permissionless/wagmi": "^0.1.4",
     "@prisma/extension-accelerate": "^2.0.1",
@@ -31,7 +34,7 @@
     "dotenv": "^16.6.1",
     "encoding": "^0.1.13",
     "eslint-config-next": "^15.0.2",
-    "ethers": "^6.13.4",
+    "ethers": "^5.8.0",
     "framer-motion": "^12.20.1",
     "lucide-react": "^0.454.0",
     "next": "^15.0.2",
@@ -48,7 +51,7 @@
     "sonner": "^2.0.5",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
-    "viem": "^2.31.7",
+    "viem": "^2.32.1",
     "wagmi": "2.12.25"
   },
   "devDependencies": {

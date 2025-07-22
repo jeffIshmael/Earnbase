@@ -43,21 +43,20 @@ const Task5Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
     fetchUser();
   },[address])
 
-    const handleGoBack = async (amount: string) => {
-      await addTaskToDb(false, amount)
-      window.history.back();
-    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
+    if(!address ){
+      toast("Please connect wallet.");
+      return;
+    }
+ 
     if(!isTester ){
       toast("only the selected testers can participate.");
       return;
     }
-    
     try {
+      setIsSubmitting(true);
       const message = feedback + `\n\nBug Report: ${bugReport}`;
        // get user
        const user = await getUser(address as string);
@@ -89,6 +88,12 @@ const Task5Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
     }
   };
 
+  const handleGoBack = async (amount: string) => {
+    await addTaskToDb(false, amount)
+    window.history.back();
+  };
+
+
 
   const handleCloseRewardModal = () => {
     setShowRewardModal(false);
@@ -105,11 +110,14 @@ const Task5Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
         const message = bugReport !== '' ? feedback + `\n\nBug Report: ${bugReport}` : feedback;
         const aiRatingJson = JSON.stringify(aiRating);
         const individualFeedback = JSON.stringify(message);
-        await recordTask(Number(id),claimed,amount,aiRatingJson,individualFeedback,address);
+        const task = await recordTask(Number(id),claimed,amount,aiRatingJson,individualFeedback,address);
+        if(!task){
+          toast.error("Unable to update database.");
+        }
         
       } catch (error) {
         console.log("error", error);
-        toast('something happened.try again.');  
+        toast('something happened.try again.');
       }
     }
   

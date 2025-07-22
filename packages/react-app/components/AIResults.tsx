@@ -10,6 +10,7 @@ import { contractAbi, contractAddress } from '@/contexts/constants';
 import { parseEther } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 import { setSmartAccount, checkIfSmartAccount } from '@/lib/Prismafnctns';
+import {registrationTx} from "../lib/DivviRegistration";
 
 interface AIResultsProps {
   aiRating: FeedbackRating;
@@ -56,10 +57,11 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
       return;
     }
 
-    setIsClaiming(true);
-    changeLoading(true);
+
 
     try {
+      setIsClaiming(true);
+      changeLoading(true);
       // const smartWalletRegistered = await checkIfSmartAccount(address as string);
 
       // if(!smartWalletRegistered){
@@ -85,11 +87,12 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
 
       // 2. Claim the reward
       const amountInWei = parseEther(totalReward);
+      const args = [amountInWei, address];
       const hash = await writeContractAsync({
         abi: contractAbi,
         address: contractAddress,
-        functionName: 'claimRewards',
-        args: [amountInWei, address],
+        functionName: "claimRewards",
+        args: args,
       });
 
       if (!hash) {

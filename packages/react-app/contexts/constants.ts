@@ -4,7 +4,9 @@ export const contractAddress = "0x162Cda2faF1EE18492eC3362C6E78982673FA6Fc";
 // 0x2F19FdB8E80224abE0bEC83b289a726bF3280460 - latest
 // 0x30B1898Eeb4D4E35364EA65C79A807998A70f07c 
 export const cUSDAddress = "0x765DE816845861e75A25fCA122bb6898B8B1282a";
-export const USDCAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+// 0xcebA9300f2b948710d2653dD7B07f33A8B32118C
+// export const USDCAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // base network
+export const USDCAddress = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"; // celo network
 export const contractAbi = [
   {
     "inputs": [],

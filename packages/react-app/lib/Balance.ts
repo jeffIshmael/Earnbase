@@ -23,7 +23,7 @@ export async function getBalances(address: `0x${string}`) {
     args: [address],
   });
 
-  const USDCBalance = await baseClient.readContract({
+  const USDCBalance = await celoClient.readContract({
     address: USDCAddress,
     abi: erc20Abi,
     functionName: 'balanceOf',
