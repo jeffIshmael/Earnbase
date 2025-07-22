@@ -32,3 +32,14 @@ EarnBase solves this by creating a gamified, AI-assisted feedback loop:
 - Create a structured, gamified environment for crowdsourced task execution.
 - Reward contributors based on effort and value, not just participation.
 - Enable projects to collect high-quality, AI-filtered user insights at scale.
+
+## Tech Stacks
+
+- **Blockchain:** Celo
+- **Smart Contracts:** Solidity
+- **Stablecoin:** cUSD
+- **Frontend:** Next.js, Tailwind CSS
+- **Wagmi + Viem** – Web3 hooks and client management
+- **Prisma:** Prisma is utilized as the ORM (Object-Relational Mapping) tool to manage database interactions. 
+- **Gemini API:** Used as the LLM to rate the users feedbacks.
+- **Pimlico** – Smart accounts (used for gasless reward settlement)

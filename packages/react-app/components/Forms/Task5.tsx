@@ -110,7 +110,7 @@ const Task5Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
         const message = bugReport !== '' ? feedback + `\n\nBug Report: ${bugReport}` : feedback;
         const aiRatingJson = JSON.stringify(aiRating);
         const individualFeedback = JSON.stringify(message);
-        const task = await recordTask(Number(id),claimed,amount,aiRatingJson,individualFeedback,address);
+        const task = await recordTask(Number(id),claimed,amount,aiRatingJson,individualFeedback,address as string);
         if(!task){
           toast.error("Unable to update database.");
         }
