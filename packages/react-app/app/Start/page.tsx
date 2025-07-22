@@ -26,7 +26,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { ethers } from "ethers";
 
 // Get signer and connect wallet only if needed
-export const getSigner = async (): Promise<ethers.Signer | null> => {
+ const getSigner = async (): Promise<ethers.Signer | null> => {
   if (typeof window === "undefined" || !window.ethereum) {
     console.error("🦊 MetaMask not found.");
     return null;
