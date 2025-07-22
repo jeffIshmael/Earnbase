@@ -1,7 +1,7 @@
 <!-- TITLE -->
 <p align="center">
-  <img width="100px" src="https://github.com/celo-org/celo-composer/blob/main/images/readme/celo_isotype.svg" align="center" alt="Celo" />
- <h2 align="center">Celo Composer - MiniPay Template</h2>
+  <img width="100px" src="https://earnbase.vercel.app/logo.png" align="center" alt="Celo" />
+ <h2 align="center">Earnbase</h2>
  <p align="center">Build, deploy, and iterate quickly on decentralized applications using Celo for MiniPay.</p>
 </p>
   <p align="center">
