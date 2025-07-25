@@ -10,6 +10,7 @@ const nextConfig = {
   images: {
     domains: ['cdn-production-opera-website.operacdn.com', 'ipfs.io', 'gateway.pinata.cloud'],
   },
+  transpilePackages: ["@0xsquid/widget", "@0xsquid/react-hooks"],
 };
 
 module.exports = nextConfig;

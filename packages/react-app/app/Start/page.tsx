@@ -17,38 +17,13 @@ import { getBalances } from '@/lib/Balance';
 import { formatEther } from 'viem';
 import {registerUser,getUser} from '@/lib/Prismafnctns';
 import { useUserSmartAccount } from '../hooks/useUserSmartAccount';
-import { getSwapping, performing } from '@/lib/Swapping';
-import { Mento } from "@mento-protocol/mento-sdk";
-import { providers, utils } from "ethers";
+import {  TradablePair } from "@mento-protocol/mento-sdk";
 import { cUSDAddress, USDCAddress } from '@/contexts/constants';
-import { useWalletClient } from 'wagmi';
-import { Web3Provider } from "@ethersproject/providers";
-import { ethers } from "ethers";
-
-// Get signer and connect wallet only if needed
- const getSigner = async (): Promise<ethers.Signer | null> => {
-  if (typeof window === "undefined" || !window.ethereum) {
-    console.error("🦊 MetaMask not found.");
-    return null;
-  }
-
-  try {
-    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-
-    const accounts = await provider.listAccounts();
-
-    if (accounts.length === 0) {
-      // No wallet connected yet, request access
-      await provider.send("eth_requestAccounts", []);
-    }
-
-    return provider.getSigner();
-  } catch (error) {
-    console.error("❗ Failed to get signer:", error);
-    return null;
-  }
-};
-
+import {  getTheQuote, approveSwap, executeSwap } from '@/lib/Swapping';
+import { useDebouncedValue } from '@/utils/Hook';
+import TransferModal from '@/components/TransferModal';
+import confetti from 'canvas-confetti';
+import { CeloLogo } from '@/components/CeloLogo';
 
 
 interface Task {
@@ -91,6 +66,14 @@ export interface Tester{
   tasks: miniTasks[];
 }
 
+interface Quote {
+  amountWei: string;
+  quoteWei: string;
+  quote: string;
+  rate: string;
+  tradablePair: TradablePair;
+} 
+
 const tasks: Task[] = [
   {
     id: '1',
@@ -122,14 +105,12 @@ export default function Page() {
   const [amountFrom, setAmountFrom] = useState('');
   const [amountTo, setAmountTo] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
-  const [exchangeRate, setExchangeRate] = useState('1 cUSD = 1 USDC');
+  const [isApproving, setIsApproving] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState('1 cUSD = 0.999 USDC');
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
-  const { data: walletClient } = useWalletClient();
-  const provider = new providers.JsonRpcProvider(
-    "https://forno.celo.org"
-  );
-
-
+  const [quoteInterface, setQuoteInterface] = useState< Quote | null>(null);
+  const debouncedAmount = useDebouncedValue(amountFrom, 500);
+  const [showTransferModal, setShowTransferModal] = useState(false);
  
   // checkUserRegistered effect
   useEffect(() => {
@@ -225,6 +206,15 @@ export default function Page() {
       switchChain({ chainId: celo.id });
     }
   }, [chain?.id, isConnected]);
+
+  useEffect(() => {
+    const fetchQuote = async () => {
+      if (!currencyFrom || isNaN(Number(debouncedAmount)) || Number(debouncedAmount) <= 0) return;
+      await getQuote(currencyFrom === "cUSD");
+    };
+    fetchQuote();
+  }, [debouncedAmount, currencyFrom]);
+  
   
   const handleConnect = async () => {
     try {
@@ -234,129 +224,137 @@ export default function Page() {
     }
   };
 
-  const sendEmails = async () =>{
-    try {
-      console.log("logging now.");
-    //    // 1. Add the reward to the user
-    // const res = await fetch('/api/email', {
-    //   method: 'GET',
-    // });
-    // await getSwapping();
-    // await performing("0.00001");
+  const showConfetti = (x: number, y: number) => {
+    confetti({
+      particleCount: 80,
+      angle: 90,
+      spread: 45,
+      startVelocity: 45,
+      decay: 0.9,
+      gravity: 0.5,
+      origin: { 
+        x: x / window.innerWidth,
+        y: y / window.innerHeight 
+      },
+      colors: ['#4f46e5', '#10b981', '#f59e0b'],
+      ticks: 100,
+      shapes: ['circle', 'square'],
+      scalar: 0.8
+    });
+  };
 
-    // await swap();
+  // function to handle getting quote
+  const getQuote = async (fromcUSD: boolean) =>{
+    if(isNaN(Number(amountFrom)) || Number(amountFrom) <= 0) return;
+    try {
+      setIsFetchingQuote(true);
+      const quote = await getTheQuote(amountFrom,fromcUSD);
+      setQuoteInterface(quote);
+      const rate = `1 ${fromcUSD ? "cUSD" : "USDC"} = ${quote?.rate} ${fromcUSD ? "USDC": "cUSD"}`;
+      setExchangeRate(rate);
+      setAmountTo(quote?.quote ?? "");
+      setIsFetchingQuote(false);
     } catch (error) {
       console.log(error);
-    }
-   
-  }
-
-  // function to get the quote of the swapping
-  const getQuoting = async (amount: string) => {
-    if (!currencyFrom || !amount) {
-      setAmountTo("");
-      return;
-    }
-    setIsFetchingQuote(true);
-    try {
-      const mento = await Mento.create(provider);
-      let amountToReceive: number | null = null;
-  
-      if (currencyFrom === "cUSD") {
-        const USDCTokenAddr = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C";
-        const cUSDTokenAddr = "0x765DE816845861e75A25fCA122bb6898B8B1282a";
-        const tokenUnits = 6;
-        
-        const amountIn = utils.parseUnits(amount, tokenUnits).toString();
-        const quoteAmountOut = await mento.getAmountOut(
-          USDCTokenAddr,
-          cUSDTokenAddr,
-          amountIn
-        );
-        amountToReceive = Number(utils.formatUnits(quoteAmountOut));
-        setExchangeRate(`1 cUSD = ${(Number(amount)/amountToReceive).toFixed(4)} USDC`);
-      } else if (currencyFrom === "USDC") {
-        const USDCTokenAddr = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C";
-        const cUSDTokenAddr = "0x765DE816845861e75A25fCA122bb6898B8B1282a";
-        const tokenUnits = 18;
-        
-        const amountIn = utils.parseUnits(amount, tokenUnits).toString();
-        const quoteAmountOut = await mento.getAmountOut(
-          cUSDTokenAddr,
-          USDCTokenAddr,
-          amountIn
-        );
-        amountToReceive = Number((Number(quoteAmountOut) / 10 ** 6).toFixed(3));
-        setExchangeRate(`1 USDC = ${(amountToReceive/Number(amount)).toFixed(4)} cUSD`);
-      }
-  
-      return amountToReceive;
-    } catch (error) {
-      console.error("Error getting quote:", error);
-      toast.error("Failed to get quote. Please try again.");
-      return null;
+      toast.error("Unable to fetch price quote.")
     }finally{
       setIsFetchingQuote(false);
     }
-  };
+  }
 
-  // function to perform a swap
-// Swap cUSD to USDC
-const performASwap = async (amount: string) => {
-  try {
-    const signer = await getSigner(); // Your method to get the signer
-    if (!signer || !currencyFrom) {
-      console.log("Missing signer or source currency.");
+  // function to do the swap
+  const handleSwap = async (fromcUSD: boolean, event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!quoteInterface) {
+      toast.error("Quote not available. Please try again.");
       return;
     }
-
-    console.log("🔐 Signer obtained:", await signer.getAddress());
-
-    // Initialize Mento SDK
-    const mento = await Mento.create(signer);
-    const tokenUnits = 18; // Assuming both tokens use 18 decimals
-    const amountIn = utils.parseUnits(amount, tokenUnits);
-
-    if (currencyFrom === "cUSD") {
-      console.log("⚙️ Increasing trading allowance...");
-
-      const USDCTokenAddr = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C";
-
-      const allowanceTxObj = await mento.increaseTradingAllowance(
-        USDCTokenAddr,
-        amountIn
-      );
-      const allowanceTx = await signer.sendTransaction(allowanceTxObj);
-      await allowanceTx.wait();
-
-      console.log("✅ Allowance increased.");
-
-      // Estimate expected output with 1% slippage
-      const expectedAmountOut = amountIn.mul(99).div(100);
-
-      console.log("🔄 Swapping cUSD to USDC...");
-
-      const swapTxObj = await mento.swapIn(
-        USDCAddress,
-        cUSDAddress,
-        amountIn,
-        expectedAmountOut
-      );
-
-      const swapTx = await signer.sendTransaction(swapTxObj);
-      const receipt = await swapTx.wait();
-
-      console.log("✅ Swap complete. Transaction hash:", receipt.transactionHash);
-    } else {
-      console.log("❌ Unsupported source currency:", currencyFrom);
+    if (!address) {
+      toast.error("Please connect wallet.");
+      return;
     }
+  
+    const fromTokenSymbol = fromcUSD ? "cUSD" : "USDC";
+    const toTokenSymbol = fromcUSD ? "USDC" : "cUSD";
+    const fromTokenAddress = fromcUSD ? cUSDAddress : USDCAddress;
+    const toTokenAddress = fromcUSD ? USDCAddress : cUSDAddress;
 
-  } catch (error: any) {
-    console.error("❗ Swap failed:", error?.message || error);
-  }
-};
+      // Get button position
+    const buttonRect = event.currentTarget.getBoundingClientRect();
+    const buttonCenterX = buttonRect.left + buttonRect.width / 2;
+    const buttonCenterY = buttonRect.top + buttonRect.height / 2;
 
+  
+    try {
+      setIsApproving(true);
+      toast.loading("Approving token for swap...");
+  
+      const approvalTx = await approveSwap(fromTokenAddress, quoteInterface.amountWei);
+  
+      if (!approvalTx) {
+        toast.dismiss();
+        toast.error("Approval failed. Please try again.");
+        return;
+      }
+  
+      toast.dismiss();
+      toast.success("Approval successful.");
+  
+      setIsApproving(false);
+      setIsSwapping(true);
+      toast.loading("Swapping tokens...");
+  
+      const swapTx = await executeSwap(
+        fromTokenAddress,
+        toTokenAddress,
+        quoteInterface.amountWei,
+        quoteInterface.quoteWei,
+        quoteInterface.tradablePair,
+        fromcUSD
+      );
+  
+      if (!swapTx) {
+        toast.dismiss();
+        toast.error("Swap failed. Please try again.");
+        return;
+      }
+  
+      setIsSwapping(false);
+      toast.dismiss();
+      toast(
+        <div className="flex flex-col">
+          <span>
+            ✅ Successfully swapped {amountFrom} {fromTokenSymbol} to {Number(amountTo).toFixed(4)} {toTokenSymbol}
+          </span>
+          <a
+            href={`https://celoscan.io/tx/${swapTx.transactionHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block w-fit rounded-md bg-green-400 px-3 py-1 text-white text-sm font-medium hover:bg-green-600 transition"
+          >
+            View on CeloScan
+          </a>
+        </div>
+      );
+       // Fire confetti from button position
+      showConfetti(buttonCenterX, buttonCenterY);
+      setAmountFrom("");
+      setAmountTo("");
 
+      // get the balances again
+      const {cUSDBalance, USDCBalance} = await getBalances(address as `0x${string}`);
+      setCUSDBalance(Number(formatEther(cUSDBalance)).toFixed(3));
+      setUsdcBalance((Number(USDCBalance) / 10 ** 6).toFixed(3));
+
+    } catch (error) {
+      console.error("Swap error:", error);
+      toast.dismiss();
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsApproving(false);
+      setIsSwapping(false);
+    }
+  };
+  
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
@@ -526,214 +524,272 @@ const performASwap = async (amount: string) => {
 
         {activeTab === 'wallet' && (
      <div className="p-4 space-y-8 max-w-5xl mx-auto">
-     {/* Wallet Info */}
-     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-md">
-       <div className="flex items-center justify-between mb-4">
-         <h3 className="text-lg font-semibold text-gray-900">Wallet Information</h3>
-         <div
-           className={`px-3 py-1 rounded-full text-xs font-medium ${
-             isConnected ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'
-           }`}
-         >
-           {isConnected ? 'Connected' : 'Not Connected'}
-         </div>
-       </div>
-   
-       <div className="space-y-4">
-         <div>
-           <p className="text-sm text-gray-600 mb-2">Wallet Address</p>
-           <div
-             onClick={isConnected ? () => copyToClipboard(address || '') : handleConnect}
-             className="bg-gray-50 rounded-lg p-3 border border-gray-200 cursor-pointer hover:border-indigo-300 transition-colors"
-           >
-             <p className="text-sm font-mono text-gray-800 break-all">
-               {isConnected ? address : 'Connect wallet'}
-             </p>
-           </div>
-         </div>
-   
-         <div className="grid grid-cols-2 gap-4">
-           <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl p-4 text-white shadow-lg">
-             <div className="flex items-center space-x-2 mb-2">
-               <div className="bg-white p-1 rounded-full">
-                 <Image src="/static/cusdLogo.jpg" alt="CUSD" width={24} height={24} className="rounded-full" />
-               </div>
-               <p className="text-sm font-medium">cUSD Balance</p>
-             </div>
-             <p className="text-2xl font-bold">{cUSDBalance}</p>
-           </div>
-   
-           <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-4 text-white shadow-lg">
-             <div className="flex items-center space-x-2 mb-2">
-               <div className="bg-white p-1 rounded-full">
-                 <Image src="/static/usdclogo.png" alt="usdc" width={24} height={24} className="rounded-full" />
-               </div>
-               <p className="text-sm font-medium">USDC Balance</p>
-             </div>
-             <p className="text-2xl font-bold">{usdcBalance}</p>
-           </div>
-         </div>
-   
-         {/* Single Send Button */}
-         {/* <div className="text-right">
-           <button onClick={()=>sendEmails() } className="mt-4 px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg shadow hover:bg-indigo-700 transition">
-             Send
-           </button>
-         </div> */}
-       </div>
-     </div>
-   
-     {/* Swap Section */}
-    {/* Swap Section */}
-{/* Swap Section */}
-<div className="relative max-w-md mx-auto bg-white rounded-2xl p-6 border border-gray-100 shadow-md">
-  <h3 className="text-lg font-semibold text-gray-900 mb-6">Swap Tokens</h3>
-
-  {/* Arrow Floating Between */}
-  <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 z-10">
-    <button 
-      onClick={async () => {
-        if (!currencyFrom) return;
-        setCurrencyFrom(currencyFrom === "cUSD" ? "USDC" : "cUSD");
-        if (amountFrom) {
-          const quote = await getQuoting(amountFrom);
-          if (quote) setAmountTo(quote.toString());
-        }
-      }}
-      className="bg-indigo-100 rounded-full p-2 border border-indigo-200 shadow-md hover:bg-indigo-200 transition-colors"
+{/* Wallet Info */}
+<div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg">
+  <div className="flex items-center justify-between mb-6">
+    <div className="flex items-center space-x-3">
+      <div className="p-2 bg-indigo-50 rounded-lg">
+        <Wallet className="w-5 h-5 text-indigo-600" />
+      </div>
+      <h3 className="text-xl font-semibold text-gray-900">Wallet Information</h3>
+    </div>
+    <div
+      className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center ${
+        isConnected 
+          ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' 
+          : 'bg-red-50 text-red-600 border border-red-200'
+      }`}
     >
-      <ArrowDownUp className="w-5 h-5 text-indigo-600" />
-    </button>
+      <div className={`w-2 h-2 rounded-full mr-2 ${
+        isConnected ? 'bg-emerald-500' : 'bg-red-500'
+      }`}></div>
+      {isConnected ? 'Connected' : 'Not Connected'}
+    </div>
   </div>
 
-  <div className="space-y-6 relative z-0">
-    {/* From */}
-    <div className="relative z-0">
-      <label className="text-sm text-gray-600 mb-2 block">From</label>
+  <div className="space-y-4">
+    {/* Wallet Address */}
+    <div>
+      <label className="text-sm font-medium text-gray-700 mb-2 block">Wallet Address</label>
+      <div
+        onClick={isConnected ? () => copyToClipboard(address || '') : handleConnect}
+        className={cn(
+          "bg-gray-50 rounded-xl p-4 border-2 transition-all",
+          isConnected 
+            ? "border-gray-200 hover:border-indigo-300 cursor-pointer" 
+            : "border-indigo-100 hover:border-indigo-200 cursor-pointer bg-indigo-50"
+        )}
+      >
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-mono text-gray-800 break-all">
+            {isConnected ? address : 'Click to connect wallet'}
+          </p>
+          {isConnected ? (
+            <div className="bg-white p-1.5 rounded-lg border border-gray-200 ml-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </div>
+          ) : (
+            <div className="bg-indigo-100 p-1.5 rounded-lg ml-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+
+    {/* Token Balances */}
+    <div className="grid grid-cols-2 gap-4">
+  {/* cUSD Card */}
+  <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl p-4 text-white shadow-lg">
+    <div className="flex items-center space-x-2 mb-2">
+      <div className="relative w-7 h-7 rounded">
+        <Image
+          src="/static/cusdLogo.jpg"
+          alt="CUSD"
+          width={30}
+          height={30}
+          className="object-cover bg-white rounded-full bg-white p-0.5 "
+        />
+        <div className="absolute bottom-0 right-0 w-3.5 h-3.5">
+          <CeloLogo />
+        </div>
+      </div>
+      <p className="text-sm font-medium">cUSD Balance</p>
+    </div>
+    <p className="text-2xl font-bold">{cUSDBalance}</p>
+  </div>
+
+  {/* USDC Card */}
+  <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-4 text-white shadow-lg">
+    <div className="flex items-center space-x-2 mb-2">
+      <div className="relative w-7 h-7 rounded-full ">
+        <Image
+          src="/static/usdclogo.png"
+          alt="USDC"
+          width={30}
+          height={30}
+          className="object-cover rounded-full bg-white"
+        />
+        <div className="absolute bottom-0 right-0 w-3.5 h-3.5">
+          <CeloLogo />
+        </div>
+      </div>
+      <p className="text-sm font-medium">USDC Balance</p>
+    </div>
+    <p className="text-2xl font-bold">{usdcBalance}</p>
+  </div>
+</div>
+
+
+
+    {/* Centered Send Button */}
+    <div className="flex justify-center pt-2 text-indigo-700">
+      <button 
+        onClick={() => setShowTransferModal(true)}
+        className="bg-indigo-100 border border-indigo-700 text-indigo-700 hover:bg-indigo-700 hover:text-white font-medium py-2.5 px-6 rounded-lg shadow-sm transition-all flex items-center justify-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+        Send
+      </button>
+    </div>
+  </div>
+</div>
+
+     {/* Swap Section */}
+    <div className="relative max-w-md mx-auto bg-white rounded-2xl p-6 border border-gray-100 shadow-md">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Swap Tokens</h3>
+
+      {/* Arrow Floating Between */}
+      <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 z-10">
+        <button 
+          onClick={async () => {
+            if (!currencyFrom) return;
+            setCurrencyFrom(currencyFrom === "cUSD" ? "USDC" : "cUSD");
+            if (amountFrom) {
+              await getQuote(currencyFrom === "cUSD");
+            }
+          }}
+          className="bg-indigo-100 rounded-full p-2 border border-indigo-200 shadow-md hover:bg-indigo-200 transition-colors"
+        >
+          <ArrowDownUp className="w-5 h-5 text-indigo-600" />
+        </button>
+      </div>
+
+      <div className="space-y-6 relative z-0">
+        {/* From */}
+        <div className="relative z-0">
+          <label className="text-sm text-gray-600 mb-2 block">From</label>
+          <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Image
+                  src={currencyFrom === "cUSD" ? "/static/cusdLogo.jpg" : "/static/usdclogo.png"}
+                  alt={currencyFrom || "Token"}
+                  width={28}
+                  height={28}
+                  className="rounded-full"
+                />
+                <select
+                  value={currencyFrom || ""}
+                  onChange={(e) => setCurrencyFrom(e.target.value as "cUSD" | "USDC")}
+                  className="bg-white border border-gray-200 text-sm font-medium text-gray-800 rounded-md px-2 py-1 shadow-sm focus:outline-none"
+                >
+                  <option value="">Select</option>
+                  <option value="cUSD">cUSD</option>
+                  <option value="USDC">USDC</option>
+                </select>
+              </div>
+              <input
+                type="number"
+                placeholder="0.0"
+                value={amountFrom}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setAmountFrom(value);
+                }}            
+                className="bg-transparent text-right text-lg font-semibold text-gray-900 placeholder-gray-400 outline-none w-1/2"
+              />
+            </div>
+            <div className="mt-2 text-right">
+              <span className="text-sm text-gray-400">
+                Balance: {currencyFrom === "cUSD" ? `${cUSDBalance} cUSD` : `${usdcBalance} USDC`}
+              </span>
+            </div>
+          </div>
+        </div>
+
+    
+        {/* To */}
+    <div>
+      <label className="text-sm text-gray-600 mb-2 block">To</label>
       <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <Image
-              src={currencyFrom === "cUSD" ? "/static/cusdLogo.jpg" : "/static/usdclogo.png"}
-              alt={currencyFrom || "Token"}
+              src={currencyFrom === "cUSD" ? "/static/usdclogo.png" : "/static/cusdLogo.jpg"}
+              alt={currencyFrom === "cUSD" ? "USDC" : "cUSD"}
               width={28}
               height={28}
               className="rounded-full"
             />
-            <select
-              value={currencyFrom || ""}
-              onChange={(e) => setCurrencyFrom(e.target.value as "cUSD" | "USDC")}
-              className="bg-white border border-gray-200 text-sm font-medium text-gray-800 rounded-md px-2 py-1 shadow-sm focus:outline-none"
-            >
-              <option value="">Select</option>
-              <option value="cUSD">cUSD</option>
-              <option value="USDC">USDC</option>
-            </select>
+            <span className="font-medium text-gray-500">
+              {currencyFrom === "cUSD" ? "USDC" : "cUSD"}
+            </span>
           </div>
-          <input
-            type="number"
-            placeholder="0.0"
-            value={amountFrom}
-            onChange={async (e) => {
-              const value = e.target.value;
-              setAmountFrom(value);
-              if (value && currencyFrom) {
-                setAmountTo("Calculating...");
-                const quote = await getQuoting(value);
-                if (quote) setAmountTo(quote.toString());
-              } else {
-                setAmountTo("");
-              }
-            }}
-            className="bg-transparent text-right text-lg font-semibold text-gray-900 placeholder-gray-400 outline-none w-1/2"
-          />
+          {isFetchingQuote ? (
+            <div className="flex items-center justify-end w-1/2">
+              <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <input
+              type="text"
+              placeholder="0.0"
+              value={amountTo}
+              readOnly
+              className="bg-transparent text-right text-lg font-semibold text-gray-500 placeholder-gray-400 outline-none w-1/2"
+            />
+          )}
         </div>
         <div className="mt-2 text-right">
           <span className="text-sm text-gray-400">
-            Balance: {currencyFrom === "cUSD" ? `${cUSDBalance} cUSD` : `${usdcBalance} USDC`}
+            Balance: {currencyFrom === "cUSD" ? `${usdcBalance} USDC` : `${cUSDBalance} cUSD`}
           </span>
         </div>
       </div>
     </div>
 
- 
-    {/* To */}
-<div>
-  <label className="text-sm text-gray-600 mb-2 block">To</label>
-  <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center space-x-3">
-        <Image
-          src={currencyFrom === "cUSD" ? "/static/usdclogo.png" : "/static/cusdLogo.jpg"}
-          alt={currencyFrom === "cUSD" ? "USDC" : "cUSD"}
-          width={28}
-          height={28}
-          className="rounded-full"
-        />
-        <span className="font-medium text-gray-500">
-          {currencyFrom === "cUSD" ? "USDC" : "cUSD"}
-        </span>
-      </div>
+      {/* Exchange Rate */}
+    <div className="text-center pt-2">
       {isFetchingQuote ? (
-        <div className="flex items-center justify-end w-1/2">
-          <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : (
-        <input
-          type="text"
-          placeholder="0.0"
-          value={amountTo}
-          readOnly
-          className="bg-transparent text-right text-lg font-semibold text-gray-500 placeholder-gray-400 outline-none w-1/2"
-        />
-      )}
-    </div>
-    <div className="mt-2 text-right">
-      <span className="text-sm text-gray-400">
-        Balance: {currencyFrom === "cUSD" ? `${usdcBalance} USDC` : `${cUSDBalance} cUSD`}
-      </span>
-    </div>
-  </div>
-</div>
-
-   {/* Exchange Rate */}
-<div className="text-center pt-2">
-  {isFetchingQuote ? (
-    <div className="flex items-center justify-center space-x-2">
-      <div className="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-sm text-gray-400">Fetching rate...</p>
-    </div>
-  ) : (
-    <p className="text-sm text-gray-400">
-      {exchangeRate}
-    </p>
-  )}
-</div>
-
-    {/* Swap Button */}
-    <button 
-        onClick={async() => performASwap(amountFrom)}
-        disabled={!amountFrom || !currencyFrom || isSwapping || isFetchingQuote}
-        className={cn(
-          "w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg",
-          (!amountFrom || !currencyFrom || isFetchingQuote) && "opacity-50 cursor-not-allowed",
-          isSwapping && "opacity-70 cursor-not-allowed"
-        )}
-      >
-      {isSwapping ? (
         <div className="flex items-center justify-center space-x-2">
-          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          <span>Swapping...</span>
+          <div className="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm text-gray-400">Fetching rate...</p>
         </div>
       ) : (
-        "Swap"
+        <p className="text-sm text-gray-400">
+          {exchangeRate}
+        </p>
       )}
-    </button>
-   </div>
-  </div>
+    </div>
+
+        {/* Swap Button */}
+        <button 
+            onClick={(e) => handleSwap(currencyFrom === "cUSD",e)}
+            disabled={!isConnected || isNaN(Number(amountFrom)) || Number(amountFrom) <= 0 || !amountFrom || !currencyFrom || isSwapping || isFetchingQuote || isApproving}
+            className={cn(
+              "w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg",
+              (isNaN(Number(amountFrom)) || Number(amountFrom) <= 0|| !amountFrom || !currencyFrom || isFetchingQuote) && "opacity-50 cursor-not-allowed",
+              isApproving||isSwapping && "opacity-70 cursor-not-allowed"
+            )}
+          >
+          {isApproving ? (
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Approving Tx...</span>
+            </div>
+          ) :isSwapping ? (
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Swapping...</span>
+            </div>
+          ) : (
+            "Swap"
+          )}
+        </button>
+      </div>
+    </div>
    </div>        
         )}
       </div>
+ 
 
 {/* Floating Bottom Navigation */}
 <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm mx-auto">
@@ -792,6 +848,10 @@ const performASwap = async (amount: string) => {
     </div>
   </div>
 </div>
+
+{
+  showTransferModal && <TransferModal cUSDBalance={cUSDBalance ?? '0'} usdcBalance={usdcBalance ?? '0'} onClose={()=> setShowTransferModal(false)} />
+}
     </div>
   );
 }
