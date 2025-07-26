@@ -12,6 +12,7 @@ import { fromWei } from "@/utils/amount";
 import { parseUnits } from "ethers/lib/utils";
 import { getEthersSigner } from "./WagmiEthers";
 import { config } from "@/providers/AppProvider";
+import { getWalletClient } from '@wagmi/core';
 
 
 const provider = new providers.JsonRpcProvider("https://forno.celo.org");
@@ -85,14 +86,18 @@ export async function getTheQuote(amount: string, swapIn: Boolean) {
 export async function approveSwap(fromTokenAddr: string, amountWei: string) {
   try {
     const mento = await Mento.create(provider);
-    const signer = await getEthersSigner(config);
+    const client = await getWalletClient(config);
 
     const allowanceTxObj = await mento.increaseTradingAllowance(fromTokenAddr, amountWei);
-    const allowanceTx = await signer.sendTransaction(allowanceTxObj);
-    const allowanceReceipt = await allowanceTx.wait();
+    const hash = await client.sendTransaction({
+      to: allowanceTxObj.to as `0x${string}`,
+      data: allowanceTxObj.data as `0x${string}`,
+      value: allowanceTxObj.value ? BigInt(allowanceTxObj.value.toString()) : 0n,
+      account: client.account,
+    });
 
-    console.log("✅ Approved. Tx hash:", allowanceReceipt.transactionHash);
-    return allowanceReceipt;
+    console.log("✅ Approved. Tx hash:", hash);
+    return hash;
   } catch (error) {
     console.error("❌ Error in approveSwap:", error);
     throw error;
@@ -111,16 +116,20 @@ export async function executeSwap(
 ) {
   try {
     const mento = await Mento.create(provider);
-    const signer = await getEthersSigner(config);
+    const client = await getWalletClient(config);
 
     const swapFn =  mento.swapIn.bind(mento);
 
     const txRequest = await swapFn(fromTokenAddr, toTokenAddr, amountWei, quoteWei, tradablePair);
-    const txResponse = await signer.sendTransaction(txRequest);
-    const receipt = await txResponse.wait();
+    const hash = await client.sendTransaction({
+      to: txRequest.to as `0x${string}`,
+      data: txRequest.data as `0x${string}`,
+      value: txRequest.value ? BigInt(txRequest.value.toString()) : 0n,
+      account: client.account,
+    });
 
-    console.log("✅ Swapped. Tx hash:", receipt.transactionHash);
-    return receipt;
+    console.log("✅ Swapped. Tx hash:", hash);
+    return hash;
   } catch (error) {
     console.error("❌ Error in executeSwap:", error);
     throw error;
