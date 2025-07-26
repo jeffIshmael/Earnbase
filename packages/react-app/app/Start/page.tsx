@@ -326,7 +326,7 @@ export default function Page() {
             ✅ Successfully swapped {amountFrom} {fromTokenSymbol} to {Number(amountTo).toFixed(4)} {toTokenSymbol}
           </span>
           <a
-            href={`https://celoscan.io/tx/${swapTx.transactionHash}`}
+            href={`https://celoscan.io/tx/${swapTx}`}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-2 inline-block w-fit rounded-md bg-green-400 px-3 py-1 text-white text-sm font-medium hover:bg-green-600 transition"
