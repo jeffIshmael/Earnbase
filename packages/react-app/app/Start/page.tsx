@@ -24,6 +24,8 @@ import { useDebouncedValue } from '@/utils/Hook';
 import TransferModal from '@/components/TransferModal';
 import confetti from 'canvas-confetti';
 import { CeloLogo } from '@/components/CeloLogo';
+import { waitForTransactionReceipt } from '@wagmi/core'
+import { config } from '@/providers/AppProvider';
 
 
 interface Task {
@@ -304,29 +306,38 @@ export default function Page() {
         toast.error("Swap failed. Please try again.");
         return;
       }
-  
-      setIsSwapping(false);
-      toast.dismiss();
-      toast(
-        <div className="flex flex-col">
-          <span>
-            ✅ Successfully swapped {amountFrom} {fromTokenSymbol} to {Number(amountTo).toFixed(4)} {toTokenSymbol}
-          </span>
-          <a
-            href={`https://celoscan.io/tx/${swapTx}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-block w-fit rounded-md bg-green-400 px-3 py-1 text-white text-sm font-medium hover:bg-green-600 transition"
-          >
-            View on CeloScan
-          </a>
-        </div>
-      );
-      setAmountFrom("");
-      setAmountTo("");
-      // get the balances again
-      await getUserBalance(address);
-      
+
+      const transactionReceipt = await waitForTransactionReceipt(config, {
+        chainId: celo.id, 
+        hash: swapTx ,
+      })
+
+      if(transactionReceipt && transactionReceipt.status === "success"){
+        setIsSwapping(false);
+        toast.dismiss();
+        toast(
+          <div className="flex flex-col">
+            <span>
+              ✅ Successfully swapped {amountFrom} {fromTokenSymbol} to {Number(amountTo).toFixed(4)} {toTokenSymbol}
+            </span>
+            <a
+              href={`https://celoscan.io/tx/${swapTx}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block w-fit rounded-md bg-green-500 px-3 py-1 text-white text-sm font-medium hover:bg-green-600 transition"
+            >
+              View on CeloScan
+            </a>
+          </div>
+        );
+        setAmountFrom("");
+        setAmountTo("");
+        // get the balances again
+        await getUserBalance(address);
+      }else{
+        toast.dismiss();
+        toast.error("Swap transaction failed or reverted.");
+      }
     } catch (error) {
       console.error("Swap error:", error);
       toast.dismiss();
