@@ -229,15 +229,15 @@ export default function Page() {
       particleCount: 80,
       angle: 90,
       spread: 45,
-      startVelocity: 45,
-      decay: 0.9,
-      gravity: 0.5,
+      // startVelocity: 45,
+      // decay: 0.9,
+      // gravity: 0.5,
       origin: { 
         x: x / window.innerWidth,
         y: y / window.innerHeight 
       },
       colors: ['#4f46e5', '#10b981', '#f59e0b'],
-      ticks: 100,
+      // ticks: 100,
       shapes: ['circle', 'square'],
       scalar: 0.8
     });
