@@ -224,24 +224,24 @@ export default function Page() {
     }
   };
 
-  const showConfetti = (x: number, y: number) => {
-    confetti({
-      particleCount: 80,
-      angle: 90,
-      spread: 45,
-      // startVelocity: 45,
-      // decay: 0.9,
-      // gravity: 0.5,
-      origin: { 
-        x: x / window.innerWidth,
-        y: y / window.innerHeight 
-      },
-      colors: ['#4f46e5', '#10b981', '#f59e0b'],
-      // ticks: 100,
-      shapes: ['circle', 'square'],
-      scalar: 0.8
-    });
-  };
+  // const showConfetti = (x: number, y: number) => {
+  //   confetti({
+  //     particleCount: 80,
+  //     angle: 90,
+  //     spread: 45,
+  //     // startVelocity: 45,
+  //     // decay: 0.9,
+  //     // gravity: 0.5,
+  //     origin: { 
+  //       x: x / window.innerWidth,
+  //       y: y / window.innerHeight 
+  //     },
+  //     colors: ['#4f46e5', '#10b981', '#f59e0b'],
+  //     // ticks: 100,
+  //     shapes: ['circle', 'square'],
+  //     scalar: 0.8
+  //   });
+  // };
 
   // function to handle getting quote
   const getQuote = async (fromcUSD: boolean) =>{
@@ -336,7 +336,7 @@ export default function Page() {
         </div>
       );
        // Fire confetti from button position
-      showConfetti(buttonCenterX, buttonCenterY);
+      // showConfetti(buttonCenterX, buttonCenterY);
       setAmountFrom("");
       setAmountTo("");
 
