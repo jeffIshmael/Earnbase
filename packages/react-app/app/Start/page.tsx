@@ -187,14 +187,20 @@ export default function Page() {
     }
   }, [chain, isConnected]);
 
+  // function to get the balances
+  const getUserBalance = async (address: `0x${string}`) =>{
+    const {cUSDBalance, USDCBalance} = await getBalances(address as `0x${string}`);
+    setCUSDBalance(Number(formatEther(cUSDBalance)).toFixed(3));
+    setUsdcBalance((Number(USDCBalance) / 10 ** 6).toFixed(3));
+
+  }
+
   // 4. Fetch token balances
   useEffect(() => {
     const fetchBalances = async () => {
       if (!address || !isConnected) return;
   
-      const {cUSDBalance, USDCBalance} = await getBalances(address as `0x${string}`);
-      setCUSDBalance(Number(formatEther(cUSDBalance)).toFixed(3));
-      setUsdcBalance((Number(USDCBalance) / 10 ** 6).toFixed(3));
+      await getUserBalance(address);
     };
   
     fetchBalances();
@@ -224,24 +230,6 @@ export default function Page() {
     }
   };
 
-  // const showConfetti = (x: number, y: number) => {
-  //   confetti({
-  //     particleCount: 80,
-  //     angle: 90,
-  //     spread: 45,
-  //     // startVelocity: 45,
-  //     // decay: 0.9,
-  //     // gravity: 0.5,
-  //     origin: { 
-  //       x: x / window.innerWidth,
-  //       y: y / window.innerHeight 
-  //     },
-  //     colors: ['#4f46e5', '#10b981', '#f59e0b'],
-  //     // ticks: 100,
-  //     shapes: ['circle', 'square'],
-  //     scalar: 0.8
-  //   });
-  // };
 
   // function to handle getting quote
   const getQuote = async (fromcUSD: boolean) =>{
@@ -272,18 +260,17 @@ export default function Page() {
       toast.error("Please connect wallet.");
       return;
     }
+
+    // ensure its connected to celo
+    if (chain?.id !== celo.id) {
+      switchChain({ chainId: celo.id });
+    }
   
     const fromTokenSymbol = fromcUSD ? "cUSD" : "USDC";
     const toTokenSymbol = fromcUSD ? "USDC" : "cUSD";
     const fromTokenAddress = fromcUSD ? cUSDAddress : USDCAddress;
     const toTokenAddress = fromcUSD ? USDCAddress : cUSDAddress;
 
-      // Get button position
-    const buttonRect = event.currentTarget.getBoundingClientRect();
-    const buttonCenterX = buttonRect.left + buttonRect.width / 2;
-    const buttonCenterY = buttonRect.top + buttonRect.height / 2;
-
-  
     try {
       setIsApproving(true);
       toast.loading("Approving token for swap...");
@@ -335,16 +322,11 @@ export default function Page() {
           </a>
         </div>
       );
-       // Fire confetti from button position
-      // showConfetti(buttonCenterX, buttonCenterY);
       setAmountFrom("");
       setAmountTo("");
-
       // get the balances again
-      const {cUSDBalance, USDCBalance} = await getBalances(address as `0x${string}`);
-      setCUSDBalance(Number(formatEther(cUSDBalance)).toFixed(3));
-      setUsdcBalance((Number(USDCBalance) / 10 ** 6).toFixed(3));
-
+      await getUserBalance(address);
+      
     } catch (error) {
       console.error("Swap error:", error);
       toast.dismiss();
