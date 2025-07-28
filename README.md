@@ -57,24 +57,17 @@ EarnBase solves this by creating a gamified, AI-assisted feedback loop:
 
 ---
 
-## Architecture
-
----
-
 ## Implemented Features
 - **Task Submission** – Testers can easily submit feedback through a streamlined interface.
 - **AI-Powered Evaluation** – Feedback is automatically analyzed and rated by AI based on its quality and relevance.
 - **Bonus Rewards System** – Users earn additional rewards based on the AI-generated quality score of their feedback.
 - **Gas Sponsorship via Pimlico** – Pimlico is integrated to cover gas fees for the agent that records onchain reward allocations.
 - **Onchain Claiming** – Users can seamlessly claim their earned rewards directly to their wallets.
+- **Stablecoin swapping** – Users can seamlessly swap their cUSD to USDC. This is to cater for those users who would want to send their rewards to centralised exchanges (CEXs). 
 
 ---
 
 ## Upcoming Features
-
-**🛠 Cross-Chain Swapping**
-
-Allow users to seamlessly convert their earned cUSD into USDC on the Base network — ideal for Farcaster, where USDC is widely used.
 
 **🛠 Public Task Creation**
 
@@ -89,14 +82,14 @@ Earnbase will be opened up to everyone. Anyone will be able to:
 EarnBase was initially launched to support the beta testing of ChamaPay, a circular savings dApp built on Celo. 
 Through EarnBase:
  - 10+ testers completed structured tasks
- - Feedback was collected, rated, and rewarded
+ - Feedback was collected, rated, and rewarded. Check out some of the feedbacks collected. [Feedback Link](https://www.notion.so/23ab791f376a80c89fa0ec8f980f98ff?v=23ab791f376a81e2b8bd000c2f544f9c&source=copy_link)
  - Users claimed their rewards directly to their wallets.
 
 ---
 
 ### Getting Started
 
-- Watch our video demo [Live Demo](https://youtu.be/QWdLC_tvImo?si=T2chg5htx1sYIYg5)
+- Watch our video demo [Live Demo](https://ik.imagekit.io/ckpbmlen1m/earnbase.mp4?updatedAt=1753699452508)
 - Try out our platform in our [live link](https://earnbase.vercel.app/)
 - Try as a miniapp on farcaster [farcaster Link](https://farcaster.xyz/miniapps/te_I8X6QteFo/earnbase)
 
