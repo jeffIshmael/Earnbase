@@ -1,8 +1,9 @@
-export const contractAddress = "0x162Cda2faF1EE18492eC3362C6E78982673FA6Fc";
+export const contractAddress = "0xFfcC76948C60606e7F71500AD569bE0977edC85E";
 // 0x162Cda2faF1EE18492eC3362C6E78982673FA6Fc - latest''
 // 0xF871324471df19D9da84dA5067b1085155Dd1036 - latest'
 // 0x2F19FdB8E80224abE0bEC83b289a726bF3280460 - latest
 // 0x30B1898Eeb4D4E35364EA65C79A807998A70f07c 
+// 0xFfcC76948C60606e7F71500AD569bE0977edC85E - after public
 export const cUSDAddress = "0x765DE816845861e75A25fCA122bb6898B8B1282a";
 // 0xcebA9300f2b948710d2653dD7B07f33A8B32118C
 // export const USDCAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // base network
@@ -162,6 +163,31 @@ export const contractAbi = [
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "testerAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "PaymentAwarded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "tester",
@@ -232,6 +258,37 @@ export const contractAbi = [
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "taskId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "totalAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxReward",
+        "type": "uint256"
+      }
+    ],
+    "name": "TaskCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "tester",
         "type": "address"
@@ -263,42 +320,11 @@ export const contractAbi = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "tester",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "addRewards",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "tester",
+        "name": "_testerAddress",
         "type": "address"
       }
     ],
     "name": "addTester",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "newTesters",
-        "type": "address[]"
-      }
-    ],
-    "name": "addTesters",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -333,16 +359,29 @@ export const contractAbi = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "closeTask",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_totalAmount",
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "_userNormalAddresss",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_maxReward",
+        "type": "uint256"
       }
     ],
-    "name": "claimRewards",
+    "name": "createTask",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -356,6 +395,24 @@ export const contractAbi = [
       }
     ],
     "name": "depositCUSD",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "depositForTask",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -380,7 +437,138 @@ export const contractAbi = [
   },
   {
     "inputs": [],
-    "name": "getAllTesterDetails",
+    "name": "getAllTesters",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTask",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalTestersCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "paidAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTaskDetails",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "participantCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "paidAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address[]",
+        "name": "participants",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "participantAmounts",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTaskParticipants",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "participantAddresses",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "participantAmounts",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTaskPayments",
     "outputs": [
       {
         "components": [
@@ -391,21 +579,145 @@ export const contractAbi = [
           },
           {
             "internalType": "uint256",
-            "name": "unclaimedAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "claimedAmount",
+            "name": "taskId",
             "type": "uint256"
           },
           {
             "internalType": "address",
-            "name": "smartWallet",
+            "name": "receiver",
             "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct EarnBase.Tester[]",
+        "internalType": "struct EarnBase.Payment[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTaskStats",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "paidAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "remainingAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "paymentCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_testerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getTesterInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "taskIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "address",
+        "name": "smartAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "normalAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalEarned",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_testerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getTesterPayments",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "taskId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct EarnBase.Payment[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -417,20 +729,20 @@ export const contractAbi = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "_tester",
+        "name": "_testerAddress",
         "type": "address"
-      }
-    ],
-    "name": "getTestersRewards",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "claimed",
-        "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "unclaimed",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTesterTaskEarnings",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -438,19 +750,13 @@ export const contractAbi = [
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_tester",
-        "type": "address"
-      }
-    ],
-    "name": "isATester",
+    "inputs": [],
+    "name": "getTotalTasks",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "",
-        "type": "bool"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -473,6 +779,29 @@ export const contractAbi = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_testerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "makePayment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -524,6 +853,11 @@ export const contractAbi = [
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
+        "name": "taskId",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "receiver",
         "type": "address"
@@ -543,34 +877,8 @@ export const contractAbi = [
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "tester",
-        "type": "address"
-      }
-    ],
-    "name": "removeTester",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "sendAmount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -586,6 +894,45 @@ export const contractAbi = [
     "name": "setAgent",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "tasks",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalTesters",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "paidAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -623,19 +970,32 @@ export const contractAbi = [
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "unclaimedAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "claimedAmount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "smartAddress",
+        "type": "address"
       },
       {
         "internalType": "address",
-        "name": "smartWallet",
+        "name": "normalAddress",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalEarned",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalTasks",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
