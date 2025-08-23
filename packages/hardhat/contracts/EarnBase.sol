@@ -15,7 +15,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     IERC20 public cUSDToken;
     address public agent;
     uint256 public totalTesters;
-    address[] public testerAddresses;
+    uint256 public totalTasks;
 
     constructor() Ownable(msg.sender) {
         cUSDToken = IERC20(0x765DE816845861e75A25fCA122bb6898B8B1282a); // Mainnet
@@ -25,20 +25,26 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
 
     struct Tester {
         uint256 id;
-        uint256 unclaimedAmount;
-        uint256 claimedAmount;
-        address smartWallet;
+        uint256[] taskId;
+        address smartAddress;
     }
 
     struct Payment {
         uint256 id;
+        uint256 taskId;
         address receiver;
         uint256 amount;
         uint256 timestamp;
     }
 
-    mapping(address => Tester) public testers;
-    mapping(address => bool) public isTester;
+    struct Task {
+        uint256 id;
+        address creator;
+        uint256 totalTesters;
+        uint256 totalAmount;
+        uint256 paidAmount;
+    }
+
     Payment[] public payments;
 
     // Events
