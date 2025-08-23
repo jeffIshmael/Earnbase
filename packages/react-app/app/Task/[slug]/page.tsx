@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { useCapabilities } from 'wagmi/experimental';
 import { checkIfSmartAccount, getTesters, updateAsTasker, setSmartAccount, getTestersLeaderboard, getUser } from '@/lib/Prismafnctns';
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
-import { Tester } from '@/app/Start/page';
 import { useAccount, useWriteContract } from 'wagmi';
 import { formatEther, parseEther } from 'viem';
 import { toast } from 'sonner';
@@ -40,6 +39,17 @@ interface TaskDetails {
   totalEarnings: string;
   claimableRewards: string;
   started:boolean;
+}
+interface Tester{
+  isTester: boolean;
+  tasks: Array<{
+    subTaskId: number;
+    completed: boolean;
+  }>;
+  userName: string;
+  totalEarned: bigint;
+  walletAddress: string;
+  claimable: bigint;
 }
 
 interface LeaderboardTester{
@@ -139,7 +149,7 @@ useEffect(() => {
 
     try {
       const currentUser = await getUser(address);
-      setIndividual(currentUser);
+      setIndividual(currentUser as Tester);
 
       const leaderboard = await getTestersLeaderboard();
       setLeaderboardArray(leaderboard);
@@ -248,7 +258,7 @@ const setSmartAccountToBC = async (userAddress: `0x${string}`,smartAddress: stri
 
     // Refresh user data
     const currentUser = await getUser(address);
-    setIndividual(currentUser);
+    setIndividual(currentUser as Tester);
     } catch (error) {
       console.error("Claiming error:", error);
       toast.error("Failed to claim reward. Please try again.", {
