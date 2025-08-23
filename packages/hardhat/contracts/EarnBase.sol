@@ -20,7 +20,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     constructor() Ownable(msg.sender) {
         cUSDToken = IERC20(0x765DE816845861e75A25fCA122bb6898B8B1282a); // Mainnet
         agent = 0x1C059486B99d6A2D9372827b70084fbfD014E978;
-        // For Alfajores, use: 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1
+        // For Alfajores, 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1
     }
 
     struct Tester {

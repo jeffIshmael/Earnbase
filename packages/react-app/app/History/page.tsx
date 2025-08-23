@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Clock, CheckCircle, XCircle, Pending, Award } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Award } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { motion } from 'framer-motion';
 import BottomNavigation from '@/components/BottomNavigation';
