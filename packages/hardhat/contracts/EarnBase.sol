@@ -62,7 +62,8 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     // ────────────────────────────────
     // Admin Functions
     // ────────────────────────────────
-
+   
+   // function to award the tester
    function makePayment(address _testerAddress, uint256 _amount) external whenNotPaused onlyAuthorised {
         // make sure the address is one of the testers
         // make sure that the contract has the amount

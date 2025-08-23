@@ -108,14 +108,28 @@ export async function setSmartAccount(address: string, smartAddress:string){
     }
 }
 
-// function to record a task
+// function to record a task (legacy function - use new marketplace functions instead)
 export async function recordTask(subTaskId: number, completed: boolean, reward: string, ipfsHash: string | null, feedback: string | null, address: string){
     try {
         const user = await getUser(address);
         if (!user) return null;
 
+        // Create a legacy task with required new fields
         const task = await prisma.task.create({
             data: {
+                title: `Legacy Task ${subTaskId}`,
+                description: `Legacy task completion`,
+                maxParticipants: 1,
+                currentParticipants: 1,
+                baseReward: parseEther(reward),
+                maxBonusReward: BigInt(0),
+                totalDeposited: parseEther(reward),
+                status: TaskStatus.ACTIVE,
+                aiCriteria: "Legacy task",
+                contactMethod: ContactMethod.EMAIL,
+                contactInfo: "legacy@earnbase.com",
+                creatorId: user.id,
+                // Legacy fields
                 subTaskId: subTaskId,
                 completed: completed,
                 reward: parseEther(reward),
