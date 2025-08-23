@@ -25,8 +25,11 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
 
     struct Tester {
         uint256 id;
-        uint256[] taskId;
+        uint256[] taskIds;
         address smartAddress;
+        address normalAddress;
+        uint256 totalEarned;
+        mapping(uint256 => uint256) taskEarnings; // taskId => amount earned
     }
 
     struct Payment {
@@ -43,9 +46,17 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         uint256 totalTesters;
         uint256 totalAmount;
         uint256 paidAmount;
+        address[] participants;
+        mapping(address => uint256) participantEarnings; // participant => amount earned
     }
 
     Payment[] public payments;
+    Task[] public tasks;
+    
+    // Mappings to track testers
+    mapping(address => Tester) public testers;
+    mapping(address => bool) public isTester;
+    address[] public testerAddresses;
 
     // Events
     event TesterAdded(address indexed tester, uint256 indexed testerId);
@@ -57,100 +68,262 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     event SmartWalletUpdated(address indexed tester, address indexed newSmartWallet);
     event AmountSent(address indexed to, uint256 amount, uint256 timestamp);
     event RewardsAwarded(address indexed tester, uint256 amount);
+    event TaskCreated(uint256 indexed taskId, address indexed creator, uint256 totalAmount, uint256 maxReward);
 
 
     // ────────────────────────────────
     // Admin Functions
     // ────────────────────────────────
+
+   // function to record a payment
+   function addPayment(address _receiver, uint256 _amount, uint256 _taskId) internal {
+        require(_taskId < tasks.length, "Task does not exist");
+        require(_amount > 0, "Amount must be greater than 0");
+        
+        // Create payment record
+        Payment memory newPayment = Payment({
+            id: payments.length,
+            taskId: _taskId,
+            receiver: _receiver,
+            amount: _amount,
+            timestamp: block.timestamp
+        });
+        
+        payments.push(newPayment);
+        
+        // Update task paid amount
+        tasks[_taskId].paidAmount += _amount;
+        
+        // Track participant in task
+        Task storage task = tasks[_taskId];
+        if (task.participantEarnings[_receiver] == 0) {
+            // First time participating in this task
+            task.participants.push(_receiver);
+            task.totalTesters++;
+        }
+        task.participantEarnings[_receiver] += _amount;
+        
+        // Track tester earnings
+        if (isTester[_receiver]) {
+            Tester storage tester = testers[_receiver];
+            if (tester.taskEarnings[_taskId] == 0) {
+                // First time earning from this task
+                tester.taskIds.push(_taskId);
+            }
+            tester.taskEarnings[_taskId] += _amount;
+            tester.totalEarned += _amount;
+        }
+   }
    
-   // function to award the tester
-   function makePayment(address _testerAddress, uint256 _amount) external whenNotPaused onlyAuthorised {
-        // make sure the address is one of the testers
-        // make sure that the contract has the amount
-        require(cUSDToken.balanceOf(address(this)) >= _amount, "Insufficient funds in the contract.");
+   // function to award the tester( sends cUSD to the tester's wallet)
+   function makePayment(address _testerAddress, uint256 _amount, uint256 _taskId) external whenNotPaused onlyAuthorised {
+        require(_testerAddress != address(0), "Invalid tester address");
+        require(_amount > 0, "Amount must be greater than 0");
+        require(_taskId < tasks.length, "Task does not exist");
+        require(cUSDToken.balanceOf(address(this)) >= _amount, "Insufficient funds in the contract");
+        
+        // Check if task has enough remaining funds
+        Task storage task = tasks[_taskId];
+        require(task.paidAmount + _amount <= task.totalAmount, "Exceeds task budget");
+        
+        // Transfer cUSD to tester
         bool sent = cUSDToken.transfer(_testerAddress, _amount);
-        require(sent,"Not able to send payment.");
+        require(sent, "Payment transfer failed");
+        
+        // Record the payment
+        addPayment(_testerAddress, _amount, _taskId);
+        
         emit PaymentAwarded(_testerAddress, _amount, block.timestamp);
    }
 
-   function addTesters(address[] memory newTesters) external onlyAuthorised {
-    for (uint256 i = 0; i < newTesters.length; i++) {
-        address tester = newTesters[i];
-        require(tester != address(0), "Invalid address.");
-        require(!isTester[tester], "Already added.");
+   // function to create a task
+   function createTask(uint256 _totalAmount, uint256 _maxReward) external whenNotPaused {
+        require(_totalAmount > 0, "Total amount must be greater than 0");
+        require(_maxReward > 0, "Max reward must be greater than 0");
+        require(_maxReward <= _totalAmount, "Max reward cannot exceed total amount");
 
-        testers[tester] = Tester(totalTesters, 0, 0, address(0));
-        isTester[tester] = true;
-        testerAddresses.push(tester);
-        emit TesterAdded(tester, totalTesters);
-        totalTesters++;
-    }
-}
-
-   // function to add a single tester
-   function addTester(address tester) external onlyAuthorised {
-    require(tester != address(0), "Invalid address.");
-    require(!isTester[tester], "Already added.");
-
-    testers[tester] = Tester(totalTesters, 0, 0, address(0));
-    isTester[tester] = true;
-    testerAddresses.push(tester);
-    emit TesterAdded(tester, totalTesters);
-    totalTesters++;
-    }
-
-   // function to remove one tester
-   function removeTester(address tester) external onlyAuthorised {
-    require(isTester[tester], "Not a tester");
-
-    // Remove from mappings
-    delete isTester[tester];
-    delete testers[tester];
-
-    // Remove from array
-    for (uint256 i = 0; i < testerAddresses.length; i++) {
-        if (testerAddresses[i] == tester) {
-            testerAddresses[i] = testerAddresses[testerAddresses.length - 1]; // swap with last
-            testerAddresses.pop(); // remove last
-            totalTesters--; // optional: reflect real count
-            break;
+        bool success = cUSDToken.transferFrom(msg.sender, address(this), _totalAmount);
+        require(success, "Transfer failed");
+        
+        uint256 taskId = tasks.length;
+        tasks.push();
+        Task storage newTask = tasks[taskId];
+        
+        newTask.id = taskId;
+        newTask.creator = msg.sender;
+        newTask.totalTesters = 0;
+        newTask.totalAmount = _totalAmount;
+        newTask.paidAmount = 0;
+        totalTasks++;
+        
+        emit TaskCreated(taskId, msg.sender, _totalAmount, _maxReward);
+   }
+   
+   // function to get basic task details
+   function getTask(uint256 _taskId) external view returns (
+        uint256 id,
+        address creator,
+        uint256 totalTestersCount,
+        uint256 totalAmount,
+        uint256 paidAmount
+   ) {
+        require(_taskId < tasks.length, "Task does not exist");
+        Task storage task = tasks[_taskId];
+        return (
+            task.id,
+            task.creator,
+            task.totalTesters,
+            task.totalAmount,
+            task.paidAmount
+        );
+   }
+   
+   // function to get detailed task information
+   function getTaskDetails(uint256 _taskId) external view returns (
+        uint256 id,
+        address creator,
+        uint256 participantCount,
+        uint256 totalAmount,
+        uint256 paidAmount,
+        address[] memory participants,
+        uint256[] memory participantAmounts
+   ) {
+        require(_taskId < tasks.length, "Task does not exist");
+        
+        Task storage task = tasks[_taskId];
+        uint256 participantCountLocal = task.participants.length;
+        
+        address[] memory addresses = new address[](participantCountLocal);
+        uint256[] memory amounts = new uint256[](participantCountLocal);
+        
+        for (uint256 i = 0; i < participantCountLocal; i++) {
+            addresses[i] = task.participants[i];
+            amounts[i] = task.participantEarnings[task.participants[i]];
         }
-    }
-    }
+        
+        return (
+            task.id,
+            task.creator,
+            participantCountLocal,
+            task.totalAmount,
+            task.paidAmount,
+            addresses,
+            amounts
+        );
+   }
+   
+   // function to get total number of tasks
+   function getTotalTasks() external view returns (uint256) {
+        return totalTasks;
+   }
+   
+   // function to get payments for a specific task
+   function getTaskPayments(uint256 _taskId) external view returns (Payment[] memory) {
+        require(_taskId < tasks.length, "Task does not exist");
+        
+        uint256 paymentCount = 0;
+        for (uint256 i = 0; i < payments.length; i++) {
+            if (payments[i].taskId == _taskId) {
+                paymentCount++;
+            }
+        }
+        
+        Payment[] memory taskPayments = new Payment[](paymentCount);
+        uint256 index = 0;
+        for (uint256 i = 0; i < payments.length; i++) {
+            if (payments[i].taskId == _taskId) {
+                taskPayments[index] = payments[i];
+                index++;
+            }
+        }
+        
+        return taskPayments;
+   }
+   
+   // function to get task statistics
+   function getTaskStats(uint256 _taskId) external view returns (
+        uint256 totalAmount,
+        uint256 paidAmount,
+        uint256 remainingAmount,
+        uint256 paymentCount
+   ) {
+        require(_taskId < tasks.length, "Task does not exist");
+        
+        Task storage task = tasks[_taskId];
+        uint256 taskPaymentCount = 0;
+        
+        for (uint256 i = 0; i < payments.length; i++) {
+            if (payments[i].taskId == _taskId) {
+                taskPaymentCount++;
+            }
+        }
+        
+        return (
+            task.totalAmount,
+            task.paidAmount,
+            task.totalAmount - task.paidAmount,
+            taskPaymentCount
+        );
+   }
 
-    // fuction to update the smartAddress
+
+    // function to update the smartAddress
    function updateSmartWallet(address _smartWallet, address _normalAddress) external onlyAuthorised {
-    require(_smartWallet != address(0), "Invalid smart wallet address");
-    require(_normalAddress != address(0), "Invalid normal address");
-    require(isTester[_normalAddress], "Address not registered as tester");
+        require(_smartWallet != address(0), "Invalid smart wallet address");
+        require(_normalAddress != address(0), "Invalid normal address");
+        require(isTester[_normalAddress], "Address not registered as tester");
 
-    testers[_normalAddress].smartWallet = _smartWallet;
-    emit SmartWalletUpdated(_normalAddress, _smartWallet);
+        // Update the smart wallet address for the tester
+        testers[_normalAddress].smartAddress = _smartWallet;
+        
+        emit SmartWalletUpdated(_normalAddress, _smartWallet);
     }
 
-    // function to send amount to the testers (used during the beta phase)
-    function sendAmount(uint256 _amount) external whenNotPaused onlyAuthorised {
-    require(_amount > 0, "Amount must be > 0");
-    require(testerAddresses.length > 0, "No testers");
 
-    uint256 totalRequired = _amount * testerAddresses.length;
-    require(totalRequired > 0, "Amount too small per tester");
-
-    require(cUSDToken.balanceOf(address(this)) >= totalRequired, "Insufficient funds");
-
-    for (uint256 i = 0; i < testerAddresses.length; i++) {
-        address tester = testerAddresses[i];
-        bool sent = cUSDToken.transfer(tester,_amount);
-        require(sent,"Unable to send.");
-        emit AmountSent(tester, _amount, block.timestamp);
-    }
-    }
 
     function depositCUSD(uint256 amount) external whenNotPaused {
         require(amount > 0, "Amount must be > 0");
         bool success = cUSDToken.transferFrom(msg.sender, address(this), amount);
         require(success, "Transfer failed.");
         emit Deposited(msg.sender, amount);
+    }
+    
+    // function to deposit funds for a specific task
+    function depositForTask(uint256 _taskId, uint256 amount) external whenNotPaused {
+        require(_taskId < tasks.length, "Task does not exist");
+        require(amount > 0, "Amount must be greater than 0");
+        
+        Task storage task = tasks[_taskId];
+        require(msg.sender == task.creator, "Only task creator can deposit");
+        
+        bool success = cUSDToken.transferFrom(msg.sender, address(this), amount);
+        require(success, "Transfer failed");
+        
+        task.totalAmount += amount;
+        
+        emit Deposited(msg.sender, amount);
+    }
+    
+    // function to close a task (only creator can close)
+    function closeTask(uint256 _taskId) external whenNotPaused {
+        require(_taskId < tasks.length, "Task does not exist");
+        
+        Task storage task = tasks[_taskId];
+        require(msg.sender == task.creator, "Only task creator can close task");
+        require(task.paidAmount <= task.totalAmount, "Task has pending payments");
+        
+        // Calculate remaining balance to refund
+        uint256 remainingBalance = task.totalAmount - task.paidAmount;
+        
+        // Refund remaining balance to creator if there's any
+        if (remainingBalance > 0) {
+            bool success = cUSDToken.transfer(task.creator, remainingBalance);
+            require(success, "Refund transfer failed");
+        }
+
+        task.totalAmount = 0;
+        
+        emit TaskCreated(_taskId, task.creator, 0, 0); 
     }
 
     function emergencyWithdraw(address to, uint256 amount) external onlyOwner {
@@ -177,48 +350,98 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     // Tester Interaction
     // ────────────────────────────────
 
-    function claimRewards(uint256 amount, address _userNormalAddresss) external nonReentrant whenNotPaused onlyTester {
-        Tester storage tester = testers[_userNormalAddresss];
-        require(amount > 0, "Amount must be > 0");
-        require(amount <= tester.unclaimedAmount, "Exceeds unclaimed balance");
-        require(cUSDToken.balanceOf(address(this)) >= amount, "Contract underfunded");
-
-        bool success = cUSDToken.transfer(_userNormalAddresss, amount);
-        require(success, "Transfer failed");
-        tester.unclaimedAmount -= amount;
-        tester.claimedAmount += amount;
-
-        payments.push(Payment(payments.length, _userNormalAddresss, amount, block.timestamp));
-
-        emit RewardClaimed(_userNormalAddresss, amount, tester.claimedAmount, tester.unclaimedAmount);
+    // get testers payments
+    
+    // function to get tester information
+    function getTesterInfo(address _testerAddress) external view returns (
+        uint256 id,
+        uint256[] memory taskIds,
+        address smartAddress,
+        address normalAddress,
+        uint256 totalEarned
+    ) {
+        require(isTester[_testerAddress], "Address not registered as tester");
+        Tester storage tester = testers[_testerAddress];
+        return (
+            tester.id,
+            tester.taskIds,
+            tester.smartAddress,
+            tester.normalAddress,
+            tester.totalEarned
+        );
     }
-
-    function getTestersRewards(address _tester) external view returns (uint256 claimed, uint256 unclaimed) {
-        require(_tester != address(0), "Invalid address.");
-        require(isTester[_tester], "Not a tester.");
-        Tester memory t = testers[_tester];
-        return (t.claimedAmount, t.unclaimedAmount);
+    
+    // function to get tester's earnings from a specific task
+    function getTesterTaskEarnings(address _testerAddress, uint256 _taskId) external view returns (uint256) {
+        require(isTester[_testerAddress], "Address not registered as tester");
+        require(_taskId < tasks.length, "Task does not exist");
+        return testers[_testerAddress].taskEarnings[_taskId];
     }
-
-    function isATester(address _tester) external view returns (bool) {
-        return isTester[_tester];
+    
+    // function to get task participants and their earnings
+    function getTaskParticipants(uint256 _taskId) external view returns (
+        address[] memory participantAddresses,
+        uint256[] memory participantAmounts
+    ) {
+        require(_taskId < tasks.length, "Task does not exist");
+        
+        Task storage task = tasks[_taskId];
+        uint256 participantCount = task.participants.length;
+        
+        address[] memory addresses = new address[](participantCount);
+        uint256[] memory amounts = new uint256[](participantCount);
+        
+        for (uint256 i = 0; i < participantCount; i++) {
+            addresses[i] = task.participants[i];
+            amounts[i] = task.participantEarnings[task.participants[i]];
+        }
+        
+        return (addresses, amounts);
     }
-
-    function addRewards(address tester, uint256 amount) external onlyAuthorised {
-        require(tester != address(0), "Invalid address");
-        require(isTester[tester], "Not a tester.");
-        testers[tester].unclaimedAmount += amount;
-        emit RewardsAwarded(tester, amount);
-    }
-
+    
     // function to get all testers
-    function getAllTesterDetails() external view returns (Tester[] memory) {
-    uint256 count = testerAddresses.length;
-    Tester[] memory details = new Tester[](count);
-    for (uint256 i = 0; i < count; i++) {
-        details[i] = testers[testerAddresses[i]];
+    function getAllTesters() external view returns (address[] memory) {
+        return testerAddresses;
     }
-    return details;
+    
+    // function to add a new tester
+    function addTester(address _testerAddress) external onlyAuthorised {
+        require(_testerAddress != address(0), "Invalid address");
+        require(!isTester[_testerAddress], "Already a tester");
+        
+        testers[_testerAddress].id = totalTesters;
+        testers[_testerAddress].smartAddress = address(0);
+        testers[_testerAddress].normalAddress = _testerAddress;
+        testers[_testerAddress].totalEarned = 0;
+        
+        isTester[_testerAddress] = true;
+        testerAddresses.push(_testerAddress);
+        totalTesters++;
+        
+        emit TesterAdded(_testerAddress, totalTesters - 1);
+    }
+    
+    // function to get all payments for a specific tester
+    function getTesterPayments(address _testerAddress) external view returns (Payment[] memory) {
+        require(isTester[_testerAddress], "Address not registered as tester");
+        
+        uint256 paymentCount = 0;
+        for (uint256 i = 0; i < payments.length; i++) {
+            if (payments[i].receiver == _testerAddress) {
+                paymentCount++;
+            }
+        }
+        
+        Payment[] memory testerPayments = new Payment[](paymentCount);
+        uint256 index = 0;
+        for (uint256 i = 0; i < payments.length; i++) {
+            if (payments[i].receiver == _testerAddress) {
+                testerPayments[index] = payments[i];
+                index++;
+            }
+        }
+        
+        return testerPayments;
     }
 
 
