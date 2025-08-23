@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
 import { toast } from 'sonner';
-import { recordTask, getTaskOutput, getUser, getUserFeedback } from '@/lib/Prismafnctns';
+import { recordTask, getUser, getUserFeedback } from '@/lib/Prismafnctns';
 import Image from 'next/image';
 
 

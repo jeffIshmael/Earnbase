@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { CalendarDays, CircleDollarSign, Bell, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAccount } from 'wagmi';
-import { recordTask, getTaskOutput, getUser, getUserFeedback } from '@/lib/Prismafnctns';
+import { recordTask, getUser, getUserFeedback } from '@/lib/Prismafnctns';
 
 const Task3Form = ({id, searchParams}: {id: string, searchParams?: {completed?: string}}) => {
   // const [play] = useSound('/sounds/success-notification.mp3'); // Add this sound file to your public/sounds folder

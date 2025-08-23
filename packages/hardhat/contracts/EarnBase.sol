@@ -49,6 +49,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
 
     // Events
     event TesterAdded(address indexed tester, uint256 indexed testerId);
+    event PaymentAwarded(address testerAddress, uint256 amount, uint256 timestamp);
     event RewardClaimed(address indexed tester, uint256 amount, uint256 totalClaimed, uint256 totalUnclaimed);
     event Deposited(address indexed depositor, uint256 amount);
     event AgentSet(address indexed agent);
@@ -61,6 +62,15 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     // ────────────────────────────────
     // Admin Functions
     // ────────────────────────────────
+
+   function makePayment(address _testerAddress, uint256 _amount) external whenNotPaused onlyAuthorised {
+        // make sure the address is one of the testers
+        // make sure that the contract has the amount
+        require(cUSDToken.balanceOf(address(this)) >= _amount, "Insufficient funds in the contract.");
+        bool sent = cUSDToken.transfer(_testerAddress, _amount);
+        require(sent,"Not able to send payment.");
+        emit PaymentAwarded(_testerAddress, _amount, block.timestamp);
+   }
 
    function addTesters(address[] memory newTesters) external onlyAuthorised {
     for (uint256 i = 0; i < newTesters.length; i++) {
@@ -75,6 +85,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         totalTesters++;
     }
 }
+
    // function to add a single tester
    function addTester(address tester) external onlyAuthorised {
     require(tester != address(0), "Invalid address.");

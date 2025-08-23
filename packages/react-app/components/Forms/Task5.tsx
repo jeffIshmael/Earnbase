@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { contractAbi, contractAddress } from '@/contexts/constants';
 import Congrats from '../Congrats';
 import { useUserSmartAccount } from '@/app/hooks/useUserSmartAccount';
-import { recordTask, getTaskOutput, getUser } from '@/lib/Prismafnctns';
+import { recordTask, getUser } from '@/lib/Prismafnctns';
 
 
 export interface FeedbackRating {
