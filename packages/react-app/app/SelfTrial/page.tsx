@@ -20,7 +20,7 @@ function VerificationPage() {
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "Self Workshop",
         scope: process.env.NEXT_PUBLIC_SELF_SCOPE || "self-workshop",
-        endpoint: `${process.env.NEXT_PUBLIC_SELF_ENDPOINT}`,
+        endpoint: `${process.env.NEXT_PUBLIC_SELF_ENDPOINT}` || "https://bb9f18818d18.ngrok-free.app/selfVerify",
         logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
         userId: userId,
         endpointType: "staging_https",

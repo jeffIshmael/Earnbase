@@ -234,27 +234,7 @@ export default function WalletPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-gray-50 pb-24">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-indigo-100 p-4 sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-rose-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Wallet className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Wallet</h1>
-              <p className="text-sm text-gray-600">Manage your crypto assets</p>
-            </div>
-          </div>
-          <button
-            onClick={fetchBalances}
-            disabled={isLoading}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition disabled:opacity-50"
-          >
-            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-      </div>
+     
 
       <div className="p-4 space-y-6">
         {/* Wallet Status */}

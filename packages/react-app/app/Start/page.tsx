@@ -139,33 +139,27 @@ const MobileEarnBaseHome = () => {
         </div>
       )}
 
-      {/* Self Protocol Verification Warning */}
-      <div className="mx-4 mt-4">
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 shadow-sm">
-          <div className="flex items-start space-x-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-sm font-semibold text-amber-800">Self Protocol Integration</h3>
-                <div className="px-2 py-1 bg-amber-200 text-amber-800 text-xs font-medium rounded-full">
-                  New
-                </div>
-              </div>
-              <p className="text-xs text-amber-700 mb-3">
-                EarnBase has integrated Self Protocol verification to ensure you never miss out on premium tasks. 
-                Verify your identity to unlock exclusive opportunities and higher rewards.
-              </p>
-              <div className="flex items-center gap-2">
-                <button className="bg-amber-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-amber-700 transition-colors">
-                  Verify Now
-                </button>
-                <button className="text-amber-600 text-xs font-medium hover:text-amber-700 transition-colors">
-                  Learn More
-                </button>
-              </div>
-            </div>
+     {/* Self Protocol Verification Warning */}
+<div className="mx-4 mt-4">
+  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 shadow-sm">
+    <div className="flex items-start space-x-3">
+      <div className="flex-1">
+        <div className="flex items-center gap-2 mb-2">
+          <h3 className="text-sm font-semibold text-amber-800">Self Protocol Integration</h3>
+          <div className="px-2 py-1 bg-amber-200 text-amber-800 text-xs font-medium rounded-full">
+            New
           </div>
         </div>
+        <p className="text-xs text-amber-700 mb-3">
+          We&apos;ve integrated <span className="font-medium">Self Protocol</span> to give task creators the option 
+          to set requirements (e.g., age, gender, country).  
+          Some tasks may require quick verification through Self before you can participate.
+        </p>
       </div>
+    </div>
+  </div>
+</div>
+
 
       {/* Tasks Section */}
       <div className="px-4 mt-6">

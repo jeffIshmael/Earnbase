@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, ClipboardList, Plus, Clock, Wallet, Sparkles } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -55,11 +55,15 @@ const navItems: NavItem[] = [
 export default function BottomNavigation() {
   const router = useRouter();
   const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState(() => {
-    // Determine active tab based on current path
+  const [activeTab, setActiveTab] = useState('home');
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Set the active tab after component mounts to avoid premature coloring
+  useEffect(() => {
+    setIsMounted(true);
     const currentPath = navItems.find(item => item.path === pathname);
-    return currentPath?.key || 'home';
-  });
+    setActiveTab(currentPath?.key || 'home');
+  }, [pathname]);
 
   const handleNavigation = (item: NavItem) => {
     setActiveTab(item.key);
@@ -76,7 +80,7 @@ export default function BottomNavigation() {
         <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl shadow-black/10">
           <div className="flex items-center justify-around relative">
             {navItems.map((item, index) => {
-              const isActive = activeTab === item.key;
+              const isActive = isMounted && activeTab === item.key;
               
               return (
                 <div key={item.key} className="relative">
@@ -88,8 +92,6 @@ export default function BottomNavigation() {
                       // Special styling for create button
                       item.key === 'create' ? 'transform -translate-y-2' : ''
                     )}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                   >
                     {/* Active background - hidden for create button since it has permanent background */}
                     <AnimatePresence>
