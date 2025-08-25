@@ -33,6 +33,7 @@ model Task {
   id                Int      @id @default(autoincrement())
   title             String
   description       String
+  blockChainId      String   @default("0")
   maxParticipants   Int
   currentParticipants Int    @default(0)
   baseReward        BigInt

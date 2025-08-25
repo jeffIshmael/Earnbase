@@ -29,6 +29,24 @@ export async function addUserReward(amount: string, userAddress: `0x${string}`):
     }
 }
 
+// make payment to the user
+export async function makePaymentToUser(amount: string, userAddress: `0x${string}`):Promise <string | null>{
+    try {
+    const amountInWei = parseEther(amount);
+    const {account, smartAccountClient} = await getAgentSmartAccount();
+    const hash = await smartAccountClient.writeContract({
+        address: contractAddress,
+        abi: contractAbi,
+        functionName: 'makePayment',
+        args:[userAddress, amountInWei],
+      })
+    return hash;
+    } catch (error) {
+        console.log('the error', error);
+        return null;        
+    }
+}
+
 export async function addUserSmartAccount(smartAccountAddress: `0x${string}`, userAddress: `0x${string}`):Promise <string | null>{
     try {
     const {account, smartAccountClient} = await getAgentSmartAccount();

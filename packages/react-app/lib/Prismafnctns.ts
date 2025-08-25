@@ -48,16 +48,6 @@ export async function registerUser(userName:string,fid:number|null,address:strin
     }  
 }
 
-// function to return the array of testers in a task
-export async function getTaskTesters(){
-    const testers = await prisma.taskers.findMany({
-        select:{
-            taskersArray: true
-        }
-    })
-    const testerArray = JSON.parse(testers[0].taskersArray);
-    return testerArray;
-}
 
 // function to check if the smart account addresss has been set
 export async function checkIfSmartAccount(address: string){
@@ -156,80 +146,7 @@ export async function updateEarnings(address: string, amount: bigint) {
   }
 }
 
-// function to get the testers
-export async function getTesters(){
-    const testers = await prisma.taskers.findMany();
-    if(testers.length > 0) return testers[0].taskersArray;
-    return JSON.stringify([]);
-    
-}
 
-// function to get fids from the testers
-export async function getFids() {
-  const taskersAddresses = await getTesters();
-  const taskerAddressesArray: string[] = JSON.parse(taskersAddresses);
-
-  if (taskerAddressesArray.length == 0) return;
-
-  // Query all users with those wallet addresses
-  const users = await prisma.user.findMany({
-    where: {
-      walletAddress: {
-        in: taskerAddressesArray,
-      },
-    },
-    select: {
-      fid: true,
-    },
-  });
-
-  // Filter out null fids and return array
-  const fids = users
-    .map((user) => user.fid)
-    .filter((fid): fid is number => fid !== null);
-
-  return fids;
-}
-
-
-// function to register taskers.
-export async function addTester(testerId: number, taskId: string, addresses: string[]) {
-    try {
-      // Check if the tasker already exists by id
-      const existingTasker = await prisma.taskers.findUnique({
-        where: { id: testerId },
-        select: { taskersArray: true },
-      });
-  
-      if (!existingTasker) {
-        // If not found, create a new tasker
-        const newTasker = await prisma.taskers.create({
-          data: {
-            id: testerId,
-            taskId,
-            taskersArray: JSON.stringify(addresses),
-          },
-        });
-        return newTasker;
-      }
-  
-      // If found, merge new addresses (without duplicates)
-      const currentAddresses: string[] = JSON.parse(existingTasker.taskersArray);
-      const uniqueAddresses = Array.from(new Set([...currentAddresses, ...addresses]));
-  
-      const updatedTasker = await prisma.taskers.update({
-        where: { id: testerId },
-        data: {
-          taskersArray: JSON.stringify(uniqueAddresses),
-        },
-      });
-  
-      return updatedTasker;
-    } catch (error) {
-      console.error("Error updating taskers:", error);
-      throw error;
-    }
-  }
 
   
 // function to get the user's feedback from a task
@@ -277,8 +194,12 @@ export async function createTask(
   countries?: string[]
 ) {
   try {
-    const creator = await getUser(creatorAddress);
-    if (!creator) throw new Error("Creator not found");
+    let creator = await getUser(creatorAddress);
+    if (!creator) {
+      const user = await registerUser(creatorAddress, null, creatorAddress, null);
+      if (!user) throw new Error("Failed to register user");
+      creator = user;
+    };
 
     const task = await prisma.task.create({
       data: {
@@ -380,8 +301,12 @@ export async function createCompleteTask(
   }>
 ) {
   try {
-    const creator = await getUser(creatorAddress);
-    if (!creator) throw new Error("Creator not found");
+    let creator = await getUser(creatorAddress);
+    if (!creator) {
+      const user = await registerUser(creatorAddress, null, creatorAddress, null);
+      if (!user) throw new Error("Failed to register user");
+      creator = user;
+    };
 
     // Create task and subtasks in a transaction
     const result = await prisma.$transaction(async (tx) => {

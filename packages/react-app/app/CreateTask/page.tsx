@@ -8,7 +8,13 @@ import {
 import { createCompleteTask } from '@/lib/Prismafnctns';
 import { ContactMethod, SubtaskType } from '@prisma/client';
 import BottomNavigation from '@/components/BottomNavigation';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
+import { getTotalTasks } from '@/lib/ReadFunctions';
+import { contractAbi, contractAddress, cUSDAddress } from '@/contexts/constants';
+import { waitForTransactionReceipt } from "@wagmi/core";
+import { erc20Abi, parseEther } from 'viem';
+import {config} from "@/providers/AppProvider";
+
 
 const TaskCreationForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -22,7 +28,9 @@ const TaskCreationForm = () => {
   const [contactInfo, setContactInfo] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [totalBudget, setTotalBudget] = useState(0);
   const {address} = useAccount();
+  const { writeContractAsync } = useWriteContract();
   
   // Restrictions state
   const [restrictionsEnabled, setRestrictionsEnabled] = useState(false);
@@ -157,6 +165,39 @@ const TaskCreationForm = () => {
         required: subtask.required,
         options: subtask.options || undefined,
       }));
+
+      // register the task to the blockchain
+      const blockChainId = await getTotalTasks();
+      const totalAmount = await calculateTotalRequired();
+      const amountInWei = parseEther(totalAmount.toString());
+      const maxAmountUserGets = parseFloat(maxBonusReward) + parseFloat(baseReward);
+      const maxAmountUserGetsInWei = parseEther(maxAmountUserGets.toString());
+
+      // approve the transfer of cUSD to the contract
+      const approveHash = await writeContractAsync({
+        address: cUSDAddress,
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [contractAddress, amountInWei],
+      });
+      const transactionHash = await waitForTransactionReceipt(config, {
+        hash: approveHash,
+      });
+      const approveTxHash = transactionHash.transactionHash;
+
+      if(!approveTxHash) {
+        throw new Error('Failed to approve cUSD');
+      }
+      // register the task to the blockchain
+      const registerHash = await writeContractAsync({
+        address: contractAddress,
+        abi: contractAbi,
+        functionName: "createTask",
+        args: [amountInWei, maxAmountUserGetsInWei],
+      });
+      if(!registerHash) {
+        throw new Error('Failed to register task');
+      }
 
       // Create task directly using Prisma function
       const createdTask = await createCompleteTask(address, taskData, subtasksData);
