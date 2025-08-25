@@ -8,6 +8,7 @@ export const cUSDAddress = "0x765DE816845861e75A25fCA122bb6898B8B1282a";
 // 0xcebA9300f2b948710d2653dD7B07f33A8B32118C
 // export const USDCAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // base network
 export const USDCAddress = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"; // celo network
+export const url = "https://d2ac25725983.ngrok-free.app";
 export const contractAbi = [
   {
     "inputs": [],

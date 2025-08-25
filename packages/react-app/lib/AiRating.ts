@@ -4,14 +4,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
-
-
 interface FeedbackRating {
   rating: number;
   explanation: string;
 }
 
-export async function getAiRating(userId: string, feedback: string): Promise<FeedbackRating | null> {
+export async function getAiRating(userId: string, feedback: string, bestResponse: string ): Promise<FeedbackRating | null> {
 
 if(!process.env.GEMINI_API_KEY){
   throw Error('gemini api not set.')
@@ -20,7 +18,26 @@ if(!process.env.GEMINI_API_KEY){
 const MODEL_NAME = "gemini-1.5-flash"; 
 const model = genAI.getGenerativeModel({ 
   model: MODEL_NAME,
-  systemInstruction: "You are an app founder reviewing user feedback during a beta test. Rate the feedback from 1 to 10 based on usefulness, clarity, and constructiveness. Only respond with the rating and a short explanation. The rating should be a number, followed by a colon and then the explanation. For example: '8: Great suggestion for new feature.'",
+  systemInstruction: `You are an expert evaluator reviewing user feedback against a specific marking scheme. Your role is to assess how well the user's feedback aligns with the expected best response criteria.
+
+MARKING SCHEME:
+${bestResponse}
+
+EVALUATION CRITERIA:
+- Relevance to the marking scheme (40%): How closely does the feedback address the key points from the best response?
+- Completeness (30%): Does the feedback cover all important aspects mentioned in the marking scheme?
+- Quality and clarity (20%): Is the feedback well-articulated and easy to understand?
+- Originality and insight (10%): Does the feedback provide unique perspectives or valuable additions?
+
+RATING SCALE:
+- 9-10: Exceptional alignment with marking scheme, exceeds expectations
+- 7-8: Strong alignment, covers most key points well
+- 5-6: Moderate alignment, addresses some key points
+- 3-4: Weak alignment, misses many key points
+- 1-2: Poor alignment, significantly off-target
+
+RESPONSE FORMAT:
+Respond ONLY with the rating (a number 1-10) followed by a colon and then a brief explanation of how the feedback aligns with the marking scheme. Example: '8: Strong alignment with marking scheme, covers key points well with clear insights.'`,
 });
 
 // Using a descriptive chat description
@@ -40,7 +57,9 @@ const userFeedbackChatSessions = new Map<string, ChatSession>();
   }
 
   // Make the prompt more explicit about the desired output format
-  const prompt = `Feedback: "${feedback}"\nPlease rate this feedback from 1 to 10 based on usefulness, clarity, and constructiveness. Respond ONLY with the rating (a number) followed by a colon and then a short explanation. Example: '8: Great suggestion for new feature.'`;
+  const prompt = `USER FEEDBACK: "${feedback}"
+
+Please evaluate the quality and value of this user feedback. Consider factors like relevance, completeness, clarity, and insight. Respond ONLY with the rating (a number 1-10) followed by a colon and then a brief explanation of your rating decision. Example: '8: Comprehensive feedback with clear insights and actionable suggestions.'`;
   
   try {
     const result = await chat.sendMessage(prompt);

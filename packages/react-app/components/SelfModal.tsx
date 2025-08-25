@@ -11,7 +11,8 @@ import {
 import { v4 } from "uuid";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
-import { X } from "lucide-react";
+import { X, AlertCircle, CheckCircle, Info } from "lucide-react";
+import { url } from "@/contexts/constants";
 
 interface Requirements{
     age?: {
@@ -33,9 +34,13 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
   const [linkCopied, setLinkCopied] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('info');
   const [selfApp, setSelfApp] = useState<SelfApp | null>(null);
   const [universalLink, setUniversalLink] = useState("");
   const [restrictions, setRestrictions] = useState<Requirements>(requirements);
+  const [error, setError] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationResult, setVerificationResult] = useState<'success' | 'error' | null>(null);
   const {address, isConnected} = useAccount();
   // Use useMemo to cache the array to avoid creating a new array on each render
   const excludedCountries = useMemo(() => [countries.NORTH_KOREA], []);
@@ -49,17 +54,24 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
 
   useEffect(() => {
     try {
+      if (!address || !isConnected) {
+        setError("Wallet not connected");
+        return;
+      }
+
+      console.log("Building Self app with restrictions:", restrictions);
+      
       const app = new SelfAppBuilder({
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "Earnbase",
         scope: process.env.NEXT_PUBLIC_SELF_SCOPE || "earnbase",
-        endpoint: "https://fc7ec00ae380.ngrok-free.app/api/verify",
+        endpoint: `${url}/api/verify`,
         logoBase64:
           "https://i.postimg.cc/mrmVf9hm/self.png", // url of a png image, base64 is accepted but not recommended
         userId: address,
         endpointType: "staging_https",
         userIdType: "hex", // use 'hex' for ethereum address or 'uuid' for uuidv4
-        userDefinedData: "Bonjour Cannes!",
+        userDefinedData: JSON.stringify(restrictions), // Send requirements as userDefinedData
         disclosures: {
 
         // // what you want to verify from users' identity
@@ -78,17 +90,30 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
         }
       }).build();
 
+      console.log("Self app built with config:", {
+        minimumAge: restrictions.age?.min || 18,
+        excludedCountries: restrictions.countries || [],
+        userDefinedData: JSON.stringify(restrictions)
+      });
+      
+      // Also log the actual app configuration
+      console.log("Self app disclosures:", app.disclosures);
+      console.log("Self app userDefinedData:", app.userDefinedData);
+
       setSelfApp(app);
       setUniversalLink(getUniversalLink(app));
+      setError(null);
     } catch (error) {
       console.error("Failed to initialize Self app:", error);
+      setError(error instanceof Error ? error.message : "Failed to initialize verification");
     }
-  }, [address, isConnected]);
+  }, [address, isConnected, restrictions]);
 
-  const displayToast = (message: string) => {
+  const displayToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToastMessage(message);
+    setToastType(type);
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    setTimeout(() => setShowToast(false), 4000);
   };
 
   const copyToClipboard = () => {
@@ -115,16 +140,15 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
   };
 
   const handleSuccessfulVerification = () => {
-    displayToast("Verification successful!");
+    setIsVerifying(true);
+    setVerificationResult('success');
+    displayToast("Verification successful! Processing...", 'success');
     
-    if (onVerificationSuccess) {
-      onVerificationSuccess();
-    } else {
-      // Fallback to default behavior
-      setTimeout(() => {
-        router.push("/verified");
-      }, 1500);
-    }
+    // Simulate verification processing
+    setTimeout(() => {
+      setIsVerifying(false);
+      onClose?.();
+    }, 2000);
   };
 
   return (
@@ -140,11 +164,24 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
           </button>
         )}
         <h1 className="text-xl font-bold mb-2 text-gray-800">
-          {process.env.NEXT_PUBLIC_SELF_APP_NAME || "Self Protocol"}
+          {process.env.NEXT_PUBLIC_SELF_APP_NAME || "Earnbase"}
         </h1>
         <p className="text-sm text-gray-600 mb-3">
           Scan QR code with Self Protocol App to verify
         </p>
+        
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+            <div className="flex items-center space-x-2 text-red-700">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm font-medium">Error: {error}</span>
+            </div>
+            <p className="text-xs text-red-600 mt-1">
+              Please ensure your wallet is connected and try again.
+            </p>
+          </div>
+        )}
         
         {/* Requirements Display */}
         {(restrictions.age || restrictions.gender || restrictions.countries) && (
@@ -179,15 +216,45 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
         )}
       </div>
 
-      {/* Main content */}
-      <div className="w-full">
-        <div className="flex justify-center mb-4">
-          {selfApp ? (
+              {/* Main content */}
+        <div className="w-full">
+          {/* Verification Status */}
+          {verificationResult && (
+            <div className={`mb-4 p-3 rounded-lg border ${
+              verificationResult === 'success' 
+                ? 'bg-green-50 border-green-200 text-green-700' 
+                : 'bg-red-50 border-red-200 text-red-700'
+            }`}>
+              <div className="flex items-center space-x-2">
+                {verificationResult === 'success' ? (
+                  <CheckCircle className="w-4 h-4" />
+                ) : (
+                  <AlertCircle className="w-4 h-4" />
+                )}
+                <span className="text-sm font-medium">
+                  {verificationResult === 'success' 
+                    ? 'Verification successful! Processing...' 
+                    : 'Verification failed. Please try again.'}
+                </span>
+              </div>
+            </div>
+          )}
+          
+          <div className="flex justify-center mb-4">
+          {isVerifying ? (
+            <div className="w-[200px] h-[200px] bg-green-50 border-2 border-green-200 rounded-lg flex flex-col items-center justify-center">
+              <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+              <p className="text-green-700 text-sm font-medium">Verifying...</p>
+              <p className="text-green-600 text-xs">Please wait</p>
+            </div>
+          ) : selfApp ? (
             <SelfQRcodeWrapper
               selfApp={selfApp}
               onSuccess={handleSuccessfulVerification}
-              onError={() => {
-                displayToast("Error: Failed to verify identity");
+              onError={(error) => {
+                console.error("Verification error:", error);
+                setVerificationResult('error');
+                displayToast("Verification failed. Please try again.", 'error');
               }}
             />
           ) : (
@@ -201,7 +268,7 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
           <button
             type="button"
             onClick={copyToClipboard}
-            disabled={!universalLink}
+            disabled={!universalLink || isVerifying}
             className="w-full bg-gray-800 hover:bg-gray-700 transition-colors text-white p-3 rounded-lg text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {linkCopied ? "Copied!" : "Copy Universal Link"}
@@ -210,7 +277,7 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
           <button
             type="button"
             onClick={openSelfApp}
-            disabled={!universalLink}
+            disabled={!universalLink || isVerifying}
             className="w-full bg-blue-600 hover:bg-blue-500 transition-colors text-white p-3 rounded-lg text-sm disabled:bg-blue-300 disabled:cursor-not-allowed"
           >
             Open Self App
@@ -225,8 +292,19 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
 
         {/* Toast notification */}
         {showToast && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white py-2 px-4 rounded shadow-lg animate-fade-in text-sm z-10">
-            {toastMessage}
+          <div className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 py-3 px-4 rounded-lg shadow-xl text-sm z-10 transition-all duration-300 ${
+            toastType === 'success' 
+              ? 'bg-green-500 text-white border border-green-400' 
+              : toastType === 'error'
+              ? 'bg-red-500 text-white border border-red-400'
+              : 'bg-blue-500 text-white border border-blue-400'
+          }`}>
+            <div className="flex items-center space-x-2">
+              {toastType === 'success' && <CheckCircle className="w-4 h-4" />}
+              {toastType === 'error' && <AlertCircle className="w-4 h-4" />}
+              {toastType === 'info' && <Info className="w-4 h-4" />}
+              <span className="font-medium">{toastMessage}</span>
+            </div>
           </div>
         )}
       </div>

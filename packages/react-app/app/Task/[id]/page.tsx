@@ -12,6 +12,7 @@ import {
 import { getMockTaskById, MockTask, MockSubtask, MockParticipant, renderTaskIcon } from '@/lib/mockData';
 import BottomNavigation from '@/components/BottomNavigation';
 import SelfModal from '@/components/SelfModal';
+import FormGenerator from '@/components/FormGenerator';
 
 const TaskDetailPage = () => {
   const params = useParams();
@@ -25,6 +26,7 @@ const TaskDetailPage = () => {
   const [isStartingTask, setIsStartingTask] = useState(false);
   const [showSelfModal, setShowSelfModal] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [taskStarted, setTaskStarted] = useState(false);
 
   const taskId = params.id as string;
 
@@ -57,28 +59,30 @@ const TaskDetailPage = () => {
   const handleStartTask = async () => {
     if (!task) return;
     
-    // Check if task has requirements and user is not verified
-    if (task.requirements && !isVerified) {
+    // Check if task has actual requirements and user is not verified
+    const hasRequirements = task.requirements && (
+      (task.requirements.age && (task.requirements.age.min || task.requirements.age.max)) ||
+      task.requirements.gender ||
+      (task.requirements.countries && task.requirements.countries.length > 0)
+    );
+    
+    if (hasRequirements && !isVerified) {
       setShowSelfModal(true);
       return;
     }
     
+    // No requirements or already verified - proceed to task
     setIsStartingTask(true);
     try {
       // Simulate task start process
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Here you would typically:
-      // 1. Check if user meets requirements
-      // 2. Register user for the task
-      // 3. Redirect to task submission page
+      // Set task as started and show form
+      setIsStartingTask(false);
+      setTaskStarted(true);
       
-      // For now, show success and redirect to a task submission page
-      alert(`Successfully started "${task.title}"! You can now begin working on the subtasks.`);
-      // router.push(`/Task/${taskId}/submit`);
     } catch (error) {
       alert('Failed to start task. Please try again.');
-    } finally {
       setIsStartingTask(false);
     }
   };
@@ -199,6 +203,28 @@ const TaskDetailPage = () => {
     setShowSelfModal(false);
   };
 
+  const handleTaskComplete = (submission: any) => {
+    console.log('Task completed:', submission);
+    // Here you would typically:
+    // 1. Save submission to database
+    // 2. Update user progress
+    // 3. Handle reward distribution
+    
+    // For now, show success message
+    alert(`Task completed successfully! Your score: ${submission.totalScore}/10`);
+    
+    // Reset task state
+    setTaskStarted(false);
+    setIsVerified(false);
+  };
+
+  // Check if task has actual requirements
+  const hasRequirements = task?.requirements && (
+    (task.requirements.age && (task.requirements.age.min || task.requirements.age.max)) ||
+    task.requirements.gender ||
+    (task.requirements.countries && task.requirements.countries.length > 0)
+  );
+
   // Sort leaderboard by total earnings (reward amount)
   const sortedLeaderboard = [...task.leaderboard].sort((a, b) => {
     const aEarnings = parseFloat(a.reward.replace(/[^\d.]/g, ''));
@@ -250,8 +276,16 @@ const TaskDetailPage = () => {
       </div>
 
       <div className="relative px-4 py-6 pb-24 space-y-6">
-        {/* Hero Card */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-indigo-100 shadow-xl">
+        {/* Show FormGenerator if task is started */}
+        {taskStarted ? (
+          <FormGenerator 
+            task={task} 
+            onComplete={handleTaskComplete}
+          />
+        ) : (
+          <>
+            {/* Hero Card */}
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-indigo-100 shadow-xl">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-3 flex-1 min-w-0">
               <div className="p-3 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl border border-indigo-200">
@@ -273,13 +307,10 @@ const TaskDetailPage = () => {
               <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 {task.reward}
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(task.difficulty)}`}>
-                {task.difficulty}
-              </span>
             </div>
-            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
+            <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
               {task.status}
-            </span>
+            </div>
           </div>
 
           <p className="text-gray-700 text-sm mb-6 leading-relaxed">{task.description}</p>
@@ -302,36 +333,6 @@ const TaskDetailPage = () => {
               <div className="text-lg font-bold text-purple-700">{task.timeLeft}</div>
             </div>
           </div>
-
-          {/* Progress Bar */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-              <span>Progress</span>
-              <span>{Math.round(getProgressPercentage())}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-700 ease-out relative overflow-hidden"
-                style={{ width: `${getProgressPercentage()}%` }}
-              >
-                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2">
-            {task.tags.slice(0, 3).map((tag, index) => (
-              <span key={index} className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full border border-indigo-200">
-                {tag}
-              </span>
-            ))}
-            {task.tags.length > 3 && (
-              <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full border border-indigo-200">
-                +{task.tags.length - 3}
-              </span>
-            )}
-          </div>
         </div>
 
         {/* Action Button */}
@@ -341,7 +342,7 @@ const TaskDetailPage = () => {
           className={`w-full font-medium py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] disabled:scale-100 flex items-center justify-center space-x-2 ${
             isVerified 
               ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-              : task.requirements 
+              : hasRequirements 
                 ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700'
                 : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
           }`}
@@ -356,7 +357,7 @@ const TaskDetailPage = () => {
               <Play className="w-5 h-5" />
               <span>Start Task</span>
             </>
-          ) : task.requirements ? (
+          ) : hasRequirements ? (
             <>
               <Shield className="w-5 h-5" />
               <span>Verify Identity to Start</span>
@@ -370,7 +371,7 @@ const TaskDetailPage = () => {
         </button>
 
         {/* Verification Status */}
-        {task.requirements && (
+        {hasRequirements && (
           <div className="text-center">
             {isVerified ? (
               <div className="flex items-center justify-center space-x-2 text-green-600 text-sm">
@@ -437,14 +438,14 @@ const TaskDetailPage = () => {
             </div>
 
             {/* Requirements */}
-            {task.requirements && (
+            {hasRequirements && (
               <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                   <Shield className="w-5 h-5 text-amber-600 mr-2" />
                   Requirements
                 </h3>
                 <div className="space-y-3">
-                  {task.requirements.age && (
+                  {task.requirements.age && (task.requirements.age.min || task.requirements.age.max) && (
                     <div className="flex items-center space-x-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                       <CalendarDays className="w-4 h-4 text-amber-600 flex-shrink-0" />
                       <div>
@@ -453,7 +454,7 @@ const TaskDetailPage = () => {
                       </div>
                     </div>
                   )}
-                  {task.requirements.countries && (
+                  {task.requirements.countries && task.requirements.countries.length > 0 && (
                     <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                       <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0" />
                       <div>
@@ -577,9 +578,10 @@ const TaskDetailPage = () => {
         {activeTab === 'leaderboard' && (
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg">
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
-              <Trophy className="w-5 h-5 text-yellow-500 mr-2" />
-              Leaderboard by Earnings ({sortedLeaderboard.length})
+              <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
+              Leaderboard by Earnings
             </h3>
+            
             {sortedLeaderboard.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -589,74 +591,111 @@ const TaskDetailPage = () => {
                 <p className="text-gray-400">Be the first to join and earn rewards!</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {sortedLeaderboard.map((participant) => (
-                  <div key={participant.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:bg-gray-100 transition-colors">
-                    <div className="flex items-center space-x-3">
-                      {/* Rank */}
-                      <div className="flex items-center justify-center flex-shrink-0">
-                        {getRankIcon(participant.rank)}
-                      </div>
-                      
-                      {/* Participant Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span className="text-white font-bold text-sm">{participant.userName.charAt(0)}</span>
-                          </div>
-                          <div className="min-w-0">
-                            <h4 className="font-semibold text-gray-900 truncate">{participant.userName}</h4>
-                            <p className="text-xs text-gray-500 truncate">{participant.walletAddress}</p>
+              <div className="space-y-4">
+                {/* Top 3 Podium */}
+                <div className="space-y-3">
+                  {sortedLeaderboard.slice(0, 3).map((participant, index) => (
+                    <div key={participant.id} className={`rounded-xl p-4 border-2 transition-all ${
+                      index === 0 
+                        ? 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-300 shadow-lg' 
+                        : index === 1 
+                        ? 'bg-gradient-to-r from-gray-50 to-slate-50 border-gray-300 shadow-md'
+                        : 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-300 shadow-sm'
+                    }`}>
+                      <div className="flex items-center space-x-4">
+                        {/* Rank Badge */}
+                        <div className="flex items-center justify-center flex-shrink-0">
+                          {index === 0 ? (
+                            <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                              <Trophy className="w-6 h-6 text-white" />
+                            </div>
+                          ) : index === 1 ? (
+                            <div className="w-12 h-12 bg-gradient-to-r from-gray-400 to-slate-500 rounded-full flex items-center justify-center shadow-md">
+                              <Medal className="w-6 h-6 text-white" />
+                            </div>
+                          ) : (
+                            <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-sm">
+                              <Award className="w-6 h-6 text-white" />
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Participant Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-3 mb-2">
+
+                            <div className="min-w-0">
+                              <div className="flex items-center space-x-2">
+                                <h4 className="font-bold text-gray-900 truncate text-md">{participant.userName}</h4>
+                                {participant.id === 'current-user' && (
+                                  <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-xs font-medium border border-indigo-200">
+                                    You
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 truncate">{participant.walletAddress}</p>
+                            </div>
                           </div>
                         </div>
                         
-                        {/* Progress */}
-                        <div className="flex items-center space-x-2 text-xs text-gray-600 mb-2">
-                          <span>Progress:</span>
-                          <span className="font-medium">{participant.completedSubtasks}/{participant.totalSubtasks}</span>
+                        {/* Earnings */}
+                        <div className="text-right flex-shrink-0">
+                          <div className={`text-lg font-bold mb-1 ${
+                            index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-600' : 'text-amber-600'
+                          }`}>
+                            {participant.reward}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {index === 0 ? '🥇 1st Place' : index === 1 ? '🥈 2nd Place' : '🥉 3rd Place'}
+                          </div>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div 
-                            className="bg-gradient-to-r from-green-500 to-emerald-500 h-1.5 rounded-full"
-                            style={{ width: `${(participant.completedSubtasks / participant.totalSubtasks) * 100}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      
-                      {/* Score & Status */}
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-lg font-bold text-indigo-600 mb-1">
-                          {participant.score}/10
-                        </div>
-                        <div className="text-sm font-semibold text-green-600 mb-2">
-                          {participant.reward}
-                        </div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${
-                          participant.status === 'APPROVED' 
-                            ? 'bg-green-100 text-green-700 border-green-200'
-                            : participant.status === 'PENDING'
-                            ? 'bg-yellow-100 text-yellow-700 border-yellow-200'
-                            : 'bg-red-100 text-red-700 border-red-200'
-                        }`}>
-                          {participant.status}
-                        </span>
                       </div>
                     </div>
-                    
-                    {/* Feedback */}
-                    {participant.feedback && (
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        <div className="flex items-start space-x-2">
-                          <Star className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-                          <p className="text-sm text-gray-600 italic leading-relaxed">&ldquo;{participant.feedback}&rdquo;</p>
+                  ))}
+                </div>
+
+                {/* Current User Position (if not in top 3) */}
+                {(() => {
+                  const currentUser = sortedLeaderboard.find(p => p.id === 'current-user');
+                  if (currentUser && currentUser.rank > 3) {
+                    return (
+                      <div className="pt-4 border-t border-gray-200">
+                        <h4 className="text-sm font-medium text-gray-700 mb-3 text-center">Your Position</h4>
+                        <div className="bg-indigo-50 rounded-xl p-4 border-2 border-indigo-300">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-white font-bold text-sm">{currentUser.rank}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-gray-900 truncate">You</h4>
+                              <p className="text-xs text-gray-500">Keep going to reach the top!</p>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <div className="text-lg font-bold text-indigo-600">{currentUser.reward}</div>
+                              <div className="text-xs text-gray-500">#{currentUser.rank} of {sortedLeaderboard.length}</div>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+                    );
+                  }
+                  return null;
+                })()}
+
+                {/* Total Participants Info */}
+                <div className="text-center pt-2">
+                  <p className="text-sm text-gray-500">
+                    {sortedLeaderboard.length} total participants • 
+                    <span className="text-indigo-600 font-medium ml-1">
+                      Total Prize Pool: {task.totalBudget}
+                    </span>
+                  </p>
+                </div>
               </div>
             )}
           </div>
+        )}
+          </>
         )}
       </div>
 
@@ -664,11 +703,18 @@ const TaskDetailPage = () => {
       {showSelfModal && task && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="animate-in fade-in-0 zoom-in-95 duration-200">
-            <SelfModal 
-              requirements={task.requirements || {}} 
-              onVerificationSuccess={handleVerificationSuccess}
-              onClose={handleVerificationClose}
-            />
+            <React.Suspense fallback={
+              <div className="bg-white rounded-2xl p-6 text-center">
+                <div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading verification...</p>
+              </div>
+            }>
+              <SelfModal 
+                requirements={task.requirements || {}} 
+                onVerificationSuccess={handleVerificationSuccess}
+                onClose={handleVerificationClose}
+              />
+            </React.Suspense>
           </div>
         </div>
       )}

@@ -51,6 +51,7 @@ export interface MockTask {
     gender?: 'M' | 'F';
     countries?: string[];
   };
+  bestResponse: string; // Comprehensive marking scheme for the task
   subtasks: MockSubtask[];
   leaderboard: MockParticipant[];
   createdAt: string;
@@ -113,8 +114,36 @@ export const mockTasks: MockTask[] = [
     category: 'Market Research',
     tags: ['Survey', 'Gen Z', 'Digital', 'Social Media'],
     requirements: {
-      age: { min: 19, max: 25 },
+      age: { min: 19, max: 100 },
     },
+    bestResponse: `For this Gen Z Digital Habits Survey, excellent responses should demonstrate:
+
+1. SOCIAL MEDIA USAGE PATTERNS (Subtask 1):
+   - Clear identification of primary platforms used (Instagram, TikTok, Snapchat, etc.)
+   - Specific usage frequency and time spent
+   - Context of when and why they use each platform
+
+2. DIGITAL CONTENT CONSUMPTION (Subtask 2):
+   - Detailed description of content types consumed (educational, entertainment, news, lifestyle)
+   - Specific examples of favorite content creators or channels
+   - Time allocation across different content categories
+
+3. ONLINE SHOPPING BEHAVIOR (Subtask 3):
+   - Personal shopping habits and frequency
+   - Factors influencing purchase decisions (reviews, influencers, price, convenience)
+   - Experience with different shopping platforms
+
+4. PRIVACY CONCERNS (Subtask 4):
+   - Honest assessment of privacy awareness level (1-10)
+   - Specific concerns about data collection and usage
+   - Actions taken to protect privacy
+
+5. FUTURE TECHNOLOGY PREDICTIONS (Subtask 5):
+   - Thoughtful predictions about emerging tech trends
+   - Personal interest in specific technologies
+   - Impact on daily life and society
+
+Top responses will show deep self-awareness, provide specific examples, demonstrate critical thinking about technology's role, and offer actionable insights for businesses targeting Gen Z.`,
     subtasks: [
       {
         id: '1-1',
@@ -225,6 +254,45 @@ export const mockTasks: MockTask[] = [
       gender: 'F',
 
     },
+    bestResponse: `For this Women in Tech Career Development Study, excellent responses should demonstrate:
+
+1. CURRENT ROLE & EXPERIENCE (Subtask 1):
+   - Clear description of current position and responsibilities
+   - Specific years of experience in tech industry
+   - Technical skills and technologies used
+   - Career progression and growth
+
+2. CAREER CHALLENGES FACED (Subtask 2):
+   - Honest identification of specific challenges (gender bias, imposter syndrome, etc.)
+   - Personal examples and experiences
+   - Impact on career development and decisions
+   - Coping strategies used
+
+3. MENTORSHIP & NETWORKING (Subtask 3):
+   - Experience with formal and informal mentorship
+   - Professional network development strategies
+   - Benefits and challenges of networking
+   - Recommendations for others
+
+4. LEADERSHIP ASPIRATIONS (Subtask 4):
+   - Clear rating (1-10) with explanation
+   - Specific leadership goals and timeline
+   - Skills needed for leadership roles
+   - Preparation and development plans
+
+5. SUPPORT SYSTEMS (Subtask 5):
+   - Specific resources and support needed
+   - Current support systems available
+   - Gaps in support and recommendations
+   - How organizations can better support women
+
+6. FUTURE CAREER GOALS (Subtask 6):
+   - Clear 5-year vision with specific milestones
+   - Actionable steps and timeline
+   - Skills development plan
+   - Long-term career aspirations
+
+Top responses will show self-awareness, provide specific examples, demonstrate strategic thinking about career development, and offer actionable insights for improving women's experiences in tech.`,
     subtasks: [
       {
         id: '2-1',
@@ -342,6 +410,39 @@ export const mockTasks: MockTask[] = [
     requirements: {
    
     },
+    bestResponse: `For this Chamapay Beta Testing task, excellent responses should demonstrate:
+
+1. ACCOUNT SETUP & VERIFICATION (Subtask 1):
+   - Clear description of the verification process
+   - Any issues encountered during setup
+   - Time taken to complete verification
+   - Suggestions for improving the process
+
+2. PAYMENT METHOD TESTING (Subtask 2):
+   - Experience with different payment methods
+   - Ease of adding and removing payment options
+   - Any technical issues encountered
+   - User interface feedback for payment management
+
+3. TRANSACTION FLOW TESTING (Subtask 3):
+   - Detailed description of test transaction process
+   - Screenshots or videos showing the flow
+   - Any errors or issues encountered
+   - Suggestions for improving user experience
+
+4. USER EXPERIENCE RATING (Subtask 4):
+   - Honest rating (1-10) with specific reasoning
+   - What worked well in the interface
+   - Areas that need improvement
+   - Overall satisfaction with the platform
+
+5. FEATURE FEEDBACK SURVEY (Subtask 5):
+   - Specific feedback on new features tested
+   - Usability and functionality assessment
+   - Comparison with other payment platforms
+   - Recommendations for feature improvements
+
+Top responses will provide detailed testing feedback, include visual evidence when possible, identify specific issues and improvements, and demonstrate thorough understanding of the testing process. Feedback should be constructive and actionable for the development team.`,
     subtasks: [
       {
         id: '3-1',
@@ -431,7 +532,29 @@ export const mockTasks: MockTask[] = [
 ];
 
 export const getMockTaskById = (id: string): MockTask | undefined => {
-  return mockTasks.find(task => task.id === id);
+  const task = mockTasks.find(task => task.id === id);
+  if (task) {
+    // Add a demo current user to the leaderboard for testing
+    const currentUser: MockParticipant = {
+      id: 'current-user',
+      userName: 'You',
+      walletAddress: '0x1234...5678',
+      score: 8.5,
+      rank: 4, // Position 4 (not in top 3)
+      reward: '18 cUSD',
+      status: 'PENDING',
+      feedback: 'Great task! Looking forward to more.',
+      completedSubtasks: 4,
+      totalSubtasks: 5,
+      submittedAt: new Date().toISOString()
+    };
+    
+    return {
+      ...task,
+      leaderboard: [...task.leaderboard, currentUser]
+    };
+  }
+  return task;
 };
 
 export const getMockTasks = (): MockTask[] => {
