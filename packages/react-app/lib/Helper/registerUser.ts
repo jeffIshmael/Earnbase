@@ -1,7 +1,7 @@
 // this file has a function to register user on earnbase and bc
 
 import { formatEther, parseEther } from "viem";
-import { getFids, getUser, registerUser, updateEarnings } from "../Prismafnctns";
+import { getUser, registerUser, updateEarnings } from "../Prismafnctns";
 import { addTester, addUserReward, sendFundsToTesters } from "../WriteFunctions";
 import { sendFarcasterNotification } from "../FarcasterNotify";
 import { NeynarAPIClient, Configuration } from "@neynar/nodejs-sdk";
@@ -142,21 +142,22 @@ export async function sendMoneyAndNotify() {
     //   }
   
       // Notify all beta testers with appreciation
-      const fids = await getFids();
-      if (!fids) return;
+      // TODO: Implement getFids function or use hardcoded FIDs
+      // const fids = await getFids();
+      // if (!fids) return;
   
-      const title = "💚 Thanks for Testing!";
-      const appreciationMessage = "We truly appreciate your time and support during the ChamaPay beta testing! Blessings your way. 🌟";
+      // const title = "💚 Thanks for Testing!";
+      // const appreciationMessage = "We truly appreciate your time and support during the ChamaPay beta testing! Blessings your way. 🌟";
   
-      const notification = {
-        title,
-        body: appreciationMessage,
-        target_url: "https://chamapay-minipay.vercel.app/",
-      };
+      // const notification = {
+      //   title,
+      //   body: appreciationMessage,
+      //   target_url: "https://chamapay-minipay.vercel.app/",
+      // };
   
-      client.publishFrameNotifications({ targetFids:fids, notification }).then((response) => {
-        console.log("response:", response);
-        });
+      // client.publishFrameNotifications({ targetFids:fids, notification }).then((response) => {
+      //   console.log("response:", response);
+      //   });
   
     } catch (error) {
       console.error("❌ An error occurred while sending rewards and notifications:", error);

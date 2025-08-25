@@ -14,6 +14,8 @@ import { contractAbi, contractAddress, cUSDAddress } from '@/contexts/constants'
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { erc20Abi, parseEther } from 'viem';
 import {config} from "@/providers/AppProvider";
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 
 const TaskCreationForm = () => {
@@ -31,6 +33,7 @@ const TaskCreationForm = () => {
   const [totalBudget, setTotalBudget] = useState(0);
   const {address} = useAccount();
   const { writeContractAsync } = useWriteContract();
+  const router = useRouter();
   
   // Restrictions state
   const [restrictionsEnabled, setRestrictionsEnabled] = useState(false);
@@ -136,10 +139,12 @@ const TaskCreationForm = () => {
     setIsSubmitting(true);
     
     try {
+      const blockChainId = (await getTotalTasks()).toString();
       // Prepare task data for Prisma function
       const taskData = {
         title,
         description,
+        blockChainId,
         maxParticipants,
         baseReward,
         maxBonusReward,
@@ -167,7 +172,7 @@ const TaskCreationForm = () => {
       }));
 
       // register the task to the blockchain
-      const blockChainId = await getTotalTasks();
+
       const totalAmount = await calculateTotalRequired();
       const amountInWei = parseEther(totalAmount.toString());
       const maxAmountUserGets = parseFloat(maxBonusReward) + parseFloat(baseReward);
@@ -203,9 +208,10 @@ const TaskCreationForm = () => {
       const createdTask = await createCompleteTask(address, taskData, subtasksData);
 
       if (createdTask) {
-        alert('Task created successfully!');
+        toast('Task created successfully!');
         // Reset form to initial state
         resetForm();
+        router.push('/Start');
       } else {
         throw new Error('Failed to create task');
       }
@@ -400,7 +406,7 @@ const TaskCreationForm = () => {
                     <input
                       type="number"
                       value={maxParticipants}
-                      onChange={(e) => setMaxParticipants(parseInt(e.target.value) || 1)}
+                      onChange={(e) => setMaxParticipants(parseInt(e.target.value))}
                       min="1"
                       className="w-full pl-12 pr-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-base"
                     />
@@ -661,7 +667,7 @@ const TaskCreationForm = () => {
                       {ageRestriction && (
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Age</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Age *</label>
                             <input
                               type="number"
                               value={minAge}
@@ -669,10 +675,11 @@ const TaskCreationForm = () => {
                               min="13"
                               max="100"
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                              required
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Maximum Age</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Maximum Age *</label>
                             <input
                               type="number"
                               value={maxAge}
@@ -680,6 +687,7 @@ const TaskCreationForm = () => {
                               min="13"
                               max="100"
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                              required
                             />
                           </div>
                         </div>
@@ -728,44 +736,6 @@ const TaskCreationForm = () => {
                         </div>
                       )}
                     </div>
-
-                    {/* Country Restriction */}
-                    <div className="p-4 bg-white border border-gray-200 rounded-lg">
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="font-semibold text-gray-900">Country Restriction</h4>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={countryRestriction}
-                            onChange={(e) => setCountryRestriction(e.target.checked)}
-                            className="sr-only peer"
-                          />
-                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                      </div>
-                      
-                      {countryRestriction && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Select Countries</label>
-                          <select
-                            multiple
-                            value={countries}
-                            onChange={(e) => {
-                              const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-                              setCountries(selectedOptions);
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[100px]"
-                          >
-                            {availableCountries.map(country => (
-                              <option key={country.code} value={country.code}>
-                                {country.name}
-                              </option>
-                            ))}
-                          </select>
-                          <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple countries</p>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 )}
 
@@ -811,7 +781,6 @@ const TaskCreationForm = () => {
                     >
                       <option value="EMAIL">📧 Email</option>
                       <option value="WHATSAPP">📱 WhatsApp</option>
-                      <option value="BOTH">🔗 Both Email & WhatsApp</option>
                     </select>
                     <ChevronDown className="absolute right-4 top-3 w-5 h-5 text-gray-400 pointer-events-none" />
                   </div>

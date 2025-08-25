@@ -23,10 +23,10 @@ const navItems: NavItem[] = [
     color: 'from-indigo-500 to-purple-600'
   },
   {
-    key: 'discover',
+    key: 'mytasks',
     label: 'My Tasks',
     icon: ClipboardList,
-    path: '/Marketplace',
+    path: '/myTasks',
     color: 'from-indigo-500 to-purple-600'
   },
   {

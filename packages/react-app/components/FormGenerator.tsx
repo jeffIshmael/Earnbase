@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 interface FormGeneratorProps {
-  task: MockTask;
+    task: MockTask;
   onComplete?: (results: TaskSubmission) => void;
 }
 

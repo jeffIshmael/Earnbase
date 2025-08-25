@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
     const taskData = {
       title,
       description,
+      blockChainId: `task_${Date.now()}`, // Generate a unique blockchain ID
       maxParticipants: parseInt(maxParticipants),
       baseReward,
       maxBonusReward,

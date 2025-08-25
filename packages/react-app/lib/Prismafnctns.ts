@@ -276,6 +276,7 @@ export async function createCompleteTask(
   taskData: {
     title: string;
     description: string;
+    blockChainId: string;
     maxParticipants: number;
     baseReward: string;
     maxBonusReward: string;
@@ -315,6 +316,7 @@ export async function createCompleteTask(
         data: {
           title: taskData.title,
           description: taskData.description,
+          blockChainId: taskData.blockChainId,
           maxParticipants: taskData.maxParticipants,
           baseReward: parseEther(taskData.baseReward),
           maxBonusReward: parseEther(taskData.maxBonusReward),

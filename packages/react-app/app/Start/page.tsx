@@ -141,7 +141,7 @@ const MobileEarnBaseHome = () => {
             <h3 className="text-lg font-bold text-gray-900">Available Tasks</h3>
             <button 
               onClick={() => router.push('/Marketplace')}
-              className="text-indigo-600 text-sm font-medium flex items-center gap-1"
+              className="text-indigo-600 text-sm font-medium flex items-center gap-1 hover:text-indigo-700 transition-colors"
             >
               View All
               <ArrowRight className="w-4 h-4" />

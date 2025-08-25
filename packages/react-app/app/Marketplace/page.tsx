@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Filter, Users, Coins, Clock, ArrowRight, Plus, Target, Calendar, MapPin, User, AlertCircle } from 'lucide-react';
+import { Search, Filter, Users, Coins, Clock, ArrowRight, ArrowLeft, Plus, Target, Calendar, MapPin, User, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
 import { toast } from 'sonner';
@@ -114,9 +114,18 @@ const Marketplace = () => {
         {/* Header */}
         <div className="bg-white/90 backdrop-blur-sm border-b border-indigo-100 p-4 sticky top-0 z-10 shadow-sm">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <h1 className="text-xl font-bold">
-              📋 Task Marketplace
-            </h1>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => router.push('/Start')}
+                className="p-2 hover:bg-indigo-50 rounded-xl transition-all duration-200 group"
+                title="Back to Home"
+              >
+                <ArrowLeft className="w-5 h-5 text-indigo-600 group-hover:text-indigo-700" />
+              </button>
+              <h1 className="text-xl font-bold">
+                Available Tasks
+              </h1>
+            </div>
             {isConnected && (
               <button
                 onClick={() => router.push('/CreateTask')}
@@ -273,8 +282,6 @@ const Marketplace = () => {
           </div>
         )}
       </div>
-
-      <BottomNavigation />
     </div>
   );
 };
