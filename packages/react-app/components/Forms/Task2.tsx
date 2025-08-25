@@ -52,7 +52,8 @@ const Task2Form = ({id, searchParams}: {id: string, searchParams?: {completed?: 
       if(!address) return;
       const user = await getUser(address as string);
       if(!user) return;
-      setIsTester(user.isTester)
+      // For now, set all users as testers since isTester property doesn't exist
+      setIsTester(true)
     }
     fetchUser();
   },[address])

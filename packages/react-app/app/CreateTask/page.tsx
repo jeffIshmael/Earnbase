@@ -1,11 +1,14 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Target, Users, DollarSign, Sparkles, Clock, Plus, Trash2, 
   Save, AlertCircle, CheckCircle, Eye, FileText, Star, Upload, ChevronDown,
   Info, Zap, Gift, Calendar
 } from 'lucide-react';
+import { createCompleteTask } from '@/lib/Prismafnctns';
+import { ContactMethod, SubtaskType } from '@prisma/client';
 import BottomNavigation from '@/components/BottomNavigation';
+import { useAccount } from 'wagmi';
 
 const TaskCreationForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -19,6 +22,7 @@ const TaskCreationForm = () => {
   const [contactInfo, setContactInfo] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const {address} = useAccount();
   
   // Restrictions state
   const [restrictionsEnabled, setRestrictionsEnabled] = useState(false);
@@ -37,6 +41,34 @@ const TaskCreationForm = () => {
     required: true,
     options: ''
   }]);
+
+  // Available countries for selection
+  const availableCountries = [
+    { code: 'US', name: 'United States' },
+    { code: 'CA', name: 'Canada' },
+    { code: 'GB', name: 'United Kingdom' },
+    { code: 'DE', name: 'Germany' },
+    { code: 'FR', name: 'France' },
+    { code: 'AU', name: 'Australia' },
+    { code: 'JP', name: 'Japan' },
+    { code: 'IN', name: 'India' },
+    { code: 'BR', name: 'Brazil' },
+    { code: 'MX', name: 'Mexico' },
+    { code: 'NG', name: 'Nigeria' },
+    { code: 'ZA', name: 'South Africa' },
+    { code: 'KE', name: 'Kenya' },
+    { code: 'GH', name: 'Ghana' },
+    { code: 'UG', name: 'Uganda' }
+  ];
+
+  // Available subtask types
+  const availableSubtaskTypes = [
+    { value: 'TEXT_INPUT', label: '📝 Text Input', description: 'Free text response' },
+    { value: 'MULTIPLE_CHOICE', label: '☑️ Multiple Choice', description: 'Select from options' },
+    { value: 'CHOICE_SELECTION', label: '🎯 Choice Selection', description: 'Single choice from options' },
+    { value: 'RATING', label: '⭐ Rating', description: 'Numeric rating scale' },
+    { value: 'FILE_UPLOAD', label: '📎 File Upload', description: 'Upload files or documents' }
+  ];
 
   const steps = [
     { id: 1, name: 'Task Info', icon: Target, description: 'Basic details' },
@@ -85,26 +117,129 @@ const TaskCreationForm = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!address) {
+      alert('Please connect your wallet first');
+      return;
+    }
+    
     setIsSubmitting(true);
-    // Simulate submission
-    setTimeout(() => {
+    
+    try {
+      // Prepare task data for Prisma function
+      const taskData = {
+        title,
+        description,
+        maxParticipants,
+        baseReward,
+        maxBonusReward,
+        aiCriteria,
+        contactMethod: contactMethod as ContactMethod,
+        contactInfo,
+        expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+        restrictionsEnabled,
+        ageRestriction,
+        minAge: ageRestriction ? minAge : undefined,
+        maxAge: ageRestriction ? maxAge : undefined,
+        genderRestriction,
+        gender: genderRestriction ? gender : undefined,
+        countryRestriction,
+        countries: countryRestriction ? countries : undefined,
+      };
+
+      // Prepare subtasks data
+      const subtasksData = subtasks.map(subtask => ({
+        title: subtask.title,
+        description: subtask.description || undefined,
+        type: subtask.type as SubtaskType,
+        required: subtask.required,
+        options: subtask.options || undefined,
+      }));
+
+      // Create task directly using Prisma function
+      const createdTask = await createCompleteTask(address, taskData, subtasksData);
+
+      if (createdTask) {
+        alert('Task created successfully!');
+        // Reset form to initial state
+        resetForm();
+      } else {
+        throw new Error('Failed to create task');
+      }
+    } catch (error) {
+      console.error('Error creating task:', error);
+      alert(`Error creating task: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
       setIsSubmitting(false);
-      alert('Task created successfully!');
-    }, 2000);
+    }
   };
 
   const getStepValidation = (step: number) => {
     switch (step) {
-      case 1: return title && description && maxParticipants > 0;
-      case 2: return baseReward && maxBonusReward;
-      case 3: return aiCriteria;
+      case 1: return title.trim().length > 0 && description.trim().length > 0 && maxParticipants > 0;
+      case 2: return parseFloat(baseReward) > 0 && parseFloat(maxBonusReward) >= 0;
+      case 3: return aiCriteria.trim().length > 10;
       case 4: return true; // Restrictions are optional
-      case 5: return contactInfo;
-      case 6: return subtasks.every(s => s.title && s.type);
+      case 5: return contactInfo.trim().length > 0;
+      case 6: return subtasks.every(s => s.title.trim().length > 0 && s.type);
       default: return false;
     }
+  };
+
+  // Enhanced validation with detailed feedback
+  const getValidationErrors = () => {
+    const errors: string[] = [];
+    
+    if (!title.trim()) errors.push('Task title is required');
+    if (!description.trim()) errors.push('Task description is required');
+    if (maxParticipants <= 0) errors.push('Max participants must be greater than 0');
+    if (parseFloat(baseReward) <= 0) errors.push('Base reward must be greater than 0');
+    if (parseFloat(maxBonusReward) < 0) errors.push('Max bonus reward cannot be negative');
+    if (!aiCriteria.trim()) errors.push('AI criteria is required');
+    if (aiCriteria.trim().length < 10) errors.push('AI criteria must be at least 10 characters');
+    if (!contactInfo.trim()) errors.push('Contact information is required');
+    
+    // Validate subtasks
+    subtasks.forEach((subtask, index) => {
+      if (!subtask.title.trim()) errors.push(`Subtask ${index + 1} title is required`);
+      if (subtask.type === 'MULTIPLE_CHOICE' && !subtask.options?.trim()) {
+        errors.push(`Subtask ${index + 1} options are required for multiple choice`);
+      }
+    });
+    
+    return errors;
+  };
+
+  // Function to reset form to initial state
+  const resetForm = () => {
+    setCurrentStep(1);
+    setTitle('');
+    setDescription('');
+    setMaxParticipants(10);
+    setBaseReward('');
+    setMaxBonusReward('');
+    setAiCriteria('');
+    setContactMethod('EMAIL');
+    setContactInfo('');
+    setExpiresAt('');
+    setSubtasks([{
+      id: '1',
+      title: '',
+      description: '',
+      type: 'TEXT_INPUT',
+      required: true,
+      options: ''
+    }]);
+    setRestrictionsEnabled(false);
+    setAgeRestriction(false);
+    setMinAge(18);
+    setMaxAge(65);
+    setGenderRestriction(false);
+    setGender('M');
+    setCountryRestriction(false);
+    setCountries([]);
   };
 
   return (
@@ -243,13 +378,16 @@ const TaskCreationForm = () => {
                     placeholder="Describe what participants need to do in detail. Be specific about requirements and expectations..."
                   />
                   <div className="flex justify-between items-center mt-2 text-xs">
-                    <p className="text-gray-500">
+                    <p className={`${description.length < 200 ? 'text-red-500' : description.length > 500 ? 'text-yellow-500' : 'text-green-500'}`}>
                       {description.length} characters
                     </p>
                     <p className="text-gray-400">
                       Recommended: 200-500 characters
                     </p>
                   </div>
+                  {description.length > 0 && description.length < 200 && (
+                    <p className="text-xs text-red-500 mt-1">Description is too short. Please provide more details.</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -395,13 +533,16 @@ const TaskCreationForm = () => {
                     placeholder="Example: Look for detailed feedback, specific suggestions, constructive criticism, and actionable insights. Higher ratings for comprehensive responses that show understanding of the task."
                   />
                   <div className="flex justify-between items-center mt-2 text-xs">
-                    <p className="text-gray-500">
+                    <p className={`${aiCriteria.length < 10 ? 'text-red-500' : aiCriteria.length < 50 ? 'text-yellow-500' : 'text-green-500'}`}>
                       {aiCriteria.length} characters
                     </p>
                     <p className="text-gray-400">
                       Be specific and detailed
                     </p>
                   </div>
+                  {aiCriteria.length > 0 && aiCriteria.length < 10 && (
+                    <p className="text-xs text-red-500 mt-1">AI criteria is too short. Please provide more specific instructions.</p>
+                  )}
                 </div>
 
                 <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
@@ -574,21 +715,11 @@ const TaskCreationForm = () => {
                             }}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[100px]"
                           >
-                            <option value="US">United States</option>
-                            <option value="CA">Canada</option>
-                            <option value="GB">United Kingdom</option>
-                            <option value="DE">Germany</option>
-                            <option value="FR">France</option>
-                            <option value="AU">Australia</option>
-                            <option value="JP">Japan</option>
-                            <option value="IN">India</option>
-                            <option value="BR">Brazil</option>
-                            <option value="MX">Mexico</option>
-                            <option value="NG">Nigeria</option>
-                            <option value="ZA">South Africa</option>
-                            <option value="KE">Kenya</option>
-                            <option value="GH">Ghana</option>
-                            <option value="UG">Uganda</option>
+                            {availableCountries.map(country => (
+                              <option key={country.code} value={country.code}>
+                                {country.name}
+                              </option>
+                            ))}
                           </select>
                           <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple countries</p>
                         </div>
@@ -746,11 +877,11 @@ const TaskCreationForm = () => {
                             onChange={(e) => updateSubtask(subtask.id, 'type', e.target.value)}
                             className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 appearance-none text-sm"
                           >
-                            <option value="TEXT_INPUT">📝 Text Input</option>
-                            <option value="MULTIPLE_CHOICE">☑️ Multiple Choice</option>
-                            <option value="CHOICE_SELECTION">🎯 Choice Selection</option>
-                            <option value="RATING">⭐ Rating</option>
-                            <option value="FILE_UPLOAD">📎 File Upload</option>
+                            {availableSubtaskTypes.map(type => (
+                              <option key={type.value} value={type.value}>
+                                {type.label}
+                              </option>
+                            ))}
                           </select>
                           <ChevronDown className="absolute right-3 top-3 w-5 h-5 text-gray-400 pointer-events-none" />
                         </div>
@@ -830,6 +961,26 @@ const TaskCreationForm = () => {
                 <p className="text-gray-600 text-sm">Review your task details and submit to go live</p>
               </div>
 
+              {/* Validation Errors */}
+              {getValidationErrors().length > 0 && (
+                <div className="bg-red-50 rounded-lg p-4 border border-red-200 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-semibold text-red-800 mb-2">Please fix the following issues:</h4>
+                      <ul className="space-y-1 text-xs text-red-700">
+                        {getValidationErrors().map((error, index) => (
+                          <li key={index} className="flex items-start space-x-2">
+                            <span>•</span>
+                            <span>{error}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Task Summary - Mobile Optimized */}
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="bg-white/80 rounded-lg p-3 text-center">
@@ -895,7 +1046,7 @@ const TaskCreationForm = () => {
                 
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || getValidationErrors().length > 0}
                   className="flex items-center justify-center space-x-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-12 py-4 rounded-lg font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-lg"
                 >
                   {isSubmitting ? (

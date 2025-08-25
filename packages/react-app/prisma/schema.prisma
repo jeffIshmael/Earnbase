@@ -20,10 +20,8 @@ model User {
   userName      String   
   fid           Int?      
   totalEarned   BigInt   @default(0)
-  claimable     BigInt   @default(0)
   walletAddress String   @unique
   smartAddress  String?
-  isTester      Boolean  @default(false)
   tasks         Task[]
   // New relationships
   createdTasks  Task[]   @relation("TaskCreator")
@@ -46,6 +44,16 @@ model Task {
   contactInfo       String   // Email or WhatsApp number
   createdAt         DateTime @default(now())
   expiresAt         DateTime?
+  
+  // New restriction fields
+  restrictionsEnabled Boolean @default(false)
+  ageRestriction     Boolean @default(false)
+  minAge             Int?
+  maxAge             Int?
+  genderRestriction  Boolean @default(false)
+  gender             String?  // 'M' or 'F'
+  countryRestriction Boolean @default(false)
+  countries          String?  // JSON array of country codes
   
   // Relationships
   creatorId         Int

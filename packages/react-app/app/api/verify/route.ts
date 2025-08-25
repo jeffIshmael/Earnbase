@@ -10,7 +10,7 @@ import {
 
 export async function POST(req: NextRequest) {
   console.log("Received request");
-  console.log(req);
+  console.log("req", req);
   try {
     const { attestationId, proof, publicSignals, userContextData } = await req.json();
 
@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
     const configStore = new DefaultConfigStore(disclosures_config);
 
     const selfBackendVerifier = new SelfBackendVerifier(
-      "self-workshop",
-      process.env.NEXT_PUBLIC_SELF_ENDPOINT || "",
+      "earnbase",
+      "https://fc7ec00ae380.ngrok-free.app/api/verify",
       true,
       AllIds,
       configStore,
@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
       publicSignals,
       userContextData
     );
+    console.log(result);
     if (!result.isValidDetails.isValid) {
       return NextResponse.json({
         status: "error",
@@ -57,6 +58,39 @@ export async function POST(req: NextRequest) {
     )) as unknown as SelfAppDisclosureConfig;
 
     if (result.isValidDetails.isValid) {
+      // Add age and gender validation
+      const userAge = result.discloseOutput.minimumAge;
+      const userGender = result.discloseOutput.gender;
+      const userDateOfBirth = result.discloseOutput.dateOfBirth;
+      
+      // Calculate actual age from date of birth
+      const birthYear = parseInt(userDateOfBirth.substring(0, 2));
+      const birthMonth = parseInt(userDateOfBirth.substring(2, 4));
+      const birthDay = parseInt(userDateOfBirth.substring(4, 6));
+      
+      // Convert YY to YYYY (assuming 19xx for birth years)
+      const fullBirthYear = 1900 + birthYear;
+      const birthDate = new Date(fullBirthYear, birthMonth - 1, birthDay);
+      const today = new Date();
+      let actualAge = today.getFullYear() - birthDate.getFullYear();
+      
+      // Check if month/day has passed this year
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        actualAge--;
+      }
+      
+      // Validate gender is female and age is between 75-80
+      // if (userGender !== 'F') {
+      //   return NextResponse.json(
+      //      "Only female users are allowed.",
+      //    { status: 403 });
+      // }
+      
+      if (actualAge < 75 || actualAge > 80) {
+        return NextResponse.json("You are not between 75-80 years old",
+        { status: 403 });
+      }
 
       return NextResponse.json({
         status: "success",

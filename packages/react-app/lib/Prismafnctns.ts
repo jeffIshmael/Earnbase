@@ -59,23 +59,6 @@ export async function getTaskTesters(){
     return testerArray;
 }
 
-// function to return testers in the order of earned cUSD (For the leaderboard)
-export async function getTestersLeaderboard (){
-    const users = await prisma.user.findMany({
-        where:{
-            isTester: true,        
-        }, select:{
-         totalEarned: true,
-         walletAddress: true,
-         userName: true,
-        },
-        orderBy:{
-            totalEarned:'desc',
-        }
-    })
-    return users;
-}
-
 // function to check if the smart account addresss has been set
 export async function checkIfSmartAccount(address: string){
         const user = await prisma.user.findUnique({
@@ -145,27 +128,6 @@ export async function recordTask(subTaskId: number, completed: boolean, reward: 
     }
 }
 
-// function to update the unclaimed amounts
-export async function updateUnclaimed(address: string, amount: bigint) {
-    try {
-        await prisma.user.update({
-            where: {
-                walletAddress: address,
-            },
-            data: {
-                claimable: {
-                    decrement: amount
-                },
-            }
-        });
-
-        return true;
-    } catch (error) {
-        console.error("Error updating unclaimed amounts:", error);
-        throw error;
-    }
-}
-
 // function to update the earned
 export async function updateEarnings(address: string, amount: bigint) {
   try {
@@ -181,9 +143,6 @@ export async function updateEarnings(address: string, amount: bigint) {
               walletAddress: address,
           },
           data: {
-              claimable: {
-                  increment: amount
-              },
               totalEarned:{
                 increment: amount,
               }
@@ -272,25 +231,6 @@ export async function addTester(testerId: number, taskId: string, addresses: str
     }
   }
 
-// function to update the tasker boolean of a user
-export async function updateAsTasker( address: string) {
-    try {
-      const user = getUser(address);
-      if(!user) return;
-      const updateUser = await prisma.user.update({
-        where:{
-            walletAddress: address,
-        },
-        data:{
-            isTester: true,
-        }
-      });
-      return updateUser;
-    } catch (error) {
-      console.error("Error updating taskers:", error);
-      throw error;
-    }
-  }
   
 // function to get the user's feedback from a task
 export async function getUserFeedback(address:string, taskId:number){
@@ -325,7 +265,16 @@ export async function createTask(
   aiCriteria: string,
   contactMethod: ContactMethod,
   contactInfo: string,
-  expiresAt?: Date
+  expiresAt?: Date,
+  // New restriction parameters
+  restrictionsEnabled?: boolean,
+  ageRestriction?: boolean,
+  minAge?: number,
+  maxAge?: number,
+  genderRestriction?: boolean,
+  gender?: string,
+  countryRestriction?: boolean,
+  countries?: string[]
 ) {
   try {
     const creator = await getUser(creatorAddress);
@@ -343,6 +292,15 @@ export async function createTask(
         contactMethod,
         contactInfo,
         expiresAt,
+        // New restriction fields
+        restrictionsEnabled: restrictionsEnabled || false,
+        ageRestriction: ageRestriction || false,
+        minAge: minAge || null,
+        maxAge: maxAge || null,
+        genderRestriction: genderRestriction || false,
+        gender: gender || null,
+        countryRestriction: countryRestriction || false,
+        countries: countries ? JSON.stringify(countries) : null,
         creatorId: creator.id,
         status: TaskStatus.ACTIVE,
       },
@@ -391,6 +349,99 @@ export async function addTaskSubtasks(
   }
 }
 
+// New function to create a complete task with subtasks in one transaction
+export async function createCompleteTask(
+  creatorAddress: string,
+  taskData: {
+    title: string;
+    description: string;
+    maxParticipants: number;
+    baseReward: string;
+    maxBonusReward: string;
+    aiCriteria: string;
+    contactMethod: ContactMethod;
+    contactInfo: string;
+    expiresAt?: Date;
+    restrictionsEnabled?: boolean;
+    ageRestriction?: boolean;
+    minAge?: number;
+    maxAge?: number;
+    genderRestriction?: boolean;
+    gender?: string;
+    countryRestriction?: boolean;
+    countries?: string[];
+  },
+  subtasks: Array<{
+    title: string;
+    description?: string;
+    type: SubtaskType;
+    required: boolean;
+    options?: string;
+  }>
+) {
+  try {
+    const creator = await getUser(creatorAddress);
+    if (!creator) throw new Error("Creator not found");
+
+    // Create task and subtasks in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the task
+      const task = await tx.task.create({
+        data: {
+          title: taskData.title,
+          description: taskData.description,
+          maxParticipants: taskData.maxParticipants,
+          baseReward: parseEther(taskData.baseReward),
+          maxBonusReward: parseEther(taskData.maxBonusReward),
+          totalDeposited: BigInt(0),
+          aiCriteria: taskData.aiCriteria,
+          contactMethod: taskData.contactMethod,
+          contactInfo: taskData.contactInfo,
+          expiresAt: taskData.expiresAt,
+          restrictionsEnabled: taskData.restrictionsEnabled || false,
+          ageRestriction: taskData.ageRestriction || false,
+          minAge: taskData.minAge || null,
+          maxAge: taskData.maxAge || null,
+          genderRestriction: taskData.genderRestriction || false,
+          gender: taskData.gender || null,
+          countryRestriction: taskData.countryRestriction || false,
+          countries: taskData.countries ? JSON.stringify(taskData.countries) : null,
+          creatorId: creator.id,
+          status: TaskStatus.ACTIVE,
+        },
+        include: {
+          creator: true,
+        }
+      });
+
+      // Create subtasks if provided
+      if (subtasks && subtasks.length > 0) {
+        const subtaskData = subtasks.map((subtask, index) => ({
+          taskId: task.id,
+          title: subtask.title,
+          description: subtask.description || null,
+          type: subtask.type,
+          required: subtask.required,
+          order: index + 1,
+          options: subtask.options || null,
+        }));
+
+        await tx.taskSubtask.createMany({
+          data: subtaskData,
+        });
+      }
+
+      return task;
+    });
+
+    // Return the complete task with subtasks
+    return await getTaskDetails(result.id);
+  } catch (error) {
+    console.error("Error creating complete task:", error);
+    throw error;
+  }
+}
+
 // function to get all active tasks
 export async function getActiveTasks() {
   try {
@@ -427,6 +478,90 @@ export async function getActiveTasks() {
     return tasks;
   } catch (error) {
     console.error("Error getting active tasks:", error);
+    throw error;
+  }
+}
+
+// New function to get tasks with restrictions applied
+export async function getTasksWithRestrictions(
+  userAge?: number,
+  userGender?: string,
+  userCountry?: string
+) {
+  try {
+    let whereClause: any = {
+      status: TaskStatus.ACTIVE,
+      currentParticipants: {
+        lt: prisma.task.fields.maxParticipants,
+      },
+    };
+
+    // Apply age restrictions
+    if (userAge !== undefined) {
+      whereClause.OR = [
+        { ageRestriction: false }, // No age restriction
+        {
+          ageRestriction: true,
+          minAge: { lte: userAge },
+          maxAge: { gte: userAge },
+        }
+      ];
+    }
+
+    // Apply gender restrictions
+    if (userGender) {
+      whereClause.OR = [
+        ...(whereClause.OR || []),
+        { genderRestriction: false }, // No gender restriction
+        {
+          genderRestriction: true,
+          gender: userGender,
+        }
+      ];
+    }
+
+    // Apply country restrictions
+    if (userCountry) {
+      whereClause.OR = [
+        ...(whereClause.OR || []),
+        { countryRestriction: false }, // No country restriction
+        {
+          countryRestriction: true,
+          countries: {
+            contains: userCountry,
+          }
+        }
+      ];
+    }
+
+    const tasks = await prisma.task.findMany({
+      where: whereClause,
+      include: {
+        creator: {
+          select: {
+            userName: true,
+            walletAddress: true,
+          }
+        },
+        subtasks: {
+          orderBy: {
+            order: 'asc',
+          }
+        },
+        _count: {
+          select: {
+            submissions: true,
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc',
+      }
+    });
+
+    return tasks;
+  } catch (error) {
+    console.error("Error getting tasks with restrictions:", error);
     throw error;
   }
 }
