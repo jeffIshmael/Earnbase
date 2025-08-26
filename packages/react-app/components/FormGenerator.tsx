@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { MockTask, MockSubtask } from "@/lib/mockData";
+import { TaskWithEligibility } from "@/lib/taskService";
 import { getAiRating } from "@/lib/AiRating";
 import { 
   FileText, CheckCircle, Target, Star, Users, 
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 interface FormGeneratorProps {
-    task: MockTask;
+    task: TaskWithEligibility;
   onComplete?: (results: TaskSubmission) => void;
 }
 

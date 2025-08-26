@@ -36,9 +36,9 @@ model Task {
   blockChainId      String   @default("0")
   maxParticipants   Int
   currentParticipants Int    @default(0)
-  baseReward        BigInt
-  maxBonusReward    BigInt
-  totalDeposited    BigInt
+  baseReward        String
+  maxBonusReward    String
+  totalDeposited    String
   status            TaskStatus @default(ACTIVE)
   aiCriteria        String   // JSON string of creator's AI rating criteria
   contactMethod     ContactMethod
@@ -67,7 +67,7 @@ model Task {
   completed         Boolean  @default(false)
   claimed           Boolean  @default(false)
   feedback          String?
-  reward            BigInt   @default(0)
+  reward            String   @default("0")
   ipfsHash          String?
   aiRating          String?
   userId            Int?
@@ -103,7 +103,7 @@ model TaskSubmission {
   status      SubmissionStatus @default(PENDING)
   aiRating    Int?     // 1-10 rating from AI
   aiFeedback  String?  // AI's explanation of rating
-  reward      BigInt   @default(0)
+  reward      String   @default("0")
   submittedAt DateTime @default(now())
   reviewedAt  DateTime?
   

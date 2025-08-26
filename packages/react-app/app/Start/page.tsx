@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useRouter } from 'next/navigation';
-import { getMockTasks, MockTask, renderTaskIcon, getTasksWithEligibility, checkUserEligibility } from '@/lib/mockData';
+import { getAllActiveTasks, TaskWithEligibility, renderTaskIcon, getTasksWithEligibility, formatReward, getTimeLeft } from '@/lib/taskService';
 
 const MobileEarnBaseHome = () => {
   const [isConnected, setIsConnected] = useState(true); // Simulating connected state
@@ -27,14 +27,19 @@ const MobileEarnBaseHome = () => {
     totalEarned: '0.00',
     tasksCompleted: 0
   });
-  const [tasks, setTasks] = useState<MockTask[]>([]);
+  const [tasks, setTasks] = useState<TaskWithEligibility[]>([]);
   const router = useRouter();
 
   useEffect(() => {
-    // Load mock tasks
+    // Load tasks from database
     const loadTasks = async () => {
-      const mockTasks = getMockTasks();
-      setTasks(mockTasks);
+      try {
+        const activeTasks = await getAllActiveTasks();
+        setTasks(activeTasks);
+      } catch (error) {
+        console.error('Error loading tasks:', error);
+        setTasks([]);
+      }
     };
     loadTasks();
   }, []);
@@ -148,6 +153,12 @@ const MobileEarnBaseHome = () => {
             </button>
           </div>
           <div className="space-y-3">
+
+            {tasks.length === 0 && (
+              <div className="text-center text-gray-500">
+                No tasks available
+              </div>
+            )}
             {tasks.map((task) => (
               <div
                 key={task.id}
@@ -155,47 +166,54 @@ const MobileEarnBaseHome = () => {
                 className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 active:scale-98 cursor-pointer"
               >
                 {/* Task Header */}
-                                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start space-x-3 flex-1 min-w-0">
-                      <div className="p-2 bg-gray-50 rounded-lg flex-shrink-0">
-                        {renderTaskIcon(task.iconType, task.iconColor)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 text-sm truncate flex-1">{task.title}</h4>
-                          {task.verified && (
-                            <div className="flex items-center gap-1 flex-shrink-0">
-                              <ShieldCheck className="w-3 h-3 text-green-500" />
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-600 line-clamp-2">{task.description}</p>
-                      </div>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start space-x-3 flex-1 min-w-0">
+                    <div className="p-2 bg-gray-50 rounded-lg flex-shrink-0">
+                      {(() => {
+                        const iconInfo = { iconType: 'trending', iconColor: 'text-emerald-600' };
+                        if (task.title.toLowerCase().includes('tech') || task.title.toLowerCase().includes('career')) {
+                          iconInfo.iconType = 'users';
+                          iconInfo.iconColor = 'text-purple-600';
+                        } else if (task.title.toLowerCase().includes('health') || task.title.toLowerCase().includes('fitness')) {
+                          iconInfo.iconType = 'shield';
+                          iconInfo.iconColor = 'text-blue-600';
+                        }
+                        return renderTaskIcon(iconInfo.iconType, iconInfo.iconColor);
+                      })()}
                     </div>
-                    <div className="text-right ml-2 flex-shrink-0">
-                      <p className="font-bold text-indigo-600 text-sm">{task.reward}</p>
-                      <p className="text-xs text-gray-500">{task.timeLeft}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 text-sm truncate flex-1">{task.title}</h4>
+                        {task.restrictionsEnabled && (
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <ShieldCheck className="w-3 h-3 text-green-500" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 line-clamp-2">{task.description}</p>
                     </div>
                   </div>
+                  <div className="text-right ml-2 flex-shrink-0">
+                    <p className="font-bold text-indigo-600 text-sm">{formatReward(task.baseReward)}</p>
+                    <p className="text-xs text-gray-500">{getTimeLeft(task.expiresAt as Date)}</p>
+                  </div>
+                </div>
                 {/* Task Footer */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(task.difficulty)}`}>
-                      {task.difficulty}
-                    </span>
                     <div className="flex items-center gap-1 text-xs text-gray-500">
                       <Users className="w-3 h-3" />
-                      {task.participants}
+                      {task.currentParticipants}/{task.maxParticipants}
                     </div>
                   </div>
                   {/* Verification Badge for Premium Tasks */}
-                  {task.verified && !isVerified && (
+                  {task.restrictionsEnabled && !isVerified && (
                     <div className="flex items-center gap-1 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
                       <AlertCircle className="w-3 h-3" />
                       <span>Verify Required</span>
                     </div>
                   )}
-                  {(!task.verified || isVerified) && (
+                  {(!task.restrictionsEnabled || isVerified) && (
                     <ArrowRight className="w-4 h-4 text-gray-400" />
                   )}
                 </div>

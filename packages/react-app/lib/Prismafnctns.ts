@@ -94,9 +94,9 @@ export async function recordTask(subTaskId: number, completed: boolean, reward: 
                 description: `Legacy task completion`,
                 maxParticipants: 1,
                 currentParticipants: 1,
-                baseReward: parseEther(reward),
-                maxBonusReward: BigInt(0),
-                totalDeposited: parseEther(reward),
+                baseReward: parseEther(reward).toString(),
+                maxBonusReward: '0',
+                totalDeposited: parseEther(reward).toString(),
                 status: TaskStatus.ACTIVE,
                 aiCriteria: "Legacy task",
                 contactMethod: ContactMethod.EMAIL,
@@ -105,7 +105,7 @@ export async function recordTask(subTaskId: number, completed: boolean, reward: 
                 // Legacy fields
                 subTaskId: subTaskId,
                 completed: completed,
-                reward: parseEther(reward),
+                reward: parseEther(reward).toString(),
                 ipfsHash: ipfsHash,
                 feedback: feedback,
                 userId: user.id,
@@ -206,9 +206,9 @@ export async function createTask(
         title,
         description,
         maxParticipants,
-        baseReward: parseEther(baseReward),
-        maxBonusReward: parseEther(maxBonusReward),
-        totalDeposited: BigInt(0), // Will be updated when funds are deposited
+        baseReward: parseEther(baseReward).toString(),
+        maxBonusReward: parseEther(maxBonusReward).toString(),
+        totalDeposited: '0', // Will be updated when funds are deposited
         aiCriteria,
         contactMethod,
         contactInfo,
@@ -318,9 +318,9 @@ export async function createCompleteTask(
           description: taskData.description,
           blockChainId: taskData.blockChainId,
           maxParticipants: taskData.maxParticipants,
-          baseReward: parseEther(taskData.baseReward),
-          maxBonusReward: parseEther(taskData.maxBonusReward),
-          totalDeposited: BigInt(0),
+                  baseReward: parseEther(taskData.baseReward).toString(),
+        maxBonusReward: parseEther(taskData.maxBonusReward).toString(),
+        totalDeposited: '0',
           aiCriteria: taskData.aiCriteria,
           contactMethod: taskData.contactMethod,
           contactInfo: taskData.contactInfo,
@@ -687,6 +687,17 @@ export async function getCreatorTasks(creatorAddress: string) {
     return tasks;
   } catch (error) {
     console.error("Error getting creator tasks:", error);
+    throw error;
+  }
+}
+
+// function to get all tasks
+export async function getAllTasks() {
+  try {
+    const tasks = await prisma.task.findMany();
+    return tasks;
+  } catch (error) {
+    console.error("Error getting all tasks:", error);
     throw error;
   }
 }

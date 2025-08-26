@@ -6,26 +6,9 @@ import { Plus, Search, Filter, DollarSign, Users, Eye, Edit, Target, TrendingUp,
 import { getMockTasks } from '@/lib/mockData';
 import { renderTaskIcon } from '@/lib/mockData';
 import BottomNavigation from '@/components/BottomNavigation';
+import { getAllTasks } from '@/lib/Prismafnctns';
 
-interface MyTask {
-  id: string;
-  title: string;
-  description: string;
-  reward: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  iconType: string;
-  iconColor: string;
-  participants: number;
-  maxParticipants: number;
-  timeLeft: string;
-  status: 'ACTIVE' | 'PAUSED' | 'COMPLETED';
-  category: string;
-  totalBudget: string;
-  currentBudget: string;
-  createdAt: string;
-  expiresAt: string;
-  responses: number;
-}
+type MyTask = Awaited<ReturnType<typeof getAllTasks>>[0] & { responses: number };
 
 const MyTasksPage = () => {
   const router = useRouter();
@@ -41,10 +24,10 @@ const MyTasksPage = () => {
         setLoading(true);
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        const allTasks = getMockTasks();
+        const allTasks = await getAllTasks();
         const myTasks: MyTask[] = allTasks.map(task => ({
           ...task,
-          responses: Math.floor(Math.random() * 15) + 1,
+          responses:0,
         }));
         
         setTasks(myTasks);
@@ -71,9 +54,9 @@ const MyTasksPage = () => {
       case 'created':
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       case 'participants':
-        return b.participants - a.participants;
+        return b.currentParticipants - a.currentParticipants;
       case 'budget':
-        return parseFloat(b.totalBudget) - parseFloat(a.totalBudget);
+        return parseFloat(b.totalDeposited) - parseFloat(a.totalDeposited);
       default:
         return 0;
     }
@@ -157,7 +140,7 @@ const MyTasksPage = () => {
             {!searchTerm && statusFilter === 'ALL' && (
               <button
                 onClick={() => router.push('/CreateTask')}
-                className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
+                className="px-6 py-3 bg-indigo-400  text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
               >
                 Create Your First Task
               </button>
@@ -190,7 +173,7 @@ const MyTasksPage = () => {
                       <DollarSign className="w-4 h-4 text-purple-600" />
                       <span className="text-xs text-purple-600">Balance</span>
                     </div>
-                    <div className="text-sm font-bold text-purple-700">{task.totalBudget}</div>
+                    <div className="text-sm font-bold text-purple-700">{task.totalDeposited}</div>
                   </div>
                   
                   <div className="text-center p-2">

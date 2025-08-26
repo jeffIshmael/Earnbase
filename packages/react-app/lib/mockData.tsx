@@ -46,6 +46,7 @@ export interface MockTask {
   };
   category: string;
   tags: string[];
+  hasRequirements: boolean;
   requirements: {
     age?: { min: number; max: number };
     gender?: 'M' | 'F';
@@ -113,6 +114,7 @@ export const mockTasks: MockTask[] = [
     },
     category: 'Market Research',
     tags: ['Survey', 'Gen Z', 'Digital', 'Social Media'],
+    hasRequirements: true,
     requirements: {
       age: { min: 19, max: 100 },
     },
@@ -250,6 +252,7 @@ Top responses will show deep self-awareness, provide specific examples, demonstr
     },
     category: 'Career Research',
     tags: ['Women in Tech', 'Career', 'Professional Development', 'Survey'],
+    hasRequirements: true,
     requirements: {
       gender: 'F',
 
@@ -407,6 +410,7 @@ Top responses will show self-awareness, provide specific examples, demonstrate s
     },
     category: 'Payment Testing',
     tags: ['Beta', 'Payments', 'Mobile'],
+    hasRequirements: false,
     requirements: {
    
     },

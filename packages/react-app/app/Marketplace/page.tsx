@@ -8,13 +8,13 @@ import { toast } from 'sonner';
 import { formatEther } from 'viem';
 import BottomNavigation from '@/components/BottomNavigation';
 import Link from 'next/link';
-import { getMockTasks, MockTask, renderTaskIcon, checkUserEligibility } from '@/lib/mockData';
+import { getAllActiveTasks, TaskWithEligibility, renderTaskIcon, formatReward, getTimeLeft } from '@/lib/taskService';
 
 const Marketplace = () => {
   const router = useRouter();
   const { isConnected } = useAccount();
-  const [tasks, setTasks] = useState<MockTask[]>([]);
-  const [filteredTasks, setFilteredTasks] = useState<MockTask[]>([]);
+  const [tasks, setTasks] = useState<TaskWithEligibility[]>([]);
+  const [filteredTasks, setFilteredTasks] = useState<TaskWithEligibility[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'reward' | 'participants'>('newest');
@@ -29,11 +29,17 @@ const Marketplace = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-      const mockTasks = getMockTasks();
-      setTasks(mockTasks);
-      setFilteredTasks(mockTasks);
-      setIsLoading(false);
+      try {
+        const activeTasks = await getAllActiveTasks();
+        setTasks(activeTasks);
+        setFilteredTasks(activeTasks);
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+        setTasks([]);
+        setFilteredTasks([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchTasks();
@@ -46,9 +52,7 @@ const Marketplace = () => {
     if (searchTerm) {
       filtered = filtered.filter(task =>
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        task.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -56,11 +60,11 @@ const Marketplace = () => {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'reward':
-          const aReward = parseFloat(a.reward.replace(/[^\d.]/g, ''));
-          const bReward = parseFloat(b.reward.replace(/[^\d.]/g, ''));
+          const aReward = parseFloat(a.baseReward);
+          const bReward = parseFloat(b.baseReward);
           return bReward - aReward;
         case 'participants':
-          return b.participants - a.participants;
+          return b.currentParticipants - a.currentParticipants;
         case 'newest':
         default:
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -103,9 +107,9 @@ const Marketplace = () => {
     });
   };
 
-  const getEligibilityStatus = (task: MockTask) => {
-    const eligibility = checkUserEligibility(task, demoUser.age, demoUser.gender, demoUser.country);
-    return eligibility;
+  const getEligibilityStatus = (task: TaskWithEligibility) => {
+    // For now, return a simple eligibility check
+    return { eligible: true, reason: undefined };
   };
 
   return (
@@ -218,9 +222,9 @@ const Marketplace = () => {
                         </div>
                         <p className="text-gray-600 text-sm line-clamp-2 mb-2">{task.description}</p>
                         <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <span className="capitalize">{task.category}</span>
+                          <span className="capitalize">Task</span>
                           <span>•</span>
-                          <span>{formatDate(task.createdAt)}</span>
+                          <span>{formatDate(task.createdAt.toISOString())}</span>
                         </div>
                       </div>
                     </div>
@@ -234,7 +238,7 @@ const Marketplace = () => {
                         <span className="text-xs text-gray-600">Participants</span>
                       </div>
                       <p className="text-sm font-semibold text-blue-700">
-                        {task.participants}/{task.maxParticipants}
+                        {task.currentParticipants}/{task.maxParticipants}
                       </p>
                     </div>
                     
@@ -244,7 +248,7 @@ const Marketplace = () => {
                         <span className="text-xs text-gray-600">Reward</span>
                       </div>
                       <p className="text-sm font-semibold text-green-700">
-                        {task.reward}
+                        {formatReward(task.baseReward)}
                       </p>
                     </div>
                     
@@ -263,7 +267,7 @@ const Marketplace = () => {
                         <span className="text-xs text-gray-600">Time Left</span>
                       </div>
                       <p className="text-sm font-semibold text-amber-700">
-                        {task.timeLeft}
+                        {task.expiresAt ? getTimeLeft(task.expiresAt as Date) : 'N/A'}
                       </p>
                     </div>
                   </div>

@@ -9,7 +9,7 @@ import {
   ChevronRight, CalendarDays, Tag, Award as AwardIcon, Coins,
   Play, ChevronDown, Heart, Share2, Bookmark, X
 } from 'lucide-react';
-import { getMockTaskById, MockTask, MockSubtask, MockParticipant, renderTaskIcon } from '@/lib/mockData';
+import { getTaskById, TaskWithEligibility, renderTaskIcon, formatReward, getTimeLeft } from '@/lib/taskService';
 import BottomNavigation from '@/components/BottomNavigation';
 import SelfModal from '@/components/SelfModal';
 import FormGenerator from '@/components/FormGenerator';
@@ -17,7 +17,7 @@ import FormGenerator from '@/components/FormGenerator';
 const TaskDetailPage = () => {
   const params = useParams();
   const router = useRouter();
-  const [task, setTask] = useState<MockTask | null>(null);
+  const [task, setTask] = useState<TaskWithEligibility | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'subtasks' | 'leaderboard'>('overview');
@@ -37,7 +37,7 @@ const TaskDetailPage = () => {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        const taskData = getMockTaskById(taskId);
+        const taskData = await getTaskById(parseInt(taskId));
         if (taskData) {
           setTask(taskData);
         } else {
@@ -60,10 +60,10 @@ const TaskDetailPage = () => {
     if (!task) return;
     
     // Check if task has actual requirements and user is not verified
-    const hasRequirements = task.requirements && (
-      (task.requirements.age && (task.requirements.age.min || task.requirements.age.max)) ||
-      task.requirements.gender ||
-      (task.requirements.countries && task.requirements.countries.length > 0)
+    const hasRequirements = task.restrictionsEnabled && (
+      (task.ageRestriction && (task.minAge || task.maxAge)) ||
+      task.genderRestriction ||
+      (task.countryRestriction && task.countries)
     );
     
     if (hasRequirements && !isVerified) {
@@ -189,7 +189,7 @@ const TaskDetailPage = () => {
   };
 
   const getProgressPercentage = () => {
-    return (task.participants / task.maxParticipants) * 100;
+    return (task.currentParticipants / task.maxParticipants) * 100;
   };
 
   const handleVerificationSuccess = () => {
@@ -219,21 +219,15 @@ const TaskDetailPage = () => {
   };
 
   // Check if task has actual requirements
-  const hasRequirements = task?.requirements && (
-    (task.requirements.age && (task.requirements.age.min || task.requirements.age.max)) ||
-    task.requirements.gender ||
-    (task.requirements.countries && task.requirements.countries.length > 0)
+  const hasRequirements = task?.restrictionsEnabled && (
+    (task.ageRestriction && (task.minAge || task.maxAge)) ||
+    task.genderRestriction ||
+    (task.countryRestriction && task.countries)
   );
 
-  // Sort leaderboard by total earnings (reward amount)
-  const sortedLeaderboard = [...task.leaderboard].sort((a, b) => {
-    const aEarnings = parseFloat(a.reward.replace(/[^\d.]/g, ''));
-    const bEarnings = parseFloat(b.reward.replace(/[^\d.]/g, ''));
-    return bEarnings - aEarnings;
-  }).map((participant, index) => ({
-    ...participant,
-    rank: index + 1
-  }));
+  // For now, we don't have a leaderboard in the new schema
+  // This will be implemented when we add submission tracking
+  const sortedLeaderboard: any[] = [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
@@ -289,7 +283,17 @@ const TaskDetailPage = () => {
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-3 flex-1 min-w-0">
               <div className="p-3 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl border border-indigo-200">
-                {renderTaskIcon(task.iconType, task.iconColor, 'w-6 h-6')}
+                {(() => {
+                  const iconInfo = { iconType: 'trending', iconColor: 'text-emerald-600' };
+                  if (task.title.toLowerCase().includes('tech') || task.title.toLowerCase().includes('career')) {
+                    iconInfo.iconType = 'users';
+                    iconInfo.iconColor = 'text-purple-600';
+                  } else if (task.title.toLowerCase().includes('health') || task.title.toLowerCase().includes('fitness')) {
+                    iconInfo.iconType = 'shield';
+                    iconInfo.iconColor = 'text-blue-600';
+                  }
+                  return renderTaskIcon(iconInfo.iconType, iconInfo.iconColor, 'w-6 h-6');
+                })()}
               </div>
               <div className="min-w-0 flex-1">
                 <h2 className="text-xl font-bold text-gray-900 mb-1 leading-tight">{task.title}</h2>

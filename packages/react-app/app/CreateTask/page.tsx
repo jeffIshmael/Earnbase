@@ -822,25 +822,17 @@ const TaskCreationForm = () => {
 
           {currentStep === 6 && (
             <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
-              <div className="flex flex-col items-center justify-between mb-6 space-y-3">
-                <div className="flex flex-col items-center space-y-3">
-                  <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl w-fit">
-                    <FileText className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1 text-center">
-                    <h2 className="text-xl font-bold text-gray-900">Subtasks</h2>
-                    <p className="text-gray-500 mt-1 text-sm">Break down your task into manageable parts</p>
+                              <div className="flex flex-col items-center justify-between mb-6 space-y-3">
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl w-fit">
+                      <FileText className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="min-w-0 flex-1 text-center">
+                      <h2 className="text-xl font-bold text-gray-900">Subtasks</h2>
+                      <p className="text-gray-500 mt-1 text-sm">Break down your task into manageable parts</p>
+                    </div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={addSubtask}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm w-fit"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Add</span>
-                </button>
-              </div>
 
               <div className="space-y-4">
                 {subtasks.map((subtask, index) => (
@@ -947,6 +939,18 @@ const TaskCreationForm = () => {
                     </div>
                   </div>
                 ))}
+                
+                {/* Floating Add Subtask Button - Better UX */}
+                <div className="mt-6 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={addSubtask}
+                    className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm w-fit"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>Add Subtask</span>
+                  </button>
+                </div>
               </div>
 
               <div className="mt-6 bg-orange-50 rounded-lg p-4 border border-orange-200">
