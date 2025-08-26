@@ -7,8 +7,14 @@ import { getMockTasks } from '@/lib/mockData';
 import { renderTaskIcon } from '@/lib/mockData';
 import BottomNavigation from '@/components/BottomNavigation';
 import { getAllTasks } from '@/lib/Prismafnctns';
+import { getTask } from '@/lib/ReadFunctions';
 
-type MyTask = Awaited<ReturnType<typeof getAllTasks>>[0] & { responses: number };
+type MyTask = Awaited<ReturnType<typeof getAllTasks>>[0] & { 
+  responses: number;
+  totalAmount: bigint;
+  paidAmount: bigint;
+  balance: bigint;
+};
 
 const MyTasksPage = () => {
   const router = useRouter();
@@ -25,10 +31,32 @@ const MyTasksPage = () => {
         await new Promise(resolve => setTimeout(resolve, 800));
         
         const allTasks = await getAllTasks();
-        const myTasks: MyTask[] = allTasks.map(task => ({
-          ...task,
-          responses:0,
-        }));
+        const myTasks: MyTask[] = await Promise.all(
+          allTasks.map(async (task) => {
+            try {
+              // Get blockchain data for this task
+              const blockchainTask = await getTask(BigInt(task.id));
+              
+              return {
+                ...task,
+                responses: 0, // Will be updated with Prisma data
+                totalAmount: blockchainTask.totalAmount,
+                paidAmount: blockchainTask.paidAmount,
+                balance: blockchainTask.totalAmount - blockchainTask.paidAmount,
+              };
+            } catch (error) {
+              console.error(`Error fetching blockchain data for task ${task.id}:`, error);
+              // Fallback with default values
+              return {
+                ...task,
+                responses: 0,
+                totalAmount: BigInt(0),
+                paidAmount: BigInt(0),
+                balance: BigInt(0),
+              };
+            }
+          })
+        );
         
         setTasks(myTasks);
       } catch (error) {
@@ -173,7 +201,9 @@ const MyTasksPage = () => {
                       <DollarSign className="w-4 h-4 text-purple-600" />
                       <span className="text-xs text-purple-600">Balance</span>
                     </div>
-                    <div className="text-sm font-bold text-purple-700">{task.totalDeposited}</div>
+                    <div className="text-sm font-bold text-purple-700">
+                      {(Number(task.balance) / Math.pow(10, 18)).toFixed(3)} cUSD
+                    </div>
                   </div>
                   
                   <div className="text-center p-2">

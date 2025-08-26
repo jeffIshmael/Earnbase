@@ -671,7 +671,7 @@ const TaskCreationForm = () => {
                             <input
                               type="number"
                               value={minAge}
-                              onChange={(e) => setMinAge(parseInt(e.target.value) || 18)}
+                              onChange={(e) => setMinAge(parseInt(e.target.value))}
                               min="13"
                               max="100"
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -683,7 +683,7 @@ const TaskCreationForm = () => {
                             <input
                               type="number"
                               value={maxAge}
-                              onChange={(e) => setMaxAge(parseInt(e.target.value) || 65)}
+                              onChange={(e) => setMaxAge(parseInt(e.target.value)) }
                               min="13"
                               max="100"
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"

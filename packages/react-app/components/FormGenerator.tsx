@@ -15,7 +15,7 @@ interface FormGeneratorProps {
 }
 
 interface TaskSubmission {
-  taskId: string;
+  taskId: number;
   subtaskResponses: SubtaskResponse[];
   totalScore: number;
   feedback: string;
@@ -23,7 +23,7 @@ interface TaskSubmission {
 }
 
 interface SubtaskResponse {
-  subtaskId: string;
+  subtaskId: number;
   response: string | string[] | File | number;
   completed: boolean;
 }
@@ -39,7 +39,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
   const [aiRating, setAiRating] = useState<{ rating: number; explanation: string } | null>(null);
   const [showAiRating, setShowAiRating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
+  const [completedTasks, setCompletedTasks] = useState<Set<number>>(new Set());
   const [submissionResults, setSubmissionResults] = useState<TaskSubmission | null>(null);
   const [showResults, setShowResults] = useState(false);
 
@@ -58,7 +58,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
     setResponses(initialResponses);
   }, [task]);
 
-  const handleInputChange = (subtaskId: string, value: any) => {
+  const handleInputChange = (subtaskId: number, value: any) => {
     setResponses(prev => ({ ...prev, [subtaskId]: value }));
     // Mark task as completed when user provides input
     setCompletedTasks(prev => new Set([...prev, subtaskId]));
@@ -68,7 +68,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
     }
   };
 
-  const handleFileUpload = (subtaskId: string, file: File | null) => {
+  const handleFileUpload = (subtaskId: number, file: File | null) => {
     setFiles(prev => ({ ...prev, [subtaskId]: file }));
     if (file) {
       setCompletedTasks(prev => new Set([...prev, subtaskId]));
@@ -78,7 +78,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
     }
   };
 
-  const handleRatingChange = (subtaskId: string, rating: number) => {
+  const handleRatingChange = (subtaskId: number, rating: number) => {
     setRatings(prev => ({ ...prev, [subtaskId]: rating }));
     setResponses(prev => ({ ...prev, [subtaskId]: rating }));
     setCompletedTasks(prev => new Set([...prev, subtaskId]));
@@ -152,7 +152,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
     try {
       // Get AI rating for feedback if provided
       if (feedback.trim()) {
-        const rating = await getAiRating('user-' + Date.now(), feedback, task.bestResponse);
+        const rating = await getAiRating('user-' + Date.now(), feedback, '');
         setAiRating(rating);
         setShowAiRating(true);
       }
@@ -193,7 +193,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
     }
   };
 
-  const renderSubtaskForm = (subtask: MockSubtask) => {
+  const renderSubtaskForm = (subtask: TaskWithEligibility['subtasks'][0]) => {
     const hasError = errors[subtask.id];
     const isRequired = subtask.required;
     const isCompleted = completedTasks.has(subtask.id);
@@ -206,7 +206,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
               value={responses[subtask.id] || ''}
               onChange={(e) => handleInputChange(subtask.id, e.target.value)}
               placeholder={subtask.placeholder || 'Enter your response...'}
-              maxLength={subtask.maxLength}
+              maxLength={subtask.maxLength || undefined}
               rows={3}
               className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none text-sm ${
                 hasError ? 'border-red-300 bg-red-50' : isCompleted ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-white'
@@ -233,7 +233,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
         return (
           <div className="space-y-3">
             <div className="space-y-2">
-              {subtask.options?.map((option, index) => {
+              {subtask.options ? JSON.parse(subtask.options).map((option: string, index: number) => {
                 const isSelected = responses[subtask.id]?.includes(option) || false;
                 return (
                   <label key={index} className={`flex items-center space-x-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
@@ -260,7 +260,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
                     <span className="text-sm text-gray-700 flex-1">{option}</span>
                   </label>
                 );
-              })}
+              }) : null}
             </div>
             {hasError && (
               <div className="flex items-center space-x-2 text-red-600 text-sm bg-red-50 p-2 rounded-lg">
@@ -295,7 +295,7 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
               </div>
               <input
                 type="file"
-                accept={subtask.fileTypes?.map(type => `.${type}`).join(',')}
+                accept="*/*"
                 onChange={(e) => handleFileUpload(subtask.id, e.target.files?.[0] || null)}
                 className="hidden"
                 id={`file-${subtask.id}`}
@@ -306,11 +306,9 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
               >
                 {files[subtask.id] ? 'Change File' : 'Choose File'}
               </label>
-              {subtask.fileTypes && (
-                <p className="text-xs text-gray-500 mt-2">
-                  Formats: {subtask.fileTypes.join(', ')}
-                </p>
-              )}
+              <p className="text-xs text-gray-500 mt-2">
+                All file types accepted
+              </p>
             </div>
             {hasError && (
               <div className="flex items-center space-x-2 text-red-600 text-sm bg-red-50 p-2 rounded-lg">
@@ -427,15 +425,10 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-3 text-center border border-green-100">
                 <Trophy className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                <div className="text-lg font-bold text-green-700">{task.reward}</div>
-                <div className="text-xs text-green-600">Reward</div>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
-                <Zap className="w-5 h-5 text-gray-600 mx-auto mb-1" />
-                <div className={`text-sm font-semibold px-2 py-1 rounded-full ${getDifficultyColor(task.difficulty)}`}>
-                  {task.difficulty}
+                <div className="text-lg font-bold text-green-700">
+                  {Number(task.baseReward) / Math.pow(10, 18)} cUSD
                 </div>
-                <div className="text-xs text-gray-600 mt-1">Difficulty</div>
+                <div className="text-xs text-green-600">Reward</div>
               </div>
             </div>
 

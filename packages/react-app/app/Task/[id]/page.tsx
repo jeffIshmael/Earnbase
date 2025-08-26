@@ -21,7 +21,7 @@ const TaskDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'subtasks' | 'leaderboard'>('overview');
-  const [expandedSubtask, setExpandedSubtask] = useState<string | null>(null);
+  const [expandedSubtask, setExpandedSubtask] = useState<number | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isStartingTask, setIsStartingTask] = useState(false);
   const [showSelfModal, setShowSelfModal] = useState(false);
@@ -298,8 +298,8 @@ const TaskDetailPage = () => {
               <div className="min-w-0 flex-1">
                 <h2 className="text-xl font-bold text-gray-900 mb-1 leading-tight">{task.title}</h2>
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-600 text-sm">{task.category}</span>
-                  {task.verified && <Shield className="w-4 h-4 text-green-500" />}
+                  <span className="text-gray-600 text-sm">Task</span>
+                  <Shield className="w-4 h-4 text-green-500" />
                 </div>
               </div>
             </div>
@@ -309,7 +309,7 @@ const TaskDetailPage = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                {task.reward}
+                {Number(task.baseReward) / Math.pow(10, 18)} cUSD
               </div>
             </div>
             <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
@@ -326,7 +326,7 @@ const TaskDetailPage = () => {
                 <Users className="w-4 h-4 text-indigo-600" />
                 <span className="text-indigo-600 text-xs">Participants</span>
               </div>
-              <div className="text-lg font-bold text-indigo-700">{task.participants}/{task.maxParticipants}</div>
+              <div className="text-lg font-bold text-indigo-700">{task.currentParticipants}/{task.maxParticipants}</div>
             </div>
             
             <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
@@ -334,7 +334,9 @@ const TaskDetailPage = () => {
                 <Clock className="w-4 h-4 text-purple-600" />
                 <span className="text-purple-600 text-xs">Time Left</span>
               </div>
-              <div className="text-lg font-bold text-purple-700">{task.timeLeft}</div>
+              <div className="text-lg font-bold text-purple-700">
+                {task.expiresAt ? Math.max(0, Math.ceil((new Date(task.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : '∞'} days
+              </div>
             </div>
           </div>
         </div>
@@ -432,47 +434,45 @@ const TaskDetailPage = () => {
                   <h4 className="font-semibold text-gray-900 truncate">{task.creator.userName}</h4>
                   <p className="text-sm text-gray-600 truncate">{task.creator.walletAddress}</p>
                 </div>
-                {task.verified && (
-                  <div className="flex items-center space-x-1 text-green-600 bg-green-100 px-3 py-1 rounded-full border border-green-200">
-                    <Shield className="w-4 h-4" />
-                    <span className="text-xs font-medium">Verified</span>
-                  </div>
-                )}
+                <div className="flex items-center space-x-1 text-green-600 bg-green-100 px-3 py-1 rounded-full border border-green-200">
+                  <Shield className="w-4 h-4" />
+                  <span className="text-xs font-medium">Active</span>
+                </div>
               </div>
             </div>
 
             {/* Requirements */}
-            {hasRequirements && (
+            {task.restrictionsEnabled && (
               <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                   <Shield className="w-5 h-5 text-amber-600 mr-2" />
                   Requirements
                 </h3>
                 <div className="space-y-3">
-                  {task.requirements.age && (task.requirements.age.min || task.requirements.age.max) && (
+                  {task.ageRestriction && (task.minAge || task.maxAge) && (
                     <div className="flex items-center space-x-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                       <CalendarDays className="w-4 h-4 text-amber-600 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-amber-700">Age Range</div>
-                        <div className="text-gray-900 font-medium">{task.requirements.age.min} - {task.requirements.age.max} years</div>
+                        <div className="text-gray-900 font-medium">{task.minAge || 0} - {task.maxAge || '∞'} years</div>
                       </div>
                     </div>
                   )}
-                  {task.requirements.countries && task.requirements.countries.length > 0 && (
+                  {task.countryRestriction && task.countries && (
                     <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                       <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-blue-700">Countries</div>
-                        <div className="text-gray-900 font-medium">{task.requirements.countries.join(', ')}</div>
+                        <div className="text-gray-900 font-medium">{task.countries}</div>
                       </div>
                     </div>
                   )}
-                  {task.requirements.gender && (
+                  {task.genderRestriction && task.gender && (
                     <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
                       <AwardIcon className="w-4 h-4 text-purple-600 flex-shrink-0" />
                       <div>
                         <div className="text-sm text-purple-700">Gender Required</div>
-                        <div className="text-gray-900 font-medium">{task.requirements.gender}</div>
+                        <div className="text-gray-900 font-medium">{task.gender === 'M' ? 'Male' : 'Female'}</div>
                       </div>
                     </div>
                   )}
@@ -485,12 +485,16 @@ const TaskDetailPage = () => {
               <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg text-center">
                 <Coins className="w-8 h-8 text-green-600 mx-auto mb-3" />
                 <div className="text-sm text-green-600 mb-1">Total Budget</div>
-                <div className="text-xl font-bold text-green-700">{task.totalBudget}</div>
+                <div className="text-xl font-bold text-green-700">
+                  {Number(task.baseReward) / Math.pow(10, 18)} cUSD
+                </div>
               </div>
               <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg text-center">
                 <DollarSign className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                 <div className="text-sm text-blue-600 mb-1">Current</div>
-                <div className="text-xl font-bold text-blue-700">{task.currentBudget}</div>
+                <div className="text-xl font-bold text-blue-700">
+                  {Number(task.maxBonusReward) / Math.pow(10, 18)} cUSD
+                </div>
               </div>
             </div>
 
@@ -503,11 +507,11 @@ const TaskDetailPage = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-indigo-50 rounded-lg border border-indigo-200">
                   <span className="text-indigo-700 text-sm">Created</span>
-                  <span className="font-medium text-gray-900 text-sm">{formatDate(task.createdAt)}</span>
+                  <span className="font-medium text-gray-900 text-sm">{task.createdAt.toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
                   <span className="text-red-700 text-sm">Expires</span>
-                  <span className="font-medium text-red-700 text-sm">{formatDate(task.expiresAt)}</span>
+                  <span className="font-medium text-red-700 text-sm">{task.expiresAt ? task.expiresAt.toLocaleDateString() : 'No expiry'}</span>
                 </div>
               </div>
             </div>
@@ -560,14 +564,12 @@ const TaskDetailPage = () => {
                             <span className="font-medium">Max Length:</span> {subtask.maxLength} characters
                           </div>
                         )}
-                        {subtask.fileTypes && (
-                          <div className="text-xs text-gray-500">
-                            <span className="font-medium">File Types:</span> {subtask.fileTypes.join(', ')}
-                          </div>
-                        )}
+                        <div className="text-xs text-gray-500">
+                          <span className="font-medium">File Types:</span> All types accepted
+                        </div>
                         {subtask.options && (
                           <div className="text-xs text-gray-500">
-                            <span className="font-medium">Options:</span> {subtask.options.join(', ')}
+                            <span className="font-medium">Options:</span> {subtask.options}
                           </div>
                         )}
                       </div>
@@ -691,7 +693,7 @@ const TaskDetailPage = () => {
                   <p className="text-sm text-gray-500">
                     {sortedLeaderboard.length} total participants • 
                     <span className="text-indigo-600 font-medium ml-1">
-                      Total Prize Pool: {task.totalBudget}
+                      Total Prize Pool: {Number(task.baseReward) / Math.pow(10, 18)} cUSD
                     </span>
                   </p>
                 </div>
@@ -714,7 +716,11 @@ const TaskDetailPage = () => {
               </div>
             }>
               <SelfModal 
-                requirements={task.requirements || {}} 
+                requirements={{
+                  age: task.ageRestriction && task.minAge && task.maxAge ? { min: task.minAge, max: task.maxAge } : undefined,
+                  gender: task.genderRestriction && task.gender ? task.gender : undefined,
+                  countries: task.countryRestriction && task.countries ? [task.countries] : undefined
+                }} 
                 onVerificationSuccess={handleVerificationSuccess}
                 onClose={handleVerificationClose}
               />

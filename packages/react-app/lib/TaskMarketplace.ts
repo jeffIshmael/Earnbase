@@ -29,9 +29,9 @@ export async function createTask(
         title,
         description,
         maxParticipants,
-        baseReward: parseEther(baseReward),
-        maxBonusReward: parseEther(maxBonusReward),
-        totalDeposited: BigInt(0), // Will be updated when funds are deposited
+        baseReward: parseEther(baseReward).toString(),
+        maxBonusReward: parseEther(maxBonusReward).toString(),
+        totalDeposited: "0", // Will be updated when funds are deposited
         aiCriteria,
         contactMethod,
         contactInfo,

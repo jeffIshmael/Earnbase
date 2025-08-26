@@ -10,7 +10,8 @@ import {
   Play, ChevronDown, Heart, Share2, Bookmark, X,
   Pause, Trash2, Edit, MessageSquare, Download, Eye as EyeIcon
 } from 'lucide-react';
-import { getMockTaskById, MockTask, MockSubtask, MockParticipant, renderTaskIcon } from '@/lib/mockData';
+import { getTaskDetails } from '@/lib/Prismafnctns';
+import { getTask } from '@/lib/ReadFunctions';
 import BottomNavigation from '@/components/BottomNavigation';
 
 interface TaskResponse {
@@ -28,10 +29,25 @@ interface TaskResponse {
   aiRating?: number;
 }
 
+interface TaskWithBlockchainData {
+  id: number;
+  title: string;
+  description: string;
+  status: string;
+  totalAmount: bigint;
+  paidAmount: bigint;
+  currentAmount: bigint;
+  maxParticipants: number;
+  currentParticipants: number;
+  createdAt: Date;
+  expiresAt: Date | null;
+  responses: TaskResponse[];
+}
+
 const MyTaskDetailPage = () => {
   const params = useParams();
   const router = useRouter();
-  const [task, setTask] = useState<MockTask | null>(null);
+  const [task, setTask] = useState<TaskWithBlockchainData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'responses' | 'analytics'>('overview');
@@ -82,9 +98,28 @@ const MyTaskDetailPage = () => {
         setLoading(true);
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        const taskData = getMockTaskById(taskId);
+        // Get task data from Prisma
+        const taskData = await getTaskDetails(parseInt(taskId));
         if (taskData) {
-          setTask(taskData);
+          // Get blockchain data
+          const blockchainTask = await getTask(BigInt(taskId));
+          
+          const taskWithBlockchain: TaskWithBlockchainData = {
+            id: taskData.id,
+            title: taskData.title,
+            description: taskData.description,
+            status: taskData.status,
+            totalAmount: blockchainTask.totalAmount,
+            paidAmount: blockchainTask.paidAmount,
+            currentAmount: blockchainTask.totalAmount - blockchainTask.paidAmount,
+            maxParticipants: taskData.maxParticipants,
+            currentParticipants: taskData.currentParticipants,
+            createdAt: taskData.createdAt,
+            expiresAt: taskData.expiresAt,
+            responses: [], // Will be populated from Prisma submissions
+          };
+          
+          setTask(taskWithBlockchain);
         } else {
           setError('Task not found');
         }
@@ -113,8 +148,8 @@ const MyTaskDetailPage = () => {
       if (task) {
         setTask({
           ...task,
-          totalBudget: `${parseFloat(task.totalBudget) + parseFloat(addFundsAmount)} cUSD`,
-          currentBudget: `${parseFloat(task.currentBudget) + parseFloat(addFundsAmount)} cUSD`
+          totalAmount: task.totalAmount + BigInt(parseFloat(addFundsAmount) * Math.pow(10, 18)),
+          currentAmount: task.currentAmount + BigInt(parseFloat(addFundsAmount) * Math.pow(10, 18))
         });
       }
       
@@ -233,8 +268,9 @@ const MyTaskDetailPage = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (date: Date | null) => {
+    if (!date) return 'No date';
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -274,18 +310,6 @@ const MyTaskDetailPage = () => {
                 <p className="text-gray-600 text-sm">My Task</p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={() => router.push(`/CreateTask?edit=${task.id}`)}
-                className="p-2 hover:bg-indigo-50 rounded-xl transition-all duration-200"
-                title="Edit Task"
-              >
-                <Edit className="w-5 h-5 text-blue-600" />
-              </button>
-              <button className="p-2 hover:bg-indigo-50 rounded-xl transition-all duration-200">
-                <Share2 className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -318,15 +342,6 @@ const MyTaskDetailPage = () => {
               <Play className="w-4 h-4" />
             )}
             <span>{task.status === 'ACTIVE' ? 'Pause Task' : 'Activate Task'}</span>
-          </button>
-          
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            disabled={isProcessing}
-            className="flex items-center space-x-2 px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-200 shadow-lg disabled:opacity-50"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>Delete Task</span>
           </button>
         </div>
 
@@ -363,8 +378,8 @@ const MyTaskDetailPage = () => {
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl font-bold text-gray-900 mb-1 leading-tight">{task.title}</h2>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-600 text-sm">{task.category}</span>
-                      {task.verified && <Shield className="w-4 h-4 text-green-500" />}
+                      <span className="text-gray-600 text-sm">Task</span>
+                      <Shield className="w-4 h-4 text-green-500" />
                     </div>
                   </div>
                 </div>
@@ -374,7 +389,7 @@ const MyTaskDetailPage = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    {task.reward}
+                    {(Number(task.totalAmount) / Math.pow(10, 18)).toFixed(3)} cUSD
                   </div>
                 </div>
                 <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
@@ -391,7 +406,7 @@ const MyTaskDetailPage = () => {
                     <Users className="w-4 h-4 text-indigo-600" />
                     <span className="text-indigo-600 text-xs">Participants</span>
                   </div>
-                  <div className="text-lg font-bold text-indigo-700">{task.participants}/{task.maxParticipants}</div>
+                  <div className="text-lg font-bold text-indigo-700">{task.currentParticipants}/{task.maxParticipants}</div>
                 </div>
                 
                 <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
@@ -399,7 +414,9 @@ const MyTaskDetailPage = () => {
                     <Clock className="w-4 h-4 text-purple-600" />
                     <span className="text-purple-600 text-xs">Time Left</span>
                   </div>
-                  <div className="text-lg font-bold text-purple-700">{task.timeLeft}</div>
+                  <div className="text-lg font-bold text-purple-700">
+                    {task.expiresAt ? `${Math.ceil((task.expiresAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days` : 'No deadline'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -409,12 +426,16 @@ const MyTaskDetailPage = () => {
               <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg text-center">
                 <Coins className="w-8 h-8 text-green-600 mx-auto mb-3" />
                 <div className="text-sm text-green-600 mb-1">Total Spent</div>
-                <div className="text-xl font-bold text-green-700">{task.totalBudget}</div>
+                <div className="text-xl font-bold text-green-700">
+                  {(Number(task.paidAmount) / Math.pow(10, 18)).toFixed(3)} cUSD
+                </div>
               </div>
               <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg text-center">
                 <DollarSign className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                 <div className="text-sm text-blue-600 mb-1">Current Balance</div>
-                <div className="text-xl font-bold text-blue-700">{task.currentBudget}</div>
+                <div className="text-xl font-bold text-blue-700">
+                  {(Number(task.currentAmount) / Math.pow(10, 18) > 0) ? (Number(task.currentAmount) / Math.pow(10, 18)).toFixed(3) : "0"} cUSD
+                </div>
               </div>
             </div>
 
@@ -435,6 +456,18 @@ const MyTaskDetailPage = () => {
                 </div>
               </div>
             </div>
+
+                      
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              disabled={isProcessing}
+              className="flex items-center space-x-2 px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-200 shadow-lg disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Delete Task</span>
+            </button>
+          </div>
           </div>
         )}
 
@@ -459,7 +492,7 @@ const MyTaskDetailPage = () => {
                       <div>
                         <h4 className="font-semibold text-gray-900">{response.userName}</h4>
                         <p className="text-sm text-gray-500">{response.walletAddress}</p>
-                        <p className="text-xs text-gray-400">Submitted: {formatDate(response.submittedAt)}</p>
+                        <p className="text-xs text-gray-400">Submitted: {formatDate(new Date(response.submittedAt))}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
