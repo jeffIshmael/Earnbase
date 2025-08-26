@@ -18,6 +18,18 @@ import {
 import BottomNavigation from '@/components/BottomNavigation';
 import { useRouter } from 'next/navigation';
 import { getAllActiveTasks, TaskWithEligibility, renderTaskIcon, getTasksWithEligibility, formatReward, getTimeLeft } from '@/lib/taskService';
+import { useAccount, useSwitchChain, useConnect } from 'wagmi';
+import { useIsFarcaster } from '../context/isFarcasterContext';
+import { sdk } from "@farcaster/frame-sdk";
+import { injected } from 'wagmi/connectors';
+import { celo } from 'wagmi/chains';
+
+
+interface User {
+  fid: number;
+  username?: string;
+  displayName?: string;
+}
 
 const MobileEarnBaseHome = () => {
   const [isConnected, setIsConnected] = useState(true); // Simulating connected state
@@ -30,6 +42,49 @@ const MobileEarnBaseHome = () => {
   const [tasks, setTasks] = useState<TaskWithEligibility[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { address, isConnected:walletConnected, chain } = useAccount();
+  const { isFarcaster, setIsFarcaster } = useIsFarcaster();
+  const [fcDetails, setFcDetails] = useState<User | null>(null);
+  const { connect, connectors } = useConnect();
+  const { switchChain, isPending } = useSwitchChain();
+  const [showNetworkSwitch, setShowNetworkSwitch] = useState(false);
+  const [farcasterChecked, setFarcasterChecked] = useState(false);
+
+
+    // Farcaster detection useEffect
+    useEffect(() => {
+      const getContext = async () => {
+        try {
+          const context = await sdk.context;
+          if (context?.user) {
+            setIsFarcaster(true);
+            setFcDetails({
+              fid: context.user.fid,
+              username: context.user.username,
+              displayName: context.user.displayName,
+            });
+            connect({ connector: connectors[1] }); // connect Farcaster wallet
+          } else {
+            setIsFarcaster(false);
+          }
+        } catch (err) {
+          console.error("Failed to get Farcaster context", err);
+          setIsFarcaster(false);
+        } finally {
+          setFarcasterChecked(true); // now it's safe to run checkUser
+        }
+      };
+  
+      getContext();
+    }, []);
+  
+    useEffect(() => {
+      if (isFarcaster) return;
+      if (window.ethereum?.isMiniPay) {
+        connect({ connector: injected({ target: "metaMask" }) });
+      }
+    }, [isFarcaster]); // Only run when isFarcaster changes
+  
 
   useEffect(() => {
     // Load tasks from database
@@ -47,6 +102,14 @@ const MobileEarnBaseHome = () => {
     };
     loadTasks();
   }, []);
+
+  useEffect(() => {
+    if (chain?.id !== celo.id) {
+      switchChain({ chainId: celo.id });
+    }
+  }, [chain, isConnected]);
+
+
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
