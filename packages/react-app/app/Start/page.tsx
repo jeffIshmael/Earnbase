@@ -23,6 +23,7 @@ import { useIsFarcaster } from '../context/isFarcasterContext';
 import { sdk } from "@farcaster/frame-sdk";
 import { injected } from 'wagmi/connectors';
 import { celo } from 'wagmi/chains';
+import { getUser, registerUser } from '@/lib/Prismafnctns';
 
 
 interface User {
@@ -49,6 +50,45 @@ const MobileEarnBaseHome = () => {
   const { switchChain, isPending } = useSwitchChain();
   const [showNetworkSwitch, setShowNetworkSwitch] = useState(false);
   const [farcasterChecked, setFarcasterChecked] = useState(false);
+
+
+  // checkUserRegistered effect
+  useEffect(() => {
+    const checkUserRegistered = async () => {
+      if (
+        !address ||
+        !isConnected ||
+        !farcasterChecked ||
+        (isFarcaster && !fcDetails)
+      ) {
+        return;
+      }
+
+      try {
+        const user = await getUser(address);
+        if (!user && isFarcaster && farcasterChecked && fcDetails) {
+          await registerUser(
+            fcDetails.username ?? "anonymous",
+            fcDetails.fid,
+            address as string,
+            null
+          );
+          return;
+        } else if (!user) {
+          await registerUser(
+            "anonymous",
+            null,
+            address as string,
+            null
+          );
+        }
+      } catch (err) {
+        console.error("Error checking user:", err);
+      }
+    };
+
+    checkUserRegistered();
+  }, [address, isConnected, isFarcaster, farcasterChecked]);
 
 
     // Farcaster detection useEffect
