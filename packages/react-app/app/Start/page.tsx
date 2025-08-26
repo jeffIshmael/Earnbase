@@ -23,7 +23,8 @@ import { useIsFarcaster } from '../context/isFarcasterContext';
 import { sdk } from "@farcaster/frame-sdk";
 import { injected } from 'wagmi/connectors';
 import { celo } from 'wagmi/chains';
-import { getUser, registerUser } from '@/lib/Prismafnctns';
+import { getUser, getUserSubmissions, registerUser } from '@/lib/Prismafnctns';
+import { toast } from 'sonner';
 
 
 interface User {
@@ -33,17 +34,18 @@ interface User {
 }
 
 const MobileEarnBaseHome = () => {
-  const [isConnected, setIsConnected] = useState(true); // Simulating connected state
+  // Simulating connected state
   const [isVerified, setIsVerified] = useState(false);
   const [showVerificationPrompt, setShowVerificationPrompt] = useState(true);
   const [userStats, setUserStats] = useState({
     totalEarned: '0.00',
     tasksCompleted: 0
   });
+  const [statsLoading, setStatsLoading] = useState(true);
   const [tasks, setTasks] = useState<TaskWithEligibility[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { address, isConnected:walletConnected, chain } = useAccount();
+  const { address, isConnected, chain } = useAccount();
   const { isFarcaster, setIsFarcaster } = useIsFarcaster();
   const [fcDetails, setFcDetails] = useState<User | null>(null);
   const { connect, connectors } = useConnect();
@@ -143,11 +145,56 @@ const MobileEarnBaseHome = () => {
     loadTasks();
   }, []);
 
+  // Load user stats from database
+  useEffect(() => {
+    const loadUserStats = async () => {
+      if (!address || !isConnected) return;
+      
+      try {
+        setStatsLoading(true);
+        const user = await getUser(address);
+        if (user) {
+          // Get user's task submissions to calculate stats
+          const userSubmissions = await getUserSubmissions(address);
+          const completedTasks = userSubmissions.filter(sub => sub.status === 'APPROVED').length;
+          
+          // Calculate total earned (this would come from blockchain in real app)
+          const totalEarned = user.totalEarned ? 
+            (Number(user.totalEarned) / Math.pow(10, 18)).toFixed(2) : '0.00';
+          
+          setUserStats({
+            totalEarned: `${totalEarned} cUSD`,
+            tasksCompleted: completedTasks
+          });
+        }
+      } catch (error) {
+        console.error('Error loading user stats:', error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+    
+    loadUserStats();
+  }, [address, isConnected]);
+
   useEffect(() => {
     if (chain?.id !== celo.id) {
       switchChain({ chainId: celo.id });
     }
   }, [chain, isConnected]);
+
+  const handleConnect = async () => {
+    try {
+      if (isFarcaster) {
+        connect({ connector: connectors[1] });
+      } else {
+        connect({ connector: injected({ target: "metaMask" }) });
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Connection failed");
+    }
+  };
 
 
 
@@ -170,7 +217,7 @@ const MobileEarnBaseHome = () => {
       <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white border border-indigo-300 rounded-full" />
       
       <button
-        onClick={() => setIsConnected(true)}
+        onClick={handleConnect}
         className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-200"
       >
         <Wallet className="w-4 h-4" />
@@ -205,23 +252,16 @@ const MobileEarnBaseHome = () => {
                 <h2 className="text-xl font-bold mb-1">Welcome Back!</h2>
                 <p className="text-indigo-200 text-sm">Ready to earn some rewards?</p>
               </div>
-              <div className="flex items-center space-x-1">
-                {isVerified ? (
-                  <div className="p-2 bg-green-500 rounded-lg">
-                    <ShieldCheck className="w-5 h-5 text-white" />
-                  </div>
-                ) : (
-                  <div className="p-2 bg-amber-500 rounded-lg">
-                    <Shield className="w-5 h-5 text-white" />
-                  </div>
-                )}
-              </div>
             </div>
         
             <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
               <div className="text-center">
                 <p className="text-indigo-200 text-xs mb-1">Total Earned</p>
-                <p className="text-2xl font-bold">{userStats.totalEarned} cUSD</p>
+                {statsLoading ? (
+                  <div className="h-8 bg-white/20 rounded animate-pulse"></div>
+                ) : (
+                  <p className="text-2xl font-bold">{userStats.totalEarned}</p>
+                )}
               </div>
             </div>
           </div>
