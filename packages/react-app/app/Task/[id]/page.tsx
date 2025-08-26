@@ -251,19 +251,8 @@ const TaskDetailPage = () => {
               </button>
               <div className="max-w-48">
                 <h1 className="text-lg font-bold text-gray-900 truncate">{task.title}</h1>
-                <p className="text-gray-600 text-sm">by {task.creator.userName}</p>
+                <p className="text-gray-600 text-sm">by {(task.creator.walletAddress).slice(0, 6) + '...' + (task.creator.walletAddress).slice(-4)}</p>
               </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={() => setIsBookmarked(!isBookmarked)}
-                className="p-2 hover:bg-indigo-50 rounded-xl transition-all duration-200"
-              >
-                <Bookmark className={`w-5 h-5 ${isBookmarked ? 'text-yellow-500 fill-yellow-500' : 'text-gray-400'}`} />
-              </button>
-              <button className="p-2 hover:bg-indigo-50 rounded-xl transition-all duration-200">
-                <Share2 className="w-5 h-5 text-gray-400" />
-              </button>
             </div>
           </div>
         </div>
@@ -432,7 +421,7 @@ const TaskDetailPage = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-gray-900 truncate">{task.creator.userName}</h4>
-                  <p className="text-sm text-gray-600 truncate">{task.creator.walletAddress}</p>
+                  <p className="text-sm text-gray-600 truncate">{(task.creator.walletAddress).slice(0, 6) + '...' + (task.creator.walletAddress).slice(-4)}</p>
                 </div>
                 <div className="flex items-center space-x-1 text-green-600 bg-green-100 px-3 py-1 rounded-full border border-green-200">
                   <Shield className="w-4 h-4" />
@@ -536,7 +525,6 @@ const TaskDetailPage = () => {
                     </div>
                     <div className="flex-1 text-left min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
-                        {getSubtaskTypeIcon(subtask.type)}
                         <h4 className="font-semibold text-gray-900 truncate">{subtask.title}</h4>
                         {subtask.required && (
                           <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">

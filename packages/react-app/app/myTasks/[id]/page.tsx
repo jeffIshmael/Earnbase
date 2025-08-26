@@ -15,18 +15,16 @@ import { getTask } from '@/lib/ReadFunctions';
 import BottomNavigation from '@/components/BottomNavigation';
 
 interface TaskResponse {
-  id: string;
+  id: number;
   userName: string;
   walletAddress: string;
-  avatar?: string;
-  submittedAt: string;
+  submittedAt: Date;
   responses: {
-    subtaskId: string;
-    response: string | string[] | number;
+    subtaskId: number;
+    response: string;
     type: string;
   }[];
-  feedback?: string;
-  aiRating?: number;
+  status: string;
 }
 
 interface TaskWithBlockchainData {
@@ -58,39 +56,8 @@ const MyTaskDetailPage = () => {
 
   const taskId = params.id as string;
 
-  // Mock responses data
-  const [responses, setResponses] = useState<TaskResponse[]>([
-    {
-      id: '1',
-      userName: 'Alex Chen',
-      walletAddress: '0xabcd...1234',
-      submittedAt: '2024-01-15T10:30:00Z',
-      responses: [
-        { subtaskId: '1-1', response: 'Instagram, TikTok, Snapchat', type: 'MULTIPLE_CHOICE' },
-        { subtaskId: '1-2', response: 'I consume mostly educational content and entertainment videos', type: 'TEXT_INPUT' },
-        { subtaskId: '1-3', response: 'I shop online frequently, usually influenced by reviews and price', type: 'SURVEY' },
-        { subtaskId: '1-4', response: 8, type: 'RATING' },
-        { subtaskId: '1-5', response: 'AI and VR will dominate in the next 5 years', type: 'TEXT_INPUT' }
-      ],
-      feedback: 'Great task! Very engaging and relevant to Gen Z.',
-      aiRating: 8.5,
-    },
-    {
-      id: '2',
-      userName: 'Jordan Smith',
-      walletAddress: '0xefgh...5678',
-      submittedAt: '2024-01-15T11:15:00Z',
-      responses: [
-        { subtaskId: '1-1', response: 'Instagram, Twitter', type: 'MULTIPLE_CHOICE' },
-        { subtaskId: '1-2', response: 'Mostly news and lifestyle content', type: 'TEXT_INPUT' },
-        { subtaskId: '1-3', response: 'I prefer in-store shopping but use online for research', type: 'SURVEY' },
-        { subtaskId: '1-4', response: 6, type: 'RATING' },
-        { subtaskId: '1-5', response: 'Sustainable technology and renewable energy', type: 'TEXT_INPUT' }
-      ],
-      feedback: 'Interesting questions about future tech trends.',
-      aiRating: 7.2,
-    }
-  ]);
+  // Responses will be loaded from database
+  const [responses, setResponses] = useState<TaskResponse[]>([]);
 
   useEffect(() => {
     const loadTask = async () => {
@@ -120,6 +87,23 @@ const MyTaskDetailPage = () => {
           };
           
           setTask(taskWithBlockchain);
+          
+          // Load responses from database
+          if (taskData.submissions && taskData.submissions.length > 0) {
+            const dbResponses: TaskResponse[] = taskData.submissions.map(submission => ({
+              id: submission.id,
+              userName: submission.user.userName,
+              walletAddress: submission.user.walletAddress,
+              submittedAt: submission.submittedAt,
+              status: submission.status,
+              responses: submission.responses?.map(response => ({
+                subtaskId: response.subtaskId,
+                response: response.response,
+                type: response.subtask?.type || 'UNKNOWN'
+              })) || []
+            }));
+            setResponses(dbResponses);
+          }
         } else {
           setError('Task not found');
         }
@@ -199,13 +183,13 @@ const MyTaskDetailPage = () => {
     }
   };
 
-  const handleApproveResponse = (responseId: string) => {
+  const handleApproveResponse = (responseId: number) => {
     setResponses(prev => prev.map(r => 
       r.id === responseId ? { ...r, status: 'APPROVED' as const } : r
     ));
   };
 
-  const handleRejectResponse = (responseId: string) => {
+  const handleRejectResponse = (responseId: number) => {
     setResponses(prev => prev.map(r => 
       r.id === responseId ? { ...r, status: 'REJECTED' as const } : r
     ));
@@ -496,13 +480,9 @@ const MyTaskDetailPage = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                  
-                      {response.aiRating && (
-                        <div className="flex items-center space-x-1 text-yellow-600">
-                          <Star className="w-4 h-4 fill-current" />
-                          <span className="text-sm font-medium">{response.aiRating}/10</span>
-                        </div>
-                      )}
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getResponseStatusColor(response.status)}`}>
+                        {response.status}
+                      </div>
                     </div>
                   </div>
 
@@ -527,16 +507,7 @@ const MyTaskDetailPage = () => {
                     ))}
                   </div>
 
-                  {/* Feedback */}
-                  {response.feedback && (
-                    <div className="bg-blue-50 rounded-lg p-3 mb-4">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <MessageSquare className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-medium text-blue-700">Feedback</span>
-                      </div>
-                      <p className="text-sm text-blue-600 italic">&ldquo;{response.feedback}&rdquo;</p>
-                    </div>
-                  )}
+
                 </div>
               ))
             )}

@@ -28,17 +28,21 @@ const MobileEarnBaseHome = () => {
     tasksCompleted: 0
   });
   const [tasks, setTasks] = useState<TaskWithEligibility[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     // Load tasks from database
     const loadTasks = async () => {
       try {
+        setLoading(true);
         const activeTasks = await getAllActiveTasks();
         setTasks(activeTasks);
       } catch (error) {
         console.error('Error loading tasks:', error);
         setTasks([]);
+      } finally {
+        setLoading(false);
       }
     };
     loadTasks();
@@ -154,11 +158,35 @@ const MobileEarnBaseHome = () => {
           </div>
           <div className="space-y-3">
 
-            {tasks.length === 0 && (
+            {loading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm animate-pulse">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-start space-x-3 flex-1 min-w-0">
+                        <div className="w-10 h-10 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                        <div className="flex-1 min-w-0">
+                          <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+                          <div className="h-3 bg-gray-200 rounded w-full"></div>
+                        </div>
+                      </div>
+                      <div className="text-right ml-2 flex-shrink-0">
+                        <div className="h-4 bg-gray-200 rounded w-16 mb-1"></div>
+                        <div className="h-3 bg-gray-200 rounded w-20"></div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 bg-gray-200 rounded w-20"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : tasks.length === 0 ? (
               <div className="text-center text-gray-500">
                 No tasks available
               </div>
-            )}
+            ) : null}
             {tasks.map((task) => (
               <div
                 key={task.id}

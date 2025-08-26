@@ -517,6 +517,15 @@ export async function getTaskDetails(taskId: number) {
                 userName: true,
                 walletAddress: true,
               }
+            },
+            responses: {
+              include: {
+                subtask: {
+                  select: {
+                    type: true,
+                  }
+                }
+              }
             }
           },
           orderBy: {

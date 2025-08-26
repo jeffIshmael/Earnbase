@@ -206,87 +206,86 @@ async function main() {
 
   console.log('✅ Created Women in Tech Study task with subtasks');
 
-  // Task 3: Men's Health & Fitness Study (Gender restricted: Male)
+  // Task 3: AI Technology & Future Survey (General - No restrictions)
   const task3 = await prisma.task.create({
     data: {
-      title: 'Men\'s Health & Fitness Study',
-      description: 'A comprehensive study focusing on men\'s health awareness, fitness habits, mental health, and lifestyle choices in the modern world.',
-      blockChainId: 'task_mens_health_003',
-      maxParticipants: 40,
+      title: 'AI Technology & Future Survey',
+      description: 'A comprehensive survey exploring public perceptions, experiences, and expectations regarding artificial intelligence technology and its impact on society.',
+      blockChainId: 'task_ai_survey_003',
+      maxParticipants: 50,
       currentParticipants: 0,
-      baseReward: '30000000000000000000', // 30 cUSD
-      maxBonusReward: '8000000000000000000', // 8 cUSD
+      baseReward: '25000000000000000000', // 25 cUSD
+      maxBonusReward: '5000000000000000000', // 5 cUSD
       totalDeposited: '0',
       status: TaskStatus.ACTIVE,
-      aiCriteria: 'Responses should demonstrate honest self-reflection, provide specific examples of health and fitness practices, show awareness of mental health importance, and offer insights into men\'s health challenges and solutions.',
+      aiCriteria: 'Responses should demonstrate thoughtful consideration of AI technology, provide specific examples of AI usage, show awareness of both benefits and concerns, and offer balanced perspectives on AI\'s future impact.',
       contactMethod: ContactMethod.EMAIL,
-      contactInfo: 'research@menshealth.org',
+      contactInfo: 'research@ai-future.org',
       creatorId: creator3.id,
       expiresAt: new Date('2024-12-31T23:59:59Z'),
-      restrictionsEnabled: true,
+      restrictionsEnabled: false, // No restrictions - anyone can participate
       ageRestriction: false,
-      genderRestriction: true,
-      gender: 'M',
+      genderRestriction: false,
       countryRestriction: false,
     },
   });
 
-  // Subtasks for Men's Health Study
+  // Subtasks for AI Technology Survey
   await prisma.taskSubtask.createMany({
     data: [
       {
         taskId: task3.id,
-        title: 'Current Health & Fitness Status',
-        description: 'Describe your current health status, fitness level, and daily habits',
+        title: 'AI Usage Experience',
+        description: 'How do you currently use AI technology in your daily life?',
         type: SubtaskType.TEXT_INPUT,
         required: true,
         order: 1,
-        placeholder: 'e.g., I\'m moderately active, exercise 3 times a week, eat mostly healthy...',
+        placeholder: 'e.g., I use ChatGPT for writing help, AI-powered apps for productivity...',
         maxLength: 300,
       },
       {
         taskId: task3.id,
-        title: 'Fitness Routine & Goals',
-        description: 'What is your current fitness routine and what are your health goals?',
+        title: 'AI Applications You\'ve Tried',
+        description: 'Which AI applications or tools have you personally used?',
         type: SubtaskType.MULTIPLE_CHOICE,
         required: true,
         order: 2,
-        options: JSON.stringify(['Weight Loss', 'Muscle Building', 'Cardiovascular Health', 'Mental Wellness', 'General Fitness', 'Sports Performance', 'Other']),
+        options: JSON.stringify(['ChatGPT/Claude', 'AI Image Generators', 'AI Voice Assistants', 'AI-Powered Apps', 'AI in Social Media', 'AI in Gaming', 'AI in Education', 'None of the above']),
       },
       {
         taskId: task3.id,
-        title: 'Mental Health Awareness',
-        description: 'How do you manage stress and maintain mental well-being?',
+        title: 'AI Benefits & Concerns',
+        description: 'What do you see as the biggest benefits and concerns of AI technology?',
         type: SubtaskType.TEXT_INPUT,
         required: true,
         order: 3,
-        placeholder: 'Share your stress management techniques and mental health practices...',
-        maxLength: 250,
-      },
-      {
-        taskId: task3.id,
-        title: 'Nutrition & Diet Habits',
-        description: 'Describe your current eating habits and relationship with food',
-        type: SubtaskType.TEXT_INPUT,
-        required: false,
-        order: 4,
-        placeholder: 'What does a typical day of eating look like for you?',
-        maxLength: 300,
-      },
-      {
-        taskId: task3.id,
-        title: 'Health Challenges & Solutions',
-        description: 'What are the biggest health challenges you face and how do you address them?',
-        type: SubtaskType.TEXT_INPUT,
-        required: true,
-        order: 5,
-        placeholder: 'Describe specific challenges and your approach to overcoming them...',
+        placeholder: 'Share your thoughts on both positive impacts and potential risks...',
         maxLength: 400,
       },
       {
         taskId: task3.id,
-        title: 'Preventive Health Practices',
-        description: 'Rate your engagement with preventive health practices (1-10)',
+        title: 'AI in Your Industry',
+        description: 'How do you think AI will impact your current industry or field of work?',
+        type: SubtaskType.TEXT_INPUT,
+        required: false,
+        order: 4,
+        placeholder: 'Describe potential changes, opportunities, or challenges...',
+        maxLength: 300,
+      },
+      {
+        taskId: task3.id,
+        title: 'AI Ethics & Responsibility',
+        description: 'What are your thoughts on AI ethics and who should be responsible for AI safety?',
+        type: SubtaskType.TEXT_INPUT,
+        required: true,
+        order: 5,
+        placeholder: 'Share your perspective on AI governance and ethical considerations...',
+        maxLength: 350,
+      },
+      {
+        taskId: task3.id,
+        title: 'Future AI Expectations',
+        description: 'Rate your optimism about AI\'s future impact on society (1-10)',
         type: SubtaskType.RATING,
         required: false,
         order: 6,
