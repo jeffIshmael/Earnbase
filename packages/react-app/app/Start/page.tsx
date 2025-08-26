@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation';
 import { getAllActiveTasks, TaskWithEligibility, renderTaskIcon, getTasksWithEligibility, formatReward, getTimeLeft } from '@/lib/taskService';
 import { useAccount, useSwitchChain, useConnect } from 'wagmi';
 import { useIsFarcaster } from '../context/isFarcasterContext';
-import { sdk } from "@farcaster/frame-sdk";
+import { sdk } from "@farcaster/miniapp-sdk";
 import { injected } from 'wagmi/connectors';
 import { celo } from 'wagmi/chains';
 import { getUser, getUserSubmissions, registerUser } from '@/lib/Prismafnctns';

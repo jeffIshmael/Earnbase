@@ -6,8 +6,12 @@ import { getAiRating } from "@/lib/AiRating";
 import { 
   FileText, CheckCircle, Target, Star, Users, 
   Upload, AlertCircle, CheckCircle2, Loader2,
-  Send, Save, Eye, EyeOff, Zap, Trophy, Clock
+  Send, Save, Eye, EyeOff, Zap, Trophy, Clock,
+  X, Sparkles, Coins, Gift
 } from 'lucide-react';
+import { makePaymentToUser } from '@/lib/WriteFunctions';
+import { useAccount } from 'wagmi';
+import { toast } from 'sonner';
 
 interface FormGeneratorProps {
     task: TaskWithEligibility;
@@ -32,16 +36,25 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
   const [ratings, setRatings] = useState<Record<string, number>>({});
+  const { address } = useAccount();
   const [feedback, setFeedback] = useState('');
   const [feedbackLength, setFeedbackLength] = useState(0);
   const MAX_FEEDBACK_LENGTH = 500;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiRating, setAiRating] = useState<{ rating: number; explanation: string } | null>(null);
-  const [showAiRating, setShowAiRating] = useState(false);
+  const [showAiRatingModal, setShowAiRatingModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [completedTasks, setCompletedTasks] = useState<Set<number>>(new Set());
   const [submissionResults, setSubmissionResults] = useState<TaskSubmission | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState<{
+    baseReward: number;
+    bonusReward: number;
+    totalReward: number;
+    aiRating: number;
+    explanation: string;
+  } | null>(null);
 
   // Initialize responses for all subtasks
   useEffect(() => {
@@ -154,7 +167,41 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
       if (feedback.trim()) {
         const rating = await getAiRating('user-' + Date.now(), feedback, '');
         setAiRating(rating);
-        setShowAiRating(true);
+        setShowAiRatingModal(true);
+        return; // Stop here, wait for user to confirm rating
+      } else {
+        // No feedback, proceed directly to payment
+        await processPayment(0, 'No feedback provided');
+      }
+    } catch (error) {
+      console.error('Error submitting task:', error);
+      setErrors({ general: 'Failed to submit task. Please try again.' });
+      setIsSubmitting(false);
+    }
+  };
+
+  const processPayment = async (aiRatingScore: number, explanation: string) => {
+    try {
+      // Calculate rewards
+      const baseReward = Number(task.baseReward) / Math.pow(10, 18);
+      const maxBonusReward = Number(task.maxBonusReward) / Math.pow(10, 18);
+      const bonusReward = (aiRatingScore * maxBonusReward) / 10;
+      const totalReward = baseReward + bonusReward;
+
+      // Store payment details for success modal
+      setPaymentDetails({
+        baseReward,
+        bonusReward,
+        totalReward,
+        aiRating: aiRatingScore,
+        explanation
+      });
+
+      // Make payment to user
+      const paymentHash = await makePaymentToUser(totalReward.toString(), address as `0x${string}`);
+      if (!paymentHash) {
+        toast.error('Payment failed');
+        return;
       }
 
       // Prepare submission data
@@ -165,32 +212,36 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
           response: responses[subtask.id],
           completed: true
         })),
-        totalScore: calculateScore(),
+        totalScore: aiRatingScore,
         feedback: feedback.trim(),
         submittedAt: new Date().toISOString()
       };
 
       // Store submission results
       setSubmissionResults(submission);
-      setShowResults(true);
+      
+      // Show success modal
+      setShowSuccessModal(true);
+      setShowAiRatingModal(false);
 
       // Call completion callback
       if (onComplete) {
         onComplete(submission);
       }
 
-      // Auto-hide AI rating after 8 seconds
-      setTimeout(() => {
-        setShowAiRating(false);
-        setAiRating(null);
-      }, 8000);
-
     } catch (error) {
-      console.error('Error submitting task:', error);
-      setErrors({ general: 'Failed to submit task. Please try again.' });
+      console.error('Error processing payment:', error);
+      toast.error('Payment processing failed');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const confirmAiRating = async () => {
+    if (!aiRating) return;
+    
+    setShowAiRatingModal(false);
+    await processPayment(aiRating.rating, aiRating.explanation);
   };
 
   const renderSubtaskForm = (subtask: TaskWithEligibility['subtasks'][0]) => {
@@ -387,17 +438,6 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
     }
   };
 
-//   const getSubtaskIcon = (type: string) => {
-//     switch (type) {
-//       case 'TEXT_INPUT': return <FileText className="w-5 h-5 text-blue-500" />;
-//       case 'MULTIPLE_CHOICE': return <CheckCircle className="w-5 h-5 text-green-500" />;
-//       case 'FILE_UPLOAD': return <Upload className="w-5 h-5 text-purple-500" />;
-//       case 'RATING': return <Star className="w-5 h-5 text-yellow-500" />;
-//       case 'SURVEY': return <Users className="w-5 h-5 text-indigo-500" />;
-//       default: return <Target className="w-5 h-5 text-gray-500" />;
-//     }
-//   };
-
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
       case 'easy': return 'text-green-600 bg-green-100';
@@ -470,7 +510,6 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center space-x-2">
-                          {/* {getSubtaskIcon(subtask.type)} */}
                           <h3 className="font-semibold text-gray-900 text-base leading-tight">{subtask.title}</h3>
                         </div>
                         {subtask.required && (
@@ -493,11 +532,11 @@ export default function FormGenerator({ task, onComplete }: FormGeneratorProps) 
         {/* Feedback Section */}
         <div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-100">
           <div className="space-y-4">
-                          <h3 className="font-semibold text-gray-900 flex items-center text-base">
-                <FileText className="w-5 h-5 text-blue-600 mr-2" />
-                Task Feedback &amp; Review
-                <span className="text-xs text-gray-500 ml-2 font-normal">(Optional but recommended)</span>
-              </h3>
+            <h3 className="font-semibold text-gray-900 flex items-center text-base">
+              <FileText className="w-5 h-5 text-blue-600 mr-2" />
+              Task Feedback &amp; Review
+              <span className="text-xs text-gray-500 ml-2 font-normal">(Optional but recommended)</span>
+            </h3>
             
             {/* Feedback Guidelines */}
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
@@ -538,7 +577,7 @@ Examples:
         </div>
 
         {/* AI Rating Display */}
-        {showAiRating && aiRating && (
+        {showAiRatingModal && aiRating && (
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl shadow-lg p-5 border border-green-200">
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
@@ -642,6 +681,131 @@ Examples:
           </div>
         )}
       </div>
+
+      {/* AI Rating Modal */}
+      {showAiRatingModal && aiRating && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white text-center relative">
+              <button
+                onClick={() => setShowAiRatingModal(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold">AI Feedback Rating</h3>
+              <p className="text-purple-100 text-sm">Your feedback has been analyzed</p>
+            </div>
+
+            {/* Rating Display */}
+            <div className="p-6 space-y-6">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-purple-600 mb-2">{aiRating.rating}/10</div>
+                <div className="text-sm text-gray-600">Quality Score</div>
+              </div>
+
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-4 border border-purple-200">
+                <div className="flex items-start space-x-3">
+                  <Star className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-purple-800 mb-1">AI Assessment</p>
+                    <p className="text-purple-700 text-sm leading-relaxed">{aiRating.explanation}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-200">
+                <div className="flex items-start space-x-3">
+                  <Coins className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-green-800 mb-1">Bonus Reward</p>
+                    <p className="text-green-700 text-sm">
+                      Your rating of {aiRating.rating}/10 qualifies you for a bonus reward!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowAiRatingModal(false)}
+                  className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmAiRating}
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg"
+                >
+                  Confirm & Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && paymentDetails && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white text-center">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold">Task Completed! 🎉</h3>
+              <p className="text-green-100 text-sm">Payment processed successfully</p>
+            </div>
+
+            {/* Reward Details */}
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-blue-50 rounded-xl p-3 text-center border border-blue-200">
+                  <Coins className="w-6 h-6 text-blue-600 mx-auto mb-1" />
+                  <div className="text-lg font-bold text-blue-700">{paymentDetails.baseReward.toFixed(3)}</div>
+                  <div className="text-xs text-blue-600">Base Reward</div>
+                </div>
+                <div className="bg-purple-50 rounded-xl p-3 text-center border border-purple-200">
+                  <Gift className="w-6 h-6 text-purple-600 mx-auto mb-1" />
+                  <div className="text-lg font-bold text-purple-700">{paymentDetails.bonusReward.toFixed(3)}</div>
+                  <div className="text-xs text-purple-600">Bonus</div>
+                </div>
+                <div className="bg-green-50 rounded-xl p-3 text-center border border-green-200">
+                  <Trophy className="w-6 h-6 text-green-600 mx-auto mb-1" />
+                  <div className="text-lg font-bold text-green-700">{paymentDetails.totalReward.toFixed(3)}</div>
+                  <div className="text-xs text-green-600">Total</div>
+                </div>
+              </div>
+
+              {paymentDetails.aiRating > 0 && (
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-4 border border-yellow-200">
+                  <div className="flex items-start space-x-3">
+                    <Star className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-yellow-800 mb-1">AI Rating: {paymentDetails.aiRating}/10</p>
+                      <p className="text-yellow-700 text-sm leading-relaxed">{paymentDetails.explanation}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="text-center">
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg"
+                >
+                  Awesome! 🚀
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

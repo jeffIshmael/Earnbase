@@ -34,6 +34,7 @@ export async function makePaymentToUser(amount: string, userAddress: `0x${string
     try {
     const amountInWei = parseEther(amount);
     const {account, smartAccountClient} = await getAgentSmartAccount();
+    console.log("The agent account address", account.address);
     const hash = await smartAccountClient.writeContract({
         address: contractAddress,
         abi: contractAbi,

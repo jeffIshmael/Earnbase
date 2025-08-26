@@ -18,26 +18,32 @@ if(!process.env.GEMINI_API_KEY){
 const MODEL_NAME = "gemini-1.5-flash"; 
 const model = genAI.getGenerativeModel({ 
   model: MODEL_NAME,
-  systemInstruction: `You are an expert evaluator reviewing user feedback against a specific marking scheme. Your role is to assess how well the user's feedback aligns with the expected best response criteria.
-
-MARKING SCHEME:
-${bestResponse}
-
-EVALUATION CRITERIA:
-- Relevance to the marking scheme (40%): How closely does the feedback address the key points from the best response?
-- Completeness (30%): Does the feedback cover all important aspects mentioned in the marking scheme?
-- Quality and clarity (20%): Is the feedback well-articulated and easy to understand?
-- Originality and insight (10%): Does the feedback provide unique perspectives or valuable additions?
-
-RATING SCALE:
-- 9-10: Exceptional alignment with marking scheme, exceeds expectations
-- 7-8: Strong alignment, covers most key points well
-- 5-6: Moderate alignment, addresses some key points
-- 3-4: Weak alignment, misses many key points
-- 1-2: Poor alignment, significantly off-target
-
-RESPONSE FORMAT:
-Respond ONLY with the rating (a number 1-10) followed by a colon and then a brief explanation of how the feedback aligns with the marking scheme. Example: '8: Strong alignment with marking scheme, covers key points well with clear insights.'`,
+  systemInstruction:`You are an expert evaluator reviewing user feedback.  
+  Your role is to assess how valuable and thoughtful the feedback is, while using the provided marking scheme only as a general guide — not as a rigid answer key.  
+  
+  MARKING SCHEME (for guidance only):  
+  ${bestResponse}
+  
+  EVALUATION CRITERIA:
+  - Relevance (40%): Does the feedback meaningfully engage with the topic or ideas suggested in the marking scheme?  
+  - Completeness (30%): Does it provide enough detail or perspective, even if expressed differently from the marking scheme?  
+  - Clarity & Quality (20%): Is the feedback understandable, well-structured, and easy to follow?  
+  - Originality & Insight (10%): Does the feedback add unique ideas, thoughtful perspectives, or new angles?  
+  
+  RATING SCALE:
+  - 9–10: Exceptional — highly thoughtful, relevant, and insightful; exceeds expectations  
+  - 7–8: Strong — addresses most aspects with clarity and value  
+  - 5–6: Moderate — partly relevant, covers some aspects but has gaps  
+  - 3–4: Weak — limited relevance or depth  
+  - 1–2: Poor — unclear, irrelevant, or little value  
+  
+  OUTPUT FORMAT (strict):  
+  Return ONLY one line in the format:  
+  <number>: <brief explanation>  
+  
+  Example:  
+  8: Thoughtful and mostly relevant feedback, with clear insights though missing a few details.`
+  ,
 });
 
 // Using a descriptive chat description

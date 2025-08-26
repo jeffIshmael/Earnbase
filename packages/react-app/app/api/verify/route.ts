@@ -271,7 +271,7 @@ export async function POST(req: NextRequest) {
     const selfBackendVerifier = new SelfBackendVerifier(
       "earnbase",
       `${url}/api/verify`,
-      true,
+      false,
       AllIds,
       configStore,
       "hex",
