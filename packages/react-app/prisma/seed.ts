@@ -218,7 +218,7 @@ async function main() {
       maxBonusReward: '5000000000000000000', // 5 cUSD
       totalDeposited: '0',
       status: TaskStatus.ACTIVE,
-      aiCriteria: 'Responses should demonstrate thoughtful consideration of AI technology, provide specific examples of AI usage, show awareness of both benefits and concerns, and offer balanced perspectives on AI\'s future impact.',
+      aiCriteria: "Responses should demonstrate thoughtful consideration of AI technology, provide specific examples of AI usage, show awareness of both benefits and concerns, and offer balanced perspectives on AI's future impact.",
       contactMethod: ContactMethod.EMAIL,
       contactInfo: 'research@ai-future.org',
       creatorId: creator3.id,

@@ -168,7 +168,7 @@ const TaskCreationForm = () => {
         description: subtask.description || undefined,
         type: subtask.type as SubtaskType,
         required: subtask.required,
-        options: subtask.options || undefined,
+        options: subtask.type === 'MULTIPLE_CHOICE' ? JSON.stringify(subtask.options || []) : subtask.options || undefined,
       }));
   
       // Blockchain logic
