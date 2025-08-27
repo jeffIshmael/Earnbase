@@ -302,14 +302,14 @@ export async function createCompleteTask(
   }>
 ) {
   try {
+    // Ensure creator exists
     let creator = await getUser(creatorAddress);
     if (!creator) {
-      const user = await registerUser(creatorAddress, null, creatorAddress, null);
-      if (!user) throw new Error("Failed to register user");
-      creator = user;
-    };
+      creator = await registerUser(creatorAddress, null, creatorAddress, null);
+      if (!creator) throw new Error("Failed to register user");
+    }
 
-    // Create task and subtasks in a transaction
+    // Wrap everything in a transaction
     const result = await prisma.$transaction(async (tx) => {
       // Create the task
       const task = await tx.task.create({
@@ -318,31 +318,28 @@ export async function createCompleteTask(
           description: taskData.description,
           blockChainId: taskData.blockChainId,
           maxParticipants: taskData.maxParticipants,
-                  baseReward: parseEther(taskData.baseReward).toString(),
-        maxBonusReward: parseEther(taskData.maxBonusReward).toString(),
-        totalDeposited: '0',
+          baseReward: parseEther(taskData.baseReward).toString(),
+          maxBonusReward: parseEther(taskData.maxBonusReward).toString(),
+          totalDeposited: "0",
           aiCriteria: taskData.aiCriteria,
           contactMethod: taskData.contactMethod,
           contactInfo: taskData.contactInfo,
           expiresAt: taskData.expiresAt,
           restrictionsEnabled: taskData.restrictionsEnabled || false,
           ageRestriction: taskData.ageRestriction || false,
-          minAge: taskData.minAge || null,
-          maxAge: taskData.maxAge || null,
+          minAge: taskData.minAge ?? null,
+          maxAge: taskData.maxAge ?? null,
           genderRestriction: taskData.genderRestriction || false,
-          gender: taskData.gender || null,
+          gender: taskData.gender ?? null,
           countryRestriction: taskData.countryRestriction || false,
           countries: taskData.countries ? JSON.stringify(taskData.countries) : null,
           creatorId: creator.id,
           status: TaskStatus.ACTIVE,
         },
-        include: {
-          creator: true,
-        }
       });
 
-      // Create subtasks if provided
-      if (subtasks && subtasks.length > 0) {
+      // Create subtasks if any
+      if (subtasks?.length > 0) {
         const subtaskData = subtasks.map((subtask, index) => ({
           taskId: task.id,
           title: subtask.title,
@@ -353,21 +350,23 @@ export async function createCompleteTask(
           options: subtask.options || null,
         }));
 
-        await tx.taskSubtask.createMany({
-          data: subtaskData,
-        });
+        await tx.taskSubtask.createMany({ data: subtaskData });
       }
 
-      return task;
+      // Return task with subtasks directly from inside transaction
+      return tx.task.findUnique({
+        where: { id: task.id },
+        include: { subtasks: true, creator: true },
+      });
     });
 
-    // Return the complete task with subtasks
-    return await getTaskDetails(result.id);
+    return result;
   } catch (error) {
     console.error("Error creating complete task:", error);
     throw error;
   }
 }
+
 
 // function to get all active tasks
 export async function getActiveTasks() {
@@ -710,3 +709,4 @@ export async function getAllTasks() {
     throw error;
   }
 }
+

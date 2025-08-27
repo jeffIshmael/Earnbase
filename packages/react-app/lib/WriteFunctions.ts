@@ -1,4 +1,4 @@
-
+"use server"
 // This file contains blockchain write functions by the agent
 import { createPublicClient, http, createWalletClient, parseEther } from 'viem';
 import { celo, base } from 'viem/chains';
@@ -30,16 +30,17 @@ export async function addUserReward(amount: string, userAddress: `0x${string}`):
 }
 
 // make payment to the user
-export async function makePaymentToUser(amount: string, userAddress: `0x${string}`):Promise <string | null>{
+export async function makePaymentToUser(amount: string, userAddress: `0x${string}`, taskId: number):Promise <string | null>{
     try {
     const amountInWei = parseEther(amount);
+    const taskIdInBigInt = BigInt(taskId);
     const {account, smartAccountClient} = await getAgentSmartAccount();
     console.log("The agent account address", account.address);
     const hash = await smartAccountClient.writeContract({
         address: contractAddress,
         abi: contractAbi,
         functionName: 'makePayment',
-        args:[userAddress, amountInWei],
+        args:[userAddress, amountInWei, taskIdInBigInt],
       })
     return hash;
     } catch (error) {

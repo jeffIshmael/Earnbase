@@ -67,34 +67,40 @@ const userFeedbackChatSessions = new Map<string, ChatSession>();
 
 Please evaluate the quality and value of this user feedback. Consider factors like relevance, completeness, clarity, and insight. Respond ONLY with the rating (a number 1-10) followed by a colon and then a brief explanation of your rating decision. Example: '8: Comprehensive feedback with clear insights and actionable suggestions.'`;
   
-  try {
-    const result = await chat.sendMessage(prompt);
-    const text = result.response.text();
+try {
+  const result = await chat.sendMessage(prompt);
+  const text = result.response.text();
 
-    if (!text) {
-      console.warn(`Gemini returned an empty response for feedback: "${feedback}"`);
-      return null;
-    }
-
-    const trimmedText = text.trim();
-    const parts = trimmedText.split(':', 2); // Split only on the first colon
-
-    if (parts.length === 2) {
-      const rating = parseInt(parts[0].trim(), 10);
-      const explanation = parts[1].trim();
-
-      if (!isNaN(rating) && rating >= 1 && rating <= 10) {
-        return { rating, explanation };
-      }
-    }
-    
-    // Fallback if parsing fails or rating is out of bounds
-    console.warn(`Could not parse Gemini's response into expected format: "${trimmedText}" for feedback: "${feedback}"`);
+  if (!text) {
+    console.warn(`Gemini returned an empty response for feedback: "${feedback}"`);
     return null;
-
-  } catch (error) {
-    console.error(`Error getting AI rating for user ${userId} feedback "${feedback}":`, error);
-    // Propagate the error or return a specific error structure depending on your error handling strategy
-    throw new Error("Failed to get AI rating due to an internal error.");
   }
+
+  const trimmedText = text.trim();
+  const parts = trimmedText.split(':', 2);
+
+  if (parts.length === 2) {
+    const rating = parseInt(parts[0].trim(), 10);
+    const explanation = parts[1].trim();
+
+    if (!isNaN(rating) && rating >= 1 && rating <= 10) {
+      return { rating, explanation };
+    }
+  }
+  
+  console.warn(`Could not parse Gemini's response into expected format: "${trimmedText}" for feedback: "${feedback}"`);
+  return null;
+
+} catch (error: any) {
+  console.error(`Error getting AI rating for user ${userId} feedback "${feedback}":`, error);
+  
+  // Handle specific Gemini API errors
+  if (error.status === 503) {
+    console.warn('Gemini API is overloaded, returning default rating');
+    return { rating: 5, explanation: 'AI service temporarily unavailable, default rating applied' };
+  }
+  
+  // For other errors, return null instead of throwing
+  return null;
+}
 }

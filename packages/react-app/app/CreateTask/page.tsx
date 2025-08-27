@@ -11,7 +11,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { useAccount, useWriteContract } from 'wagmi';
 import { getTotalTasks } from '@/lib/ReadFunctions';
 import { contractAbi, contractAddress, cUSDAddress } from '@/contexts/constants';
-import { waitForTransactionReceipt } from "@wagmi/core";
+import { readContract, waitForTransactionReceipt } from "@wagmi/core";
 import { erc20Abi, parseEther } from 'viem';
 import {config} from "@/providers/AppProvider";
 import { toast } from 'sonner';
@@ -114,7 +114,7 @@ const TaskCreationForm = () => {
     }
   };
 
-  const updateSubtask = (id: string, field: string, value: string) => {
+  const updateSubtask = (id: string, field: string, value: string | boolean) => {
     setSubtasks(subtasks.map(s => 
       s.id === id ? { ...s, [field]: value } : s
     ));
@@ -130,17 +130,18 @@ const TaskCreationForm = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+  
     if (!address) {
       alert('Please connect your wallet first');
       return;
     }
-    
+  
     setIsSubmitting(true);
-    
+  
     try {
       const blockChainId = (await getTotalTasks()).toString();
-      // Prepare task data for Prisma function
+  
+      // Prepare task data
       const taskData = {
         title,
         description,
@@ -161,8 +162,7 @@ const TaskCreationForm = () => {
         countryRestriction,
         countries: countryRestriction ? countries : undefined,
       };
-
-      // Prepare subtasks data
+  
       const subtasksData = subtasks.map(subtask => ({
         title: subtask.title,
         description: subtask.description || undefined,
@@ -170,58 +170,69 @@ const TaskCreationForm = () => {
         required: subtask.required,
         options: subtask.options || undefined,
       }));
-
-      // register the task to the blockchain
-
+  
+      // Blockchain logic
       const totalAmount = await calculateTotalRequired();
       const amountInWei = parseEther(totalAmount.toString());
-      const maxAmountUserGets = parseFloat(maxBonusReward) + parseFloat(baseReward);
+  
+      const maxAmountUserGets = Number(maxBonusReward) + Number(baseReward);
       const maxAmountUserGetsInWei = parseEther(maxAmountUserGets.toString());
-
-      // approve the transfer of cUSD to the contract
-      const approveHash = await writeContractAsync({
+  
+      // 1. Approve allowance
+      const approveTx = await writeContractAsync({
         address: cUSDAddress,
         abi: erc20Abi,
         functionName: "approve",
         args: [contractAddress, amountInWei],
       });
-      const transactionHash = await waitForTransactionReceipt(config, {
-        hash: approveHash,
+  
+      // Wait for confirmation
+      await waitForTransactionReceipt(config, { hash: approveTx,
+        confirmations: 1, // optional, ensures it waits
+       });
+  
+      // // (Optional but recommended) check allowance
+      const allowance = await readContract(config,{
+        address: cUSDAddress,
+        abi: erc20Abi,
+        functionName: "allowance",
+        args: [address, contractAddress],
       });
-      const approveTxHash = transactionHash.transactionHash;
 
-      if(!approveTxHash) {
-        throw new Error('Failed to approve cUSD');
+      console.log("allowance", allowance);
+  
+      if (allowance < amountInWei) {
+        throw new Error("Allowance not set correctly");
       }
-      // register the task to the blockchain
-      const registerHash = await writeContractAsync({
+  
+      // 2. Call createTask
+      const registerTx = await writeContractAsync({
         address: contractAddress,
         abi: contractAbi,
         functionName: "createTask",
         args: [amountInWei, maxAmountUserGetsInWei],
       });
-      if(!registerHash) {
-        throw new Error('Failed to register task');
-      }
-
-      // Create task directly using Prisma function
+  
+      await waitForTransactionReceipt(config, { hash: registerTx });
+  
+      // 3. Save task in DB
       const createdTask = await createCompleteTask(address, taskData, subtasksData);
-
+  
       if (createdTask) {
-        toast('Task created successfully!');
-        // Reset form to initial state
+        toast("Task created successfully!");
         resetForm();
-        router.push('/Start');
+        router.push("/Start");
       } else {
-        throw new Error('Failed to create task');
+        throw new Error("Failed to create task in DB");
       }
     } catch (error) {
-      console.error('Error creating task:', error);
-      alert(`Error creating task: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Error creating task:", error);
+      alert(`Error creating task: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setIsSubmitting(false);
     }
   };
+  
 
   const getStepValidation = (step: number) => {
     switch (step) {
@@ -923,7 +934,7 @@ const TaskCreationForm = () => {
                         <input
                           type="checkbox"
                           checked={subtask.required}
-                          onChange={(e) => updateSubtask(subtask.id, 'required', e.target.checked.toString())}
+                          onChange={(e) => updateSubtask(subtask.id, 'required', e.target.checked)}
                           className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded transition-all duration-200"
                         />
                         <span className="text-sm font-semibold text-gray-800">Required field</span>

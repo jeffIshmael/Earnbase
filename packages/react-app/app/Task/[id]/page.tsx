@@ -263,7 +263,6 @@ const TaskDetailPage = () => {
         {taskStarted ? (
           <FormGenerator 
             task={task} 
-            onComplete={handleTaskComplete}
           />
         ) : (
           <>

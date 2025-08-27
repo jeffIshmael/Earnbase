@@ -2,6 +2,7 @@ import { getActiveTasks, getTasksWithRestrictions } from './Prismafnctns';
 
 export interface TaskWithEligibility {
   id: number;
+  blockChainId: string;
   title: string;
   description: string;
   baseReward: string;
