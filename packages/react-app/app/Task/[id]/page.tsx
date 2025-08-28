@@ -10,6 +10,8 @@ import {
   Play, ChevronDown, Heart, Share2, Bookmark, X
 } from 'lucide-react';
 import { getTaskById, TaskWithEligibility, renderTaskIcon, formatReward, getTimeLeft } from '@/lib/taskService';
+import { checkUserParticipation } from '@/lib/Prismafnctns';
+import { useAccount } from 'wagmi';
 import BottomNavigation from '@/components/BottomNavigation';
 import SelfModal from '@/components/SelfModal';
 import FormGenerator from '@/components/FormGenerator';
@@ -17,6 +19,7 @@ import FormGenerator from '@/components/FormGenerator';
 const TaskDetailPage = () => {
   const params = useParams();
   const router = useRouter();
+  const { address } = useAccount();
   const [task, setTask] = useState<TaskWithEligibility | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +30,8 @@ const TaskDetailPage = () => {
   const [showSelfModal, setShowSelfModal] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [taskStarted, setTaskStarted] = useState(false);
+  const [userSubmission, setUserSubmission] = useState<any>(null);
+  const [checkingParticipation, setCheckingParticipation] = useState(false);
 
   const taskId = params.id as string;
 
@@ -55,6 +60,25 @@ const TaskDetailPage = () => {
       loadTask();
     }
   }, [taskId]);
+
+  // Check if user has already participated in this task
+  useEffect(() => {
+    const checkParticipation = async () => {
+      if (!task || !address) return;
+      
+      try {
+        setCheckingParticipation(true);
+        const submission = await checkUserParticipation(task.id, address);
+        setUserSubmission(submission);
+      } catch (error) {
+        console.error('Error checking participation:', error);
+      } finally {
+        setCheckingParticipation(false);
+      }
+    };
+
+    checkParticipation();
+  }, [task, address]);
 
   const handleStartTask = async () => {
     if (!task) return;
@@ -218,6 +242,70 @@ const TaskDetailPage = () => {
     setIsVerified(false);
   };
 
+  const renderSubmissionResults = () => {
+    if (!userSubmission) return null;
+
+    return (
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200 shadow-xl mb-6">
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-white" />
+          </div>
+          <h3 className="text-xl font-bold text-green-800 mb-2">Task Completed! 🎉</h3>
+          <p className="text-green-600">You&apos;ve already participated in this task</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-white rounded-xl p-4 border border-green-200">
+            <div className="text-center">
+              <Star className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
+              <div className="text-lg font-bold text-green-700">{userSubmission.aiRating}/10</div>
+              <div className="text-xs text-green-600">AI Rating</div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-4 border border-green-200">
+            <div className="text-center">
+              <Trophy className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
+              <div className="text-lg font-bold text-green-700">
+                {Number(userSubmission.reward) / Math.pow(10, 18)} cUSD
+              </div>
+              <div className="text-xs text-green-600">Reward Earned</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border border-green-200 mb-4">
+          <h4 className="font-semibold text-green-800 mb-2">AI Feedback:</h4>
+          <p className="text-green-700 text-sm leading-relaxed">
+            {userSubmission.aiFeedback || 'No feedback provided'}
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border border-green-200">
+          <h4 className="font-semibold text-green-800 mb-2">Your Responses:</h4>
+          <div className="space-y-3">
+            {userSubmission.responses?.map((response: any, index: number) => (
+              <div key={response.id} className="border-l-4 border-green-300 pl-3">
+                <div className="text-sm font-medium text-green-800 mb-1">
+                  {response.subtask.title}
+                </div>
+                <div className="text-sm text-green-700">
+                  {response.response}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="text-center mt-6">
+          <div className="text-xs text-green-600 bg-green-100 px-3 py-1 rounded-full inline-block">
+            Completed on {new Date(userSubmission.submittedAt).toLocaleDateString()}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Check if task has actual requirements
   const hasRequirements = task?.restrictionsEnabled && (
     (task.ageRestriction && (task.minAge || task.maxAge)) ||
@@ -259,10 +347,36 @@ const TaskDetailPage = () => {
       </div>
 
       <div className="relative px-4 py-6 pb-24 space-y-6">
+        {/* Show submission results if user has already participated */}
+        {checkingParticipation ? (
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-indigo-100 shadow-xl text-center">
+            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Checking participation status...</p>
+          </div>
+        ) : (
+          userSubmission && renderSubmissionResults()
+        )}
+        
         {/* Show FormGenerator if task is started */}
         {taskStarted ? (
           <FormGenerator 
-            task={task} 
+            task={task}
+            onTaskComplete={() => {
+              // Refresh participation status after task completion
+              const checkParticipation = async () => {
+                if (!task || !address) return;
+                
+                try {
+                  const submission = await checkUserParticipation(task.id, address);
+                  setUserSubmission(submission);
+                } catch (error) {
+                  console.error('Error checking participation:', error);
+                }
+              };
+              
+              checkParticipation();
+              setTaskStarted(false);
+            }}
           />
         ) : (
           <>
@@ -332,16 +446,23 @@ const TaskDetailPage = () => {
         {/* Action Button */}
         <button 
           onClick={handleStartTask}
-          disabled={isStartingTask}
+          disabled={isStartingTask || userSubmission}
           className={`w-full font-medium py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] disabled:scale-100 flex items-center justify-center space-x-2 ${
-            isVerified 
-              ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-              : hasRequirements 
-                ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700'
-                : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
+            userSubmission
+              ? 'bg-gray-400 cursor-not-allowed'
+              : isVerified 
+                ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+                : hasRequirements 
+                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700'
+                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
           }`}
         >
-          {isStartingTask ? (
+          {userSubmission ? (
+            <>
+              <CheckCircle className="w-5 h-5" />
+              <span>Task Completed</span>
+            </>
+          ) : isStartingTask ? (
             <>
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
               <span>Starting Task...</span>
@@ -365,7 +486,14 @@ const TaskDetailPage = () => {
         </button>
 
         {/* Verification Status */}
-        {hasRequirements && (
+        {userSubmission ? (
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-2 text-green-600 text-sm">
+              <CheckCircle className="w-4 h-4" />
+              <span>Task completed successfully ✓</span>
+            </div>
+          </div>
+        ) : hasRequirements && (
           <div className="text-center">
             {isVerified ? (
               <div className="flex items-center justify-center space-x-2 text-green-600 text-sm">

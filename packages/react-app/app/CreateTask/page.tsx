@@ -168,8 +168,10 @@ const TaskCreationForm = () => {
         description: subtask.description || undefined,
         type: subtask.type as SubtaskType,
         required: subtask.required,
-        options: subtask.type === 'MULTIPLE_CHOICE' ? JSON.stringify(subtask.options || []) : subtask.options || undefined,
+        options: subtask.type === 'MULTIPLE_CHOICE' ? JSON.stringify(subtask.options?.split(/[,\n]/).map(opt => opt.trim()).filter(opt => opt.length > 0) || []) : subtask.options || undefined,
       }));
+      
+      
   
       // Blockchain logic
       const totalAmount = await calculateTotalRequired();
@@ -187,17 +189,23 @@ const TaskCreationForm = () => {
       });
   
       // Wait for confirmation
-      await waitForTransactionReceipt(config, { hash: approveTx,
-        confirmations: 1, // optional, ensures it waits
-       });
-  
-      // // (Optional but recommended) check allowance
-      const allowance = await readContract(config,{
-        address: cUSDAddress,
-        abi: erc20Abi,
-        functionName: "allowance",
-        args: [address, contractAddress],
+      await waitForTransactionReceipt(config, { 
+        hash: approveTx,
+        pollingInterval: 3000 // 3s
       });
+
+  
+      let allowance = 0n;
+        for (let i = 0; i < 5; i++) {
+          allowance = await readContract(config, {
+            address: cUSDAddress,
+            abi: erc20Abi,
+            functionName: "allowance",
+            args: [address, contractAddress],
+          });
+          if (allowance >= amountInWei) break;
+          await new Promise(res => setTimeout(res, 2000)); // wait 2s
+        }
 
       console.log("allowance", allowance);
   
@@ -924,7 +932,7 @@ const TaskCreationForm = () => {
                           onChange={(e) => updateSubtask(subtask.id, 'options', e.target.value)}
                           rows={3}
                           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 resize-none text-sm"
-                          placeholder="Option 1&#10;Option 2&#10;Option 3"
+                          placeholder="Option 1, Option 2, Option 3&#10;Or use new lines"
                         />
                       </div>
                     )}

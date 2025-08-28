@@ -14,12 +14,15 @@ import {
   SquareArrowOutUpRight
 } from 'lucide-react';
 import { makePaymentToUser } from '@/lib/WriteFunctions';
+import { saveTaskSubmission } from '@/lib/Prismafnctns';
+
 import { useAccount } from 'wagmi';
 import { toast } from 'sonner';
 import Confetti from 'react-confetti';
 
 interface FormGeneratorProps {
     task: TaskWithEligibility;
+    onTaskComplete?: () => void;
   // onComplete?: (results: TaskSubmission) => void;
 }
 
@@ -37,7 +40,7 @@ interface SubtaskResponse {
   completed: boolean;
 }
 
-export default function FormGenerator({ task }: FormGeneratorProps) {
+export default function FormGenerator({ task, onTaskComplete }: FormGeneratorProps) {
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
   const [ratings, setRatings] = useState<Record<string, number>>({});
@@ -221,8 +224,26 @@ export default function FormGenerator({ task }: FormGeneratorProps) {
         submittedAt: new Date().toISOString()
       };
 
+      // Save submission to database
+      await saveTaskSubmission(
+        task.id,
+        address as `0x${string}`,
+        task.subtasks.map(subtask => ({
+          subtaskId: subtask.id,
+          response: responses[subtask.id]
+        })),
+        rating?.rating || 1,
+        rating?.explanation || 'No explanation provided',
+        totalReward.toString()
+      );
+
       // Store submission results
       setSubmissionResults(submission);
+
+      // Call the completion callback if provided
+      if (onTaskComplete) {
+        onTaskComplete();
+      }
 
     } catch (error) {
       console.error('Error submitting task:', error);
@@ -731,12 +752,12 @@ export default function FormGenerator({ task }: FormGeneratorProps) {
 
                   <div className="flex justify-between items-center py-2 border-b border-gray-200">
                     <span className="text-purple-600">Quality Bonus</span>
-                    <span className="font-semibold text-purple-700">+{paymentDetails.bonusReward.toFixed(3)} cUSD</span>
+                    <span className="font-semibold text-purple-700">+{paymentDetails.bonusReward.toFixed(4)} cUSD</span>
                   </div>
 
                   <div className="flex justify-between items-center py-3 bg-green-50 rounded-lg px-3 border border-green-200">
                     <span className="text-lg font-bold text-green-800">Total Paid</span>
-                    <span className="text-xl font-bold text-green-600">{paymentDetails.totalReward.toFixed(3)} cUSD</span>
+                    <span className="text-xl font-bold text-green-600">{paymentDetails.totalReward.toFixed(4)} cUSD</span>
                   </div>
                 </div>
               </div>

@@ -710,3 +710,98 @@ export async function getAllTasks() {
   }
 }
 
+// New function to save task submission
+export async function saveTaskSubmission(
+  taskId: number,
+  userAddress: string,
+  subtaskResponses: Array<{
+    subtaskId: number;
+    response: string;
+  }>,
+  aiRating: number,
+  aiFeedback: string,
+  totalReward: string
+) {
+  try {
+    const user = await getUser(userAddress);
+    if (!user) throw new Error("User not found");
+
+    // Check if user already submitted to this task
+    const existingSubmission = await prisma.taskSubmission.findFirst({
+      where: {
+        taskId,
+        userId: user.id,
+      }
+    });
+
+    if (existingSubmission) {
+      throw new Error("User already submitted to this task");
+    }
+
+    // Create the submission
+    const submission = await prisma.taskSubmission.create({
+      data: {
+        taskId,
+        userId: user.id,
+        status: SubmissionStatus.REWARDED,
+        aiRating,
+        aiFeedback,
+        reward: totalReward,
+      }
+    });
+
+    // Create subtask responses
+    const responseData = subtaskResponses.map(response => ({
+      submissionId: submission.id,
+      subtaskId: response.subtaskId,
+      response: response.response,
+    }));
+
+    await prisma.subtaskResponse.createMany({
+      data: responseData,
+    });
+
+    // Update task participant count
+    await prisma.task.update({
+      where: { id: taskId },
+      data: {
+        currentParticipants: {
+          increment: 1,
+        }
+      }
+    });
+
+    return submission;
+  } catch (error) {
+    console.error("Error saving task submission:", error);
+    throw error;
+  }
+}
+
+// New function to check if user has participated in a task
+export async function checkUserParticipation(taskId: number, userAddress: string) {
+  try {
+    const user = await getUser(userAddress);
+    if (!user) return null;
+
+    const submission = await prisma.taskSubmission.findFirst({
+      where: {
+        taskId,
+        userId: user.id,
+      },
+      include: {
+        responses: {
+          include: {
+            subtask: true,
+          }
+        }
+      }
+    });
+
+    return submission;
+  } catch (error) {
+    console.error("Error checking user participation:", error);
+    return null;
+  }
+}
+
