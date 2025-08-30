@@ -10,11 +10,11 @@ import {
   Play, ChevronDown, Heart, Share2, Bookmark, X
 } from 'lucide-react';
 import { getTaskById, TaskWithEligibility, renderTaskIcon, formatReward, getTimeLeft } from '@/lib/taskService';
-import { checkUserParticipation } from '@/lib/Prismafnctns';
-import { useAccount } from 'wagmi';
 import BottomNavigation from '@/components/BottomNavigation';
 import SelfModal from '@/components/SelfModal';
 import FormGenerator from '@/components/FormGenerator';
+import { hasUserSubmittedToTask, getTaskSubmissionsForLeaderboard } from '@/lib/Prismafnctns';
+import { useAccount } from 'wagmi';
 
 const TaskDetailPage = () => {
   const params = useParams();
@@ -31,7 +31,9 @@ const TaskDetailPage = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [taskStarted, setTaskStarted] = useState(false);
   const [userSubmission, setUserSubmission] = useState<any>(null);
-  const [checkingParticipation, setCheckingParticipation] = useState(false);
+  const [checkingSubmission, setCheckingSubmission] = useState(false);
+  const [leaderboardSubmissions, setLeaderboardSubmissions] = useState<any[]>([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
 
   const taskId = params.id as string;
 
@@ -45,6 +47,32 @@ const TaskDetailPage = () => {
         const taskData = await getTaskById(parseInt(taskId));
         if (taskData) {
           setTask(taskData);
+          
+          // Check if user has already submitted to this task
+          if (address) {
+            setCheckingSubmission(true);
+            try {
+              const submission = await hasUserSubmittedToTask(address, taskData.id);
+              if (submission) {
+                setUserSubmission(submission);
+              }
+            } catch (err) {
+              console.error('Error checking submission:', err);
+            } finally {
+              setCheckingSubmission(false);
+            }
+          }
+
+          // Fetch leaderboard data
+          setLoadingLeaderboard(true);
+          try {
+            const submissions = await getTaskSubmissionsForLeaderboard(taskData.id);
+            setLeaderboardSubmissions(submissions);
+          } catch (err) {
+            console.error('Error loading leaderboard:', err);
+          } finally {
+            setLoadingLeaderboard(false);
+          }
         } else {
           setError('Task not found');
         }
@@ -59,26 +87,7 @@ const TaskDetailPage = () => {
     if (taskId) {
       loadTask();
     }
-  }, [taskId]);
-
-  // Check if user has already participated in this task
-  useEffect(() => {
-    const checkParticipation = async () => {
-      if (!task || !address) return;
-      
-      try {
-        setCheckingParticipation(true);
-        const submission = await checkUserParticipation(task.id, address);
-        setUserSubmission(submission);
-      } catch (error) {
-        console.error('Error checking participation:', error);
-      } finally {
-        setCheckingParticipation(false);
-      }
-    };
-
-    checkParticipation();
-  }, [task, address]);
+  }, [taskId, address]);
 
   const handleStartTask = async () => {
     if (!task) return;
@@ -242,70 +251,6 @@ const TaskDetailPage = () => {
     setIsVerified(false);
   };
 
-  const renderSubmissionResults = () => {
-    if (!userSubmission) return null;
-
-    return (
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200 shadow-xl mb-6">
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-white" />
-          </div>
-          <h3 className="text-xl font-bold text-green-800 mb-2">Task Completed! 🎉</h3>
-          <p className="text-green-600">You&apos;ve already participated in this task</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-xl p-4 border border-green-200">
-            <div className="text-center">
-              <Star className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-              <div className="text-lg font-bold text-green-700">{userSubmission.aiRating}/10</div>
-              <div className="text-xs text-green-600">AI Rating</div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl p-4 border border-green-200">
-            <div className="text-center">
-              <Trophy className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-              <div className="text-lg font-bold text-green-700">
-                {Number(userSubmission.reward) / Math.pow(10, 18)} cUSD
-              </div>
-              <div className="text-xs text-green-600">Reward Earned</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 border border-green-200 mb-4">
-          <h4 className="font-semibold text-green-800 mb-2">AI Feedback:</h4>
-          <p className="text-green-700 text-sm leading-relaxed">
-            {userSubmission.aiFeedback || 'No feedback provided'}
-          </p>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 border border-green-200">
-          <h4 className="font-semibold text-green-800 mb-2">Your Responses:</h4>
-          <div className="space-y-3">
-            {userSubmission.responses?.map((response: any, index: number) => (
-              <div key={response.id} className="border-l-4 border-green-300 pl-3">
-                <div className="text-sm font-medium text-green-800 mb-1">
-                  {response.subtask.title}
-                </div>
-                <div className="text-sm text-green-700">
-                  {response.response}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="text-center mt-6">
-          <div className="text-xs text-green-600 bg-green-100 px-3 py-1 rounded-full inline-block">
-            Completed on {new Date(userSubmission.submittedAt).toLocaleDateString()}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   // Check if task has actual requirements
   const hasRequirements = task?.restrictionsEnabled && (
     (task.ageRestriction && (task.minAge || task.maxAge)) ||
@@ -313,9 +258,7 @@ const TaskDetailPage = () => {
     (task.countryRestriction && task.countries)
   );
 
-  // For now, we don't have a leaderboard in the new schema
-  // This will be implemented when we add submission tracking
-  const sortedLeaderboard: any[] = [];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
@@ -347,35 +290,21 @@ const TaskDetailPage = () => {
       </div>
 
       <div className="relative px-4 py-6 pb-24 space-y-6">
-        {/* Show submission results if user has already participated */}
-        {checkingParticipation ? (
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-indigo-100 shadow-xl text-center">
-            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Checking participation status...</p>
-          </div>
-        ) : (
-          userSubmission && renderSubmissionResults()
-        )}
-        
         {/* Show FormGenerator if task is started */}
         {taskStarted ? (
           <FormGenerator 
             task={task}
-            onTaskComplete={() => {
-              // Refresh participation status after task completion
-              const checkParticipation = async () => {
-                if (!task || !address) return;
-                
-                try {
-                  const submission = await checkUserParticipation(task.id, address);
-                  setUserSubmission(submission);
-                } catch (error) {
-                  console.error('Error checking participation:', error);
-                }
-              };
-              
-              checkParticipation();
+            onTaskCompleted={() => {
+              // Refresh leaderboard data after task completion
+              setLoadingLeaderboard(true);
               setTaskStarted(false);
+              getTaskSubmissionsForLeaderboard(task.id).then(submissions => {
+                setLeaderboardSubmissions(submissions);
+                setLoadingLeaderboard(false);
+              }).catch(err => {
+                console.error('Error refreshing leaderboard:', err);
+                setLoadingLeaderboard(false);
+              });
             }}
           />
         ) : (
@@ -444,46 +373,73 @@ const TaskDetailPage = () => {
         </div>
 
         {/* Action Button */}
-        <button 
-          onClick={handleStartTask}
-          disabled={isStartingTask || userSubmission}
-          className={`w-full font-medium py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] disabled:scale-100 flex items-center justify-center space-x-2 ${
-            userSubmission
-              ? 'bg-gray-400 cursor-not-allowed'
-              : isVerified 
+        {userSubmission ? (
+          <div className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200 text-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-green-800 mb-2">Task Completed! 🎉</h3>
+            <p className="text-green-700 mb-4">You&apos;ve already completed this task</p>
+            <div className="bg-white rounded-xl p-4 border border-green-200 mb-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-green-600 font-medium">AI Rating:</span>
+                  <div className="text-lg font-bold text-green-700">{userSubmission.aiRating}/10</div>
+                </div>
+                <div>
+                  <span className="text-green-600 font-medium">Reward Earned:</span>
+                  <div className="text-lg font-bold text-green-700">{Number(userSubmission.reward).toFixed(4)} cUSD</div>
+                </div>
+              </div>
+              {userSubmission.aiFeedback && (
+                <div className="mt-3 text-left">
+                  <span className="text-green-600 font-medium text-sm">AI Feedback:</span>
+                  <p className="text-green-700 text-sm mt-1">{userSubmission.aiFeedback}</p>
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => setActiveTab('subtasks')}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+            >
+              View Your Responses
+            </button>
+          </div>
+        ) : (
+          <button 
+            onClick={handleStartTask}
+            disabled={isStartingTask}
+            className={`w-full font-medium py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] disabled:scale-100 flex items-center justify-center space-x-2 ${
+              isVerified 
                 ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
                 : hasRequirements 
                   ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700'
                   : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
-          }`}
-        >
-          {userSubmission ? (
-            <>
-              <CheckCircle className="w-5 h-5" />
-              <span>Task Completed</span>
-            </>
-          ) : isStartingTask ? (
-            <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              <span>Starting Task...</span>
-            </>
-          ) : isVerified ? (
-            <>
-              <Play className="w-5 h-5" />
-              <span>Start Task</span>
-            </>
-          ) : hasRequirements ? (
-            <>
-              <Shield className="w-5 h-5" />
-              <span>Verify Identity to Start</span>
-            </>
-          ) : (
-            <>
-              <Play className="w-5 h-5" />
-              <span>Start Task</span>
-            </>
-          )}
-        </button>
+            }`}
+          >
+            {isStartingTask ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <span>Starting Task...</span>
+              </>
+            ) : isVerified ? (
+              <>
+                <Play className="w-5 h-5" />
+                <span>Start Task</span>
+              </>
+            ) : hasRequirements ? (
+              <>
+                <Shield className="w-5 h-5" />
+                <span>Verify Identity to Start</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-5 h-5" />
+                <span>Start Task</span>
+              </>
+            )}
+          </button>
+        )}
 
         {/* Verification Status */}
         {userSubmission ? (
@@ -638,61 +594,102 @@ const TaskDetailPage = () => {
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg">
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
               <Target className="w-5 h-5 text-indigo-600 mr-2" />
-              Tasks ({task.subtasks.length})
+              {userSubmission ? 'Your Completed Subtasks' : 'Subtasks'} ({task.subtasks.length})
             </h3>
-            <div className="space-y-3">
-              {task.subtasks.map((subtask, index) => (
-                <div key={subtask.id} className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
-                  <button
-                    onClick={() => setExpandedSubtask(expandedSubtask === subtask.id ? null : subtask.id)}
-                    className="w-full p-4 flex items-center space-x-3 hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h4 className="font-semibold text-gray-900 truncate">{subtask.title}</h4>
-                        {subtask.required && (
-                          <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
-                            Required
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-gray-600 text-sm truncate">{subtask.description}</p>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 text-gray-400 transform transition-transform ${expandedSubtask === subtask.id ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {expandedSubtask === subtask.id && (
-                    <div className="px-4 pb-4 border-t border-gray-200 bg-white">
-                      <div className="pt-4 space-y-2">
-                        <p className="text-gray-700 text-sm leading-relaxed">{subtask.description}</p>
-                        
-                        {subtask.placeholder && (
-                          <div className="text-xs text-gray-500">
-                            <span className="font-medium">Placeholder:</span> {subtask.placeholder}
+            
+            {userSubmission ? (
+              <div className="space-y-4">
+
+                {/* User's responses */}
+                <div className="space-y-3">
+                  {userSubmission.responses.map((response: any, index: number) => {
+                    const subtask = task.subtasks.find(s => s.id === response.subtaskId);
+                    if (!subtask) return null;
+                    
+                    return (
+                      <div key={response.id} className="bg-green-50 rounded-xl border border-green-200 overflow-hidden">
+                        <div className="p-4">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                              {index + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-gray-900">{subtask.title}</h4>
+                              <p className="text-gray-600 text-sm">{subtask.description}</p>
+                            </div>
+                            <CheckCircle className="w-6 h-6 text-green-600" />
                           </div>
-                        )}
-                        {subtask.maxLength && (
-                          <div className="text-xs text-gray-500">
-                            <span className="font-medium">Max Length:</span> {subtask.maxLength} characters
+                          
+                          <div className="bg-white rounded-lg p-3 border border-green-200">
+                            <div className="text-sm text-gray-600 mb-2">Your Response:</div>
+                            <div className="text-gray-900 font-medium">
+                              {subtask.type === 'MULTIPLE_CHOICE' 
+                                ? JSON.parse(response.response).join(', ')
+                                : response.response
+                              }
+                            </div>
                           </div>
-                        )}
-                        <div className="text-xs text-gray-500">
-                          <span className="font-medium">File Types:</span> All types accepted
                         </div>
-                        {subtask.options && (
-                          <div className="text-xs text-gray-500">
-                            <span className="font-medium">Options:</span> {subtask.options}
-                          </div>
-                        )}
                       </div>
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {task.subtasks.map((subtask, index) => (
+                  <div key={subtask.id} className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                    <button
+                      onClick={() => setExpandedSubtask(expandedSubtask === subtask.id ? null : subtask.id)}
+                      className="w-full p-4 flex items-center space-x-3 hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 text-left min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h4 className="font-semibold text-gray-900 truncate">{subtask.title}</h4>
+                          {subtask.required && (
+                            <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium border border-red-200">
+                              Required
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-600 text-sm truncate">{subtask.description}</p>
+                      </div>
+                      <ChevronDown className={`w-5 h-5 text-gray-400 transform transition-transform ${expandedSubtask === subtask.id ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {expandedSubtask === subtask.id && (
+                      <div className="px-4 pb-4 border-t border-gray-200 bg-white">
+                        <div className="pt-4 space-y-2">
+                          <p className="text-gray-700 text-sm leading-relaxed">{subtask.description}</p>
+                          
+                          {subtask.placeholder && (
+                            <div className="text-xs text-gray-500">
+                              <span className="font-medium">Placeholder:</span> {subtask.placeholder}
+                            </div>
+                          )}
+                          {subtask.maxLength && (
+                            <div className="text-xs text-gray-500">
+                              <span className="font-medium">Max Length:</span> {subtask.maxLength} characters
+                            </div>
+                          )}
+                          <div className="text-xs text-gray-500">
+                            <span className="font-medium">File Types:</span> All types accepted
+                          </div>
+                          {subtask.options && (
+                            <div className="text-xs text-gray-500">
+                              <span className="font-medium">Options:</span> {subtask.options}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -700,10 +697,16 @@ const TaskDetailPage = () => {
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg">
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
               <Trophy className="w-6 h-6 text-yellow-500 mr-2" />
-              Leaderboard by Earnings
+              Leaderboard by AI Rating
             </h3>
             
-            {sortedLeaderboard.length === 0 ? (
+            {loadingLeaderboard ? (
+              <div className="text-center py-12">
+                <div className="w-20 h-20 border-4 border-indigo-300 rounded-full mx-auto mb-4 animate-spin"></div>
+                <p className="text-gray-500 text-lg mb-2">Loading leaderboard...</p>
+                <p className="text-gray-400">Please wait a moment</p>
+              </div>
+            ) : leaderboardSubmissions.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Trophy className="w-10 h-10 text-gray-300" />
@@ -715,8 +718,8 @@ const TaskDetailPage = () => {
               <div className="space-y-4">
                 {/* Top 3 Podium */}
                 <div className="space-y-3">
-                  {sortedLeaderboard.slice(0, 3).map((participant, index) => (
-                    <div key={participant.id} className={`rounded-xl p-4 border-2 transition-all ${
+                  {leaderboardSubmissions.slice(0, 3).map((submission, index) => (
+                    <div key={submission.id} className={`rounded-xl p-4 border-2 transition-all ${
                       index === 0 
                         ? 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-300 shadow-lg' 
                         : index === 1 
@@ -744,27 +747,33 @@ const TaskDetailPage = () => {
                         {/* Participant Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-3 mb-2">
-
                             <div className="min-w-0">
                               <div className="flex items-center space-x-2">
-                                <h4 className="font-bold text-gray-900 truncate text-md">{participant.userName}</h4>
-                                {participant.id === 'current-user' && (
+                                <h4 className="font-bold text-gray-900 truncate text-md">
+                                  {submission.user.userName || 'Anonymous'}
+                                </h4>
+                                {address && submission.user.walletAddress === address && (
                                   <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-xs font-medium border border-indigo-200">
                                     You
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-500 truncate">{participant.walletAddress}</p>
+                              <p className="text-xs text-gray-500 truncate">
+                                {submission.user.walletAddress.slice(0, 6)}...{submission.user.walletAddress.slice(-4)}
+                              </p>
                             </div>
                           </div>
                         </div>
                         
-                        {/* Earnings */}
+                        {/* Rating and Reward */}
                         <div className="text-right flex-shrink-0">
                           <div className={`text-lg font-bold mb-1 ${
                             index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-600' : 'text-amber-600'
                           }`}>
-                            {participant.reward}
+                            {submission.aiRating}/10
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {Number(submission.reward).toFixed(4)} cUSD
                           </div>
                           <div className="text-xs text-gray-500">
                             {index === 0 ? '🥇 1st Place' : index === 1 ? '🥈 2nd Place' : '🥉 3rd Place'}
@@ -777,23 +786,31 @@ const TaskDetailPage = () => {
 
                 {/* Current User Position (if not in top 3) */}
                 {(() => {
-                  const currentUser = sortedLeaderboard.find(p => p.id === 'current-user');
-                  if (currentUser && currentUser.rank > 3) {
+                  const currentUserSubmission = leaderboardSubmissions.find(s => 
+                    address && s.user.walletAddress === address
+                  );
+                  if (currentUserSubmission && !leaderboardSubmissions.slice(0, 3).find(s => 
+                    address && s.user.walletAddress === address
+                  )) {
+                    const userRank = leaderboardSubmissions.findIndex(s => 
+                      address && s.user.walletAddress === address
+                    ) + 1;
+                    
                     return (
                       <div className="pt-4 border-t border-gray-200">
                         <h4 className="text-sm font-medium text-gray-700 mb-3 text-center">Your Position</h4>
                         <div className="bg-indigo-50 rounded-xl p-4 border-2 border-indigo-300">
                           <div className="flex items-center space-x-4">
                             <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="text-white font-bold text-sm">{currentUser.rank}</span>
+                              <span className="text-white font-bold text-sm">{userRank}</span>
                             </div>
                             <div className="flex-1 min-w-0">
                               <h4 className="font-semibold text-gray-900 truncate">You</h4>
                               <p className="text-xs text-gray-500">Keep going to reach the top!</p>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <div className="text-lg font-bold text-indigo-600">{currentUser.reward}</div>
-                              <div className="text-xs text-gray-500">#{currentUser.rank} of {sortedLeaderboard.length}</div>
+                              <div className="text-lg font-bold text-indigo-600">{currentUserSubmission.aiRating}/10</div>
+                              <div className="text-xs text-gray-500">#{userRank} of {leaderboardSubmissions.length}</div>
                             </div>
                           </div>
                         </div>
@@ -806,10 +823,7 @@ const TaskDetailPage = () => {
                 {/* Total Participants Info */}
                 <div className="text-center pt-2">
                   <p className="text-sm text-gray-500">
-                    {sortedLeaderboard.length} total participants • 
-                    <span className="text-indigo-600 font-medium ml-1">
-                      Total Prize Pool: {Number(task.baseReward) / Math.pow(10, 18)} cUSD
-                    </span>
+                    {leaderboardSubmissions.length} total participants
                   </p>
                 </div>
               </div>

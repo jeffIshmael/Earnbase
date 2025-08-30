@@ -710,79 +710,11 @@ export async function getAllTasks() {
   }
 }
 
-// New function to save task submission
-export async function saveTaskSubmission(
-  taskId: number,
-  userAddress: string,
-  subtaskResponses: Array<{
-    subtaskId: number;
-    response: string;
-  }>,
-  aiRating: number,
-  aiFeedback: string,
-  totalReward: string
-) {
+// function to check if user has already submitted to a task
+export async function hasUserSubmittedToTask(userAddress: string, taskId: number) {
   try {
     const user = await getUser(userAddress);
-    if (!user) throw new Error("User not found");
-
-    // Check if user already submitted to this task
-    const existingSubmission = await prisma.taskSubmission.findFirst({
-      where: {
-        taskId,
-        userId: user.id,
-      }
-    });
-
-    if (existingSubmission) {
-      throw new Error("User already submitted to this task");
-    }
-
-    // Create the submission
-    const submission = await prisma.taskSubmission.create({
-      data: {
-        taskId,
-        userId: user.id,
-        status: SubmissionStatus.REWARDED,
-        aiRating,
-        aiFeedback,
-        reward: totalReward,
-      }
-    });
-
-    // Create subtask responses
-    const responseData = subtaskResponses.map(response => ({
-      submissionId: submission.id,
-      subtaskId: response.subtaskId,
-      response: response.response,
-    }));
-
-    await prisma.subtaskResponse.createMany({
-      data: responseData,
-    });
-
-    // Update task participant count
-    await prisma.task.update({
-      where: { id: taskId },
-      data: {
-        currentParticipants: {
-          increment: 1,
-        }
-      }
-    });
-
-    return submission;
-  } catch (error) {
-    console.error("Error saving task submission:", error);
-    throw error;
-  }
-}
-
-// New function to check if user has participated in a task
-export async function checkUserParticipation(taskId: number, userAddress: string) {
-  try {
-    const user = await getUser(userAddress);
-    if (!user) return null;
+    if (!user) return false;
 
     const submission = await prisma.taskSubmission.findFirst({
       where: {
@@ -800,8 +732,133 @@ export async function checkUserParticipation(taskId: number, userAddress: string
 
     return submission;
   } catch (error) {
-    console.error("Error checking user participation:", error);
-    return null;
+    console.error("Error checking user submission:", error);
+    return false;
+  }
+}
+
+// function to create a task submission with responses
+export async function createTaskSubmissionWithResponses(
+  taskId: number,
+  userAddress: string,
+  subtaskResponses: Array<{
+    subtaskId: number;
+    response: string;
+    fileUrl?: string;
+  }>,
+  aiRating?: number,
+  aiFeedback?: string,
+  reward?: string
+) {
+  try {
+    const user = await getUser(userAddress);
+    if (!user) throw new Error("User not found");
+
+    // Check if user already submitted to this task
+    const existingSubmission = await prisma.taskSubmission.findFirst({
+      where: {
+        taskId,
+        userId: user.id,
+      }
+    });
+
+    if (existingSubmission) {
+      throw new Error("User already submitted to this task");
+    }
+
+    // Wrap everything in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the submission
+      const submission = await tx.taskSubmission.create({
+        data: {
+          taskId,
+          userId: user.id,
+          status: SubmissionStatus.REWARDED,
+          aiRating: aiRating || null,
+          aiFeedback: aiFeedback || null,
+          reward: reward || '0',
+        }
+      });
+
+      // Create subtask responses
+      const responseData = subtaskResponses.map(response => ({
+        submissionId: submission.id,
+        subtaskId: response.subtaskId,
+        response: response.response,
+        fileUrl: response.fileUrl || null,
+      }));
+
+      await tx.subtaskResponse.createMany({
+        data: responseData,
+      });
+
+      // Update task participant count
+      await tx.task.update({
+        where: { id: taskId },
+        data: {
+          currentParticipants: {
+            increment: 1,
+          }
+        }
+      });
+
+      // Return submission with responses
+      return tx.taskSubmission.findUnique({
+        where: { id: submission.id },
+        include: {
+          responses: {
+            include: {
+              subtask: true,
+            }
+          },
+          user: {
+            select: {
+              userName: true,
+              walletAddress: true,
+            }
+          }
+        }
+      });
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error creating task submission:", error);
+    throw error;
+  }
+}
+
+// function to get task submissions for leaderboard
+export async function getTaskSubmissionsForLeaderboard(taskId: number) {
+  try {
+    const submissions = await prisma.taskSubmission.findMany({
+      where: {
+        taskId,
+        status: SubmissionStatus.REWARDED,
+      },
+      include: {
+        user: {
+          select: {
+            userName: true,
+            walletAddress: true,
+          }
+        },
+        responses: {
+          include: {
+            subtask: true,
+          }
+        }
+      },
+      orderBy: [
+        { aiRating: 'desc' },
+        { submittedAt: 'asc' }
+      ]
+    });
+
+    return submissions;
+  } catch (error) {
+    console.error("Error getting task submissions for leaderboard:", error);
+    throw error;
   }
 }
 
