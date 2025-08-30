@@ -1069,18 +1069,11 @@ const TaskCreationForm = () => {
               )}
 
               <div className="flex flex-col gap-3 justify-center">
-                <button
-                  type="button"
-                  className="flex items-center justify-center space-x-2 bg-white text-gray-700 px-8 py-4 rounded-lg font-semibold border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 text-sm"
-                >
-                  <Eye className="w-5 h-5" />
-                  <span>Preview Task</span>
-                </button>
                 
                 <button
                   type="submit"
                   disabled={isSubmitting || getValidationErrors().length > 0}
-                  className="flex items-center justify-center space-x-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-12 py-4 rounded-lg font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-lg"
+                  className="flex items-center justify-center space-x-3 bg-indigo-600 text-white px-12 py-4 rounded-lg font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-lg"
                 >
                   {isSubmitting ? (
                     <>
@@ -1091,7 +1084,6 @@ const TaskCreationForm = () => {
                     <>
                       <Save className="w-6 h-6" />
                       <span>Create Task</span>
-                      <Sparkles className="w-5 h-5" />
                     </>
                   )}
                 </button>

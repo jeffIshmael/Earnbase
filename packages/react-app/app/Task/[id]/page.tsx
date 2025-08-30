@@ -246,9 +246,11 @@ const TaskDetailPage = () => {
     // For now, show success message
     alert(`Task completed successfully! Your score: ${submission.totalScore}/10`);
     
+    setTimeout(() => {
     // Reset task state
     setTaskStarted(false);
     setIsVerified(false);
+    }, 3000);
   };
 
   // Check if task has actual requirements
@@ -297,14 +299,18 @@ const TaskDetailPage = () => {
             onTaskCompleted={() => {
               // Refresh leaderboard data after task completion
               setLoadingLeaderboard(true);
-              setTaskStarted(false);
               getTaskSubmissionsForLeaderboard(task.id).then(submissions => {
                 setLeaderboardSubmissions(submissions);
                 setLoadingLeaderboard(false);
-              }).catch(err => {
+              }
+         
+            ).catch(err => {
                 console.error('Error refreshing leaderboard:', err);
                 setLoadingLeaderboard(false);
               });
+            }}
+            closeFormGenerator={() => {
+              setTaskStarted(false);
             }}
           />
         ) : (

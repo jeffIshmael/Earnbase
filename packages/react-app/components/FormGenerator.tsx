@@ -22,6 +22,7 @@ import { createTaskSubmissionWithResponses } from '@/lib/Prismafnctns';
 interface FormGeneratorProps {
     task: TaskWithEligibility;
     onTaskCompleted?: () => void;
+    closeFormGenerator?: () => void;
   // onComplete?: (results: TaskSubmission) => void;
 }
 
@@ -39,7 +40,7 @@ interface SubtaskResponse {
   completed: boolean;
 }
 
-export default function FormGenerator({ task, onTaskCompleted }: FormGeneratorProps) {
+export default function FormGenerator({ task, onTaskCompleted , closeFormGenerator }: FormGeneratorProps) {
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
   const [ratings, setRatings] = useState<Record<string, number>>({});
@@ -799,6 +800,8 @@ export default function FormGenerator({ task, onTaskCompleted }: FormGeneratorPr
                     setCompletedTasks(new Set());
                     setAiRating(null);
                     setPaymentDetails(null);
+                    closeFormGenerator?.();
+                    
                   }}
                   className="flex-1 px-4 py-3 bg-indigo-400 text-white rounded-xl font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg"
                 >
