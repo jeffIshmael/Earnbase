@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Wallet, Copy, ExternalLink, TrendingUp, ArrowUpRight, ArrowDownLeft, RefreshCw, LucideArrowDownLeftSquare } from 'lucide-react';
+import { Wallet, Copy, ExternalLink, TrendingUp, ArrowUpRight, ArrowDownLeft, RefreshCw, LucideArrowDownLeftSquare, ArrowUpDown } from 'lucide-react';
 import { useAccount, useConnect, useSwitchChain } from 'wagmi';
 import { injected } from '@wagmi/connectors';
 import { celo } from 'wagmi/chains';
@@ -17,11 +17,11 @@ import { CeloLogo } from '@/components/CeloLogo';
 import Image from 'next/image';
 import { useDebouncedValue } from '@/utils/Hook';
 import { TradablePair } from '@mento-protocol/mento-sdk';
-import {  getTheQuote, approveSwap, executeSwap } from '@/lib/Swapping';
+import {  getTheQuote, approveSwap, executeSwap, getCeloCusdQuote } from '@/lib/Swapping';
 import { waitForTransactionReceipt } from '@wagmi/core'
 import { config } from '@/providers/AppProvider';
 import { cn } from '@/lib/utils';
-import { cUSDAddress, USDCAddress } from '@/contexts/constants';
+import { cUSDAddress, USDCAddress , celoAddress } from '@/contexts/constants';
 
 
 interface Quote {
@@ -42,7 +42,7 @@ export default function WalletPage() {
   const [usdcBalance, setUsdcBalance] = useState<string | null>(null);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [currencyFrom, setCurrencyFrom] = useState <"cUSD" | "USDC"| null> (null);
+  const [currencyFrom, setCurrencyFrom] = useState <"cUSD" | "USDC"| "CELO" | null> (null);
   const [amountFrom, setAmountFrom] = useState('');
   const [amountTo, setAmountTo] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
@@ -50,6 +50,7 @@ export default function WalletPage() {
   const [exchangeRate, setExchangeRate] = useState('1 cUSD = 0.999 USDC');
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [quoteInterface, setQuoteInterface] = useState< Quote | null>(null);
+  const [celoBalance, setCeloBalance] = useState<string | null>(null);
   const debouncedAmount = useDebouncedValue(amountFrom, 500);
 
 
@@ -70,9 +71,10 @@ export default function WalletPage() {
     
     try {
       setIsLoading(true);
-      const { cUSDBalance, USDCBalance } = await getBalances(address as `0x${string}`);
+      const { cUSDBalance, USDCBalance, celoBalance } = await getBalances(address as `0x${string}`);
       setCUSDBalance(Number(formatEther(cUSDBalance)).toFixed(3));
       setUsdcBalance((Number(USDCBalance) / 10 ** 6).toFixed(3));
+      setCeloBalance((Number(celoBalance) / 10 ** 18).toFixed(3));
     } catch (error) {
       console.error('Error fetching balances:', error);
     } finally {
@@ -97,14 +99,16 @@ export default function WalletPage() {
     window.open(`https://celoscan.io/address/${address}`, '_blank');
   };
 
-    // function to handle getting quote
-    const getQuote = async (fromcUSD: boolean) =>{
-      if(isNaN(Number(amountFrom)) || Number(amountFrom) <= 0) return;
+
+    // function to handle getting quote with specific amount
+    const getQuoteWithAmount = async (amount: string, fromcUSD: boolean, isCelo: boolean) =>{
+      if(isNaN(Number(amount)) || Number(amount) <= 0) return;
       try {
         setIsFetchingQuote(true);
-        const quote = await getTheQuote(amountFrom,fromcUSD);
+        const quote = isCelo ? await getCeloCusdQuote(amount, isCelo) : await getTheQuote(amount, fromcUSD);
+        console.log(quote);
         setQuoteInterface(quote);
-        const rate = `1 ${fromcUSD ? "cUSD" : "USDC"} = ${quote?.rate} ${fromcUSD ? "USDC": "cUSD"}`;
+        const rate = `1 ${fromcUSD ? "cUSD" : isCelo ? "cUSD" : "USDC"} = ${quote?.rate} ${fromcUSD ? "USDC": isCelo ? "CELO": "cUSD"}`;
         setExchangeRate(rate);
         setAmountTo(quote?.quote ?? "");
         setIsFetchingQuote(false);
@@ -117,7 +121,7 @@ export default function WalletPage() {
     }
   
     // function to do the swap
-    const handleSwap = async (fromcUSD: boolean, event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSwap = async (fromcUSD: boolean, isCelo:boolean, event: React.MouseEvent<HTMLButtonElement>) => {
       if (!quoteInterface) {
         toast.error("Quote not available. Please try again.");
         return;
@@ -132,10 +136,12 @@ export default function WalletPage() {
         switchChain({ chainId: celo.id });
       }
     
-      const fromTokenSymbol = fromcUSD ? "cUSD" : "USDC";
-      const toTokenSymbol = fromcUSD ? "USDC" : "cUSD";
-      const fromTokenAddress = fromcUSD ? cUSDAddress : USDCAddress;
-      const toTokenAddress = fromcUSD ? USDCAddress : cUSDAddress;
+      const fromTokenSymbol = fromcUSD ? "cUSD" : isCelo ? "CELO" : "USDC";
+      const toTokenSymbol = fromcUSD ? "USDC" : isCelo ? "cUSD" : "cUSD";
+      const fromTokenAddress = fromcUSD ? cUSDAddress : isCelo ? celoAddress : USDCAddress;
+      const toTokenAddress = fromcUSD ? USDCAddress : isCelo ? cUSDAddress : cUSDAddress;
+
+      console.log(fromTokenAddress, toTokenAddress);
   
       try {
         setIsApproving(true);
@@ -376,21 +382,7 @@ export default function WalletPage() {
     <div>
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Swap Tokens</h3>
 
-      {/* Arrow Floating Between */}
-      <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 z-10">
-        <button 
-          onClick={async () => {
-            if (!currencyFrom) return;
-            setCurrencyFrom(currencyFrom === "cUSD" ? "USDC" : "cUSD");
-            if (amountFrom) {
-              await getQuote(currencyFrom === "cUSD");
-            }
-          }}
-          className="bg-indigo-100 rounded-full p-2 border border-indigo-200 shadow-md hover:bg-indigo-200 transition-colors"
-        >
-          <ArrowDownLeft className="w-5 h-5 text-indigo-600" />
-        </button>
-      </div>
+     
 
       <div className="space-y-6 relative z-0">
         {/* From */}
@@ -400,7 +392,7 @@ export default function WalletPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Image
-                  src={currencyFrom === "cUSD" ? "/static/cusdLogo.jpg" : "/static/usdclogo.png"}
+                  src={currencyFrom === "cUSD" ? "/static/cusdLogo.jpg" : currencyFrom === "USDC" ? "/static/usdclogo.png" : "/static/celoLogo.png"}
                   alt={currencyFrom || "Token"}
                   width={28}
                   height={28}
@@ -408,33 +400,55 @@ export default function WalletPage() {
                 />
                 <select
                   value={currencyFrom || ""}
-                  onChange={(e) => setCurrencyFrom(e.target.value as "cUSD" | "USDC")}
+                  onChange={(e) => { 
+                    setAmountFrom("");
+                    setAmountTo("");
+                    setCurrencyFrom(e.target.value as "cUSD" | "USDC" | "CELO");}}
                   className="bg-white border border-gray-200 text-sm font-medium text-gray-800 rounded-md px-2 py-1 shadow-sm focus:outline-none"
                 >
                   <option value="">Select</option>
                   <option value="cUSD">cUSD</option>
                   <option value="USDC">USDC</option>
+                  <option value="CELO">CELO</option>
                 </select>
               </div>
               <input
                 type="number"
                 placeholder="0.0"
                 value={amountFrom}
-                onChange={(e) => {
+                onChange={async (e) => {
                   const value = e.target.value;
                   setAmountFrom(value);
+                  if (Number(value) > 0 && currencyFrom) {
+                    await getQuoteWithAmount(value, currencyFrom === "cUSD", currencyFrom === "CELO");
+                  }
                 }}            
                 className="bg-transparent text-right text-lg font-semibold text-gray-900 placeholder-gray-400 outline-none w-1/2"
               />
             </div>
             <div className="mt-2 text-right">
               <span className="text-sm text-gray-400">
-                Balance: {currencyFrom === "cUSD" ? `${cUSDBalance} cUSD` : `${usdcBalance} USDC`}
+                Balance: {currencyFrom === "cUSD" ? `${cUSDBalance} cUSD` : currencyFrom === "USDC" ? `${usdcBalance} USDC` : `${celoBalance} CELO`}
               </span>
             </div>
           </div>
         </div>
-
+ {/* Arrow Floating Between */}
+ <div className="absolute left-1/2 top-[32%] -translate-x-1/2 -translate-y-1/2 z-10">
+        <button 
+          onClick={async () => {
+            if (!currencyFrom) return;
+            const newCurrencyFrom = currencyFrom === "cUSD" ? "USDC" : currencyFrom === "USDC" ? "CELO" : "cUSD";
+            setCurrencyFrom(newCurrencyFrom);
+            if (amountFrom) {
+              await getQuoteWithAmount(amountFrom, newCurrencyFrom === "cUSD", newCurrencyFrom === "CELO");
+            }
+          }}
+          className="bg-indigo-100 rounded-full p-2 border border-indigo-200 shadow-md hover:bg-indigo-200 transition-colors"
+        >
+          <ArrowUpDown className="w-5 h-5 text-indigo-600" />
+        </button>
+      </div>
     
         {/* To */}
     <div>
@@ -443,14 +457,14 @@ export default function WalletPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Image
-              src={currencyFrom === "cUSD" ? "/static/usdclogo.png" : "/static/cusdLogo.jpg"}
-              alt={currencyFrom === "cUSD" ? "USDC" : "cUSD"}
+              src={currencyFrom === "cUSD" ? "/static/usdclogo.png" : currencyFrom === "USDC" ? "/static/cusdLogo.jpg" : currencyFrom === "CELO" ? "/static/cUSDLogo.jpg" : "/static/cUSDLogo.jpg"}
+              alt={currencyFrom === "cUSD" ? "USDC" : currencyFrom === "USDC" ? "cUSD" : currencyFrom === "CELO" ? "cUSD" : "cUSD"}
               width={28}
               height={28}
               className="rounded-full"
             />
             <span className="font-medium text-gray-500">
-              {currencyFrom === "cUSD" ? "USDC" : "cUSD"}
+              {currencyFrom === "cUSD" ? "USDC" : currencyFrom === "USDC" ? "cUSD" : currencyFrom === "CELO" ? "cUSD" : null}
             </span>
           </div>
           {isFetchingQuote ? (
@@ -469,7 +483,7 @@ export default function WalletPage() {
         </div>
         <div className="mt-2 text-right">
           <span className="text-sm text-gray-400">
-            Balance: {currencyFrom === "cUSD" ? `${usdcBalance} USDC` : `${cUSDBalance} cUSD`}
+            Balance: {currencyFrom === "cUSD" ? `${usdcBalance} USDC` : currencyFrom === "USDC" ? `${cUSDBalance} cUSD` : currencyFrom === "CELO" ? `${cUSDBalance} cUSD` : `--`}
           </span>
         </div>
       </div>
@@ -491,7 +505,7 @@ export default function WalletPage() {
 
         {/* Swap Button */}
         <button 
-            onClick={(e) => handleSwap(currencyFrom === "cUSD",e)}
+            onClick={(e) => handleSwap(currencyFrom === "cUSD", currencyFrom === "CELO",e)}
             disabled={!isConnected || isNaN(Number(amountFrom)) || Number(amountFrom) <= 0 || !amountFrom || !currencyFrom || isSwapping || isFetchingQuote || isApproving}
             className={cn(
               "w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg",

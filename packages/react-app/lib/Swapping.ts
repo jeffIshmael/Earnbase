@@ -6,7 +6,7 @@
 // I'll do this according to the app.mento.org
 import { Mento, TradablePair } from "@mento-protocol/mento-sdk";
 import { ethers, providers } from "ethers";
-import { cUSDAddress, USDCAddress } from "@/contexts/constants";
+import { cUSDAddress, USDCAddress, celoAddress } from "@/contexts/constants";
 import { parseInputExchangeAmount, calcExchangeRate, invertExchangeRate } from "@/utils/SwapUtils";
 import { fromWei } from "@/utils/amount";
 import { parseUnits } from "ethers/lib/utils";
@@ -44,6 +44,59 @@ export async function getTheQuote(amount: string, swapIn: Boolean) {
     const amountWeiBN = ethers.BigNumber.from(amountWei);
     const amountDecimals = swapIn ? 18 : 6;
     const quoteDecimals = swapIn ? 6 : 18;
+
+    console.log("amount", amount);
+    console.log("amountWei", amountWei);
+    console.log("amountWeiBN", amountWeiBN.toString());
+
+    const tradablePair = await mento.findPairForTokens(fromTokenAddr, toTokenAddr);
+
+    if (!tradablePair) {
+      throw new Error("Tradable pair not found");
+    }
+
+    // swapping from cUSD to USDC
+    const quoteWei = (
+      await mento.getAmountOut(fromTokenAddr, toTokenAddr, amountWeiBN, tradablePair)
+    ).toString();
+    
+
+    if (!quoteWei) {
+      throw new Error("Failed to get quote amount");
+    }
+    const quote = fromWei(quoteWei, quoteDecimals);
+    const rateIn = calcExchangeRate(amountWei, amountDecimals, quoteWei, quoteDecimals);
+    const rate = swapIn ? rateIn : invertExchangeRate(rateIn);
+
+    return {
+      amountWei,
+      quoteWei,
+      quote,
+      rate,
+      tradablePair
+    };
+
+  } catch (error) {
+    console.error("❌ Error in getTheQuote:", error);
+    return null;
+  }
+}
+
+// function to get quote according to app.mento.org (cUSD to USDC)
+export async function getCeloCusdQuote(amount: string, swapIn: Boolean) {
+  try {
+    const mento = await Mento.create(provider);
+    const fromTokenAddr = swapIn ? celoAddress : cUSDAddress;
+    const toTokenAddr = swapIn ? cUSDAddress : celoAddress;
+    const amountWei =  parseInputExchangeAmount(amount, 18);
+    
+    if (!amountWei || isNaN(Number(amountWei))) {
+      throw new Error("Invalid amount input");
+    }
+
+    const amountWeiBN = ethers.BigNumber.from(amountWei);
+    const amountDecimals =  18;
+    const quoteDecimals =  18;
 
     console.log("amount", amount);
     console.log("amountWei", amountWei);

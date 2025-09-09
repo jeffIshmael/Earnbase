@@ -3,7 +3,7 @@
 import { createPublicClient, http } from 'viem';
 import { erc20Abi } from 'viem';
 import { celo, base } from 'viem/chains';
-import { cUSDAddress, USDCAddress } from '@/contexts/constants';
+import { celoAddress, cUSDAddress, USDCAddress } from '@/contexts/constants';
 
 export async function getBalances(address: `0x${string}`) {
   const celoClient = createPublicClient({ 
@@ -30,5 +30,12 @@ export async function getBalances(address: `0x${string}`) {
     args: [address],
   });
 
-  return { cUSDBalance, USDCBalance };
+  const celoBalance = await celoClient.readContract({
+    address: celoAddress,
+    abi: erc20Abi,
+    functionName: 'balanceOf',
+    args: [address],
+  });
+
+  return { cUSDBalance, USDCBalance, celoBalance };
 }
