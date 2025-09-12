@@ -457,7 +457,7 @@ export default function WalletPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Image
-              src={currencyFrom === "cUSD" ? "/static/usdclogo.png" : currencyFrom === "USDC" ? "/static/cusdLogo.jpg" : currencyFrom === "CELO" ? "/static/cUSDLogo.jpg" : "/static/cUSDLogo.jpg"}
+              src={currencyFrom === "cUSD" ? "/static/usdclogo.png" : currencyFrom === "USDC" ? "/static/cusdLogo.jpg" : currencyFrom === "CELO" ? "/static/cusdLogo.jpg" : "/static/cusdLogo.jpg"}
               alt={currencyFrom === "cUSD" ? "USDC" : currencyFrom === "USDC" ? "cUSD" : currencyFrom === "CELO" ? "cUSD" : "cUSD"}
               width={28}
               height={28}
