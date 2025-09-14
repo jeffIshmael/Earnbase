@@ -140,8 +140,6 @@ export default function WalletPage() {
       const toTokenSymbol = fromcUSD ? "USDC" : isCelo ? "cUSD" : "cUSD";
       const fromTokenAddress = fromcUSD ? cUSDAddress : isCelo ? celoAddress : USDCAddress;
       const toTokenAddress = fromcUSD ? USDCAddress : isCelo ? cUSDAddress : cUSDAddress;
-
-      console.log(fromTokenAddress, toTokenAddress);
   
       try {
         setIsApproving(true);
