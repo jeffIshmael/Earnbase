@@ -79,7 +79,6 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
           // ofac: false,
           excludedCountries: restrictions.countries || [],
 
-        // //what you want users to reveal
           // name: false,
           // issuing_state: true,
           nationality: true,
