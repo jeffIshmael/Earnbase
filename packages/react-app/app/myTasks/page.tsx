@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Search, Filter, DollarSign, Users, Eye, Edit, Target, TrendingUp, Clock } from 'lucide-react';
-import { getMockTasks } from '@/lib/mockData';
-import { renderTaskIcon } from '@/lib/mockData';
 import BottomNavigation from '@/components/BottomNavigation';
 import { getAllTasks } from '@/lib/Prismafnctns';
 import { getTask } from '@/lib/ReadFunctions';
