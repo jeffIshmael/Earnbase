@@ -89,16 +89,6 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
         }
       }).build();
 
-      console.log("Self app built with config:", {
-        minimumAge: restrictions.age?.min || 18,
-        excludedCountries: restrictions.countries || [],
-        userDefinedData: JSON.stringify(restrictions)
-      });
-      
-      // Also log the actual app configuration
-      console.log("Self app disclosures:", app.disclosures);
-      console.log("Self app userDefinedData:", app.userDefinedData);
-
       setSelfApp(app);
       setUniversalLink(getUniversalLink(app));
       setError(null);
