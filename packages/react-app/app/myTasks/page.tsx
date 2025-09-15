@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Search, Filter, DollarSign, Users, Eye, Edit, Target, TrendingUp, Clock } from 'lucide-react';
+import {  DollarSign, Users, Eye, Edit, Target } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 import { getAllTasks } from '@/lib/Prismafnctns';
 import { getTask } from '@/lib/ReadFunctions';
