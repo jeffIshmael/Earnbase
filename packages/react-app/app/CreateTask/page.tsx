@@ -16,6 +16,7 @@ import { erc20Abi, parseEther } from 'viem';
 import {config} from "@/providers/AppProvider";
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { improveCriteria } from '@/lib/AiRating';
 
 
 const TaskCreationForm = () => {
@@ -31,6 +32,7 @@ const TaskCreationForm = () => {
   const [expiresAt, setExpiresAt] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [totalBudget, setTotalBudget] = useState(0);
+  const [isImprovingCriteria, setIsImprovingCriteria] = useState(false);
   const {address} = useAccount();
   const { writeContractAsync } = useWriteContract();
   const router = useRouter();
@@ -118,6 +120,25 @@ const TaskCreationForm = () => {
     setSubtasks(subtasks.map(s => 
       s.id === id ? { ...s, [field]: value } : s
     ));
+  };
+
+  const handleImproveCriteria = async () => {
+    if (!aiCriteria.trim() || aiCriteria.length < 10) {
+      toast.error('Please write some criteria first (at least 10 characters)');
+      return;
+    }
+
+    setIsImprovingCriteria(true);
+    try {
+      const improvedCriteria = await improveCriteria(aiCriteria);
+      setAiCriteria(improvedCriteria);
+      toast.success('AI has improved your criteria!');
+    } catch (error) {
+      console.error('Error improving criteria:', error);
+      toast.error(`Failed to improve criteria: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsImprovingCriteria(false);
+    }
   };
 
   const nextStep = () => {
@@ -608,6 +629,33 @@ const TaskCreationForm = () => {
                   </div>
                   {aiCriteria.length > 0 && aiCriteria.length < 10 && (
                     <p className="text-xs text-red-500 mt-1">AI criteria is too short. Please provide more specific instructions.</p>
+                  )}
+                  
+                  {/* AI Improvement Button */}
+                  {aiCriteria.length >= 10 && (
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={handleImproveCriteria}
+                        disabled={isImprovingCriteria}
+                        className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium shadow-lg hover:shadow-xl"
+                      >
+                        {isImprovingCriteria ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>AI is improving...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            <span>Improve with AI</span>
+                          </>
+                        )}
+                      </button>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Let AI enhance your criteria to be more specific and comprehensive
+                      </p>
+                    </div>
                   )}
                 </div>
 
