@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import Confetti from 'react-confetti';
 import { createTaskSubmissionWithResponses } from '@/lib/Prismafnctns';
 import { sendWhatsappResponse } from '@/lib/Whatsapp';
+import { sendEmailResponse } from '@/lib/Email';
 
 interface FormGeneratorProps {
     task: TaskWithEligibility;
@@ -233,27 +234,40 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
         throw new Error('Failed to save submission to database');
       }
 
-      // Send WhatsApp notification to creator if contact method is WhatsApp
+      // Send notification to creator based on contact method
+      const taskBalance = "0.00"; // Placeholder - implement based on your needs
+      const notificationData = {
+        taskTitle: task.title,
+        participant: address?.slice(0, 6) + '...' + address?.slice(-4) || 'Unknown',
+        response: textFeedback,
+        aiRating: (rating?.rating || 1).toString(),
+        Reward: totalReward.toFixed(3),
+        TaskBalance: taskBalance
+      };
+
       if (task.contactMethod === 'WHATSAPP' && task.contactInfo) {
         try {
-          // Get remaining task balance (you might need to implement this function)
-          const taskBalance = "0.00"; // Placeholder - implement based on your needs
-          
           await sendWhatsappResponse({
-            taskTitle: task.title,
-            creatorPhoneNo: task.contactInfo,
-            participant: address?.slice(0, 6) + '...' + address?.slice(-4) || 'Unknown',
-            response: textFeedback,
-            aiRating: (rating?.rating || 1).toString(),
-            Reward: totalReward.toFixed(3),
-            TaskBalance: taskBalance
+            ...notificationData,
+            creatorPhoneNo: task.contactInfo
           });
           
           console.log('WhatsApp notification sent to creator');
         } catch (whatsappError) {
           console.error('Failed to send WhatsApp notification:', whatsappError);
-          // Don't throw error here as the main task submission was successful
           toast.error('Task submitted but failed to notify creator via WhatsApp');
+        }
+      } else if (task.contactMethod === 'EMAIL' && task.contactInfo) {
+        try {
+          await sendEmailResponse({
+            ...notificationData,
+            creatorEmail: task.contactInfo
+          });
+          
+          console.log('Email notification sent to creator');
+        } catch (emailError) {
+          console.error('Failed to send email notification:', emailError);
+          toast.error('Task submitted but failed to notify creator via email');
         }
       }
 

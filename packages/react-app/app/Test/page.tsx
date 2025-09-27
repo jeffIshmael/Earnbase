@@ -9,7 +9,7 @@ const Page = () => {
             setSending(true);
               await sendWhatsappResponse({
                  taskTitle: "Rexy fully done",
-                 creatorPhoneNo: "254721567439", // Try with +254757149628 or 254757149628
+                 creatorPhoneNo: "254727043002", // Try with +254757149628 or 254757149628
                  participant: "0x232c...43",
                  response: "I fully understand the outcome.",
                  aiRating: "8",
