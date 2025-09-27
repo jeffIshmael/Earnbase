@@ -174,7 +174,7 @@ const TaskCreationForm = () => {
       
   
       // Blockchain logic
-      const totalAmount = await calculateTotalRequired();
+      const totalAmount = calculateTotalRequired();
       const amountInWei = parseEther(totalAmount.toString());
   
       const maxAmountUserGets = Number(maxBonusReward) + Number(baseReward);
