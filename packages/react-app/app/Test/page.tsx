@@ -2,7 +2,7 @@
 import React,{useState} from 'react'
 import { sendWhatsappResponse } from '@/lib/Whatsapp'
 
-const page = () => {
+const Page = () => {
     const [sending, setSending] = useState(false);
     const handleWhatsappSend = async() =>{
         try {
@@ -30,4 +30,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
