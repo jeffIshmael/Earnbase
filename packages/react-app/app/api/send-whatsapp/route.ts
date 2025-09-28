@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getTemplateSuggestion } from '@/lib/Whatsapp';
 
 const whatsappPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 const whatsappToken = process.env.WHATSAPP_TOKEN;
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
       template: {
         name: 'task_response_notification', // Your template name
         language: {
-          code: 'en_US'
+          code: 'en'
         },
         components: [
           {
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
     console.log('Sending WhatsApp template message:', JSON.stringify(templatePayload, null, 2));
 
     const response = await fetch(
-      `https://graph.facebook.com/v18.0/${whatsappPhoneId}/messages`,
+      `https://graph.facebook.com/v22.0/${whatsappPhoneId}/messages`,
       {
         method: 'POST',
         headers: {
@@ -123,53 +124,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error sending WhatsApp template message:', error);
     return NextResponse.json(
-      { error: 'Failed to send WhatsApp template message', details: error },
+      { error: 'Failed to send WhatsApp template message', details: error},
       { status: 500 }
     );
   }
 }
 
-// Helper function for template-specific error suggestions
-function getTemplateSuggestion(error: any): string {
-  if (!error) return 'Unknown error occurred';
-  
-  switch (error.code) {
-    case 131026:
-      return 'Template "task_response_notification" does not exist or is not approved. Create it in Meta Business Manager.';
-    case 131047:
-      return 'Template is not approved yet. Check status in Meta Business Manager.';
-    case 131049:
-      return 'Template parameter mismatch. Check that you have exactly 6 parameters.';
-    case 131051:
-      return 'Invalid template format. Verify template structure in Meta Business Manager.';
-    case 132000:
-      return 'Template is paused or disabled. Enable it in Meta Business Manager.';
-    case 100:
-      return 'Invalid parameter values. Check phone number format and parameter content.';
-    case 190:
-      return 'Access token expired. Update your WHATSAPP_TOKEN environment variable.';
-    default:
-      return `Template error code ${error.code}: Check template status in Meta Business Manager.`;
-  }
-}
-
-// Optional: Function to check template status
-export async function checkTemplateStatus(templateName: string = 'task_response_notification') {
-  try {
-    const response = await fetch(
-      `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_BUSINESS_ACCOUNT_ID}/message_templates?name=${templateName}`,
-      {
-        headers: {
-          Authorization: `Bearer ${whatsappToken}`,
-        },
-      }
-    );
-
-    const result = await response.json();
-    console.log('Template status:', result);
-    return result;
-  } catch (error) {
-    console.error('Template status check error:', error);
-    return null;
-  }
-}
