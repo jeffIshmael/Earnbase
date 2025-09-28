@@ -61,14 +61,19 @@ export default function BottomNavigation() {
   // Set the active tab after component mounts to avoid premature coloring
   useEffect(() => {
     setIsMounted(true);
-    const currentPath = navItems.find(item => item.path === pathname);
-    setActiveTab(currentPath?.key || 'home');
+    const timeout = setTimeout(() => {
+      const currentPath = navItems.find(item => item.path === pathname);
+      setActiveTab(currentPath?.key || 'home');
+    }, 100); // 100ms delay prevents premature highlight
+  
+    return () => clearTimeout(timeout);
   }, [pathname]);
+  
 
   const handleNavigation = (item: NavItem) => {
-    setActiveTab(item.key);
     router.push(item.path);
   };
+  
 
   return (
     <div className="fixed bottom-0 max-w-sm mx-auto left-0 right-0 z-50 pb-safe">

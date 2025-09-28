@@ -422,12 +422,12 @@ const TaskCreationForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative">
+    <div className="min-h-screen bg-gray-50 relative">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-r from-purple-300/30 to-pink-300/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/2 -right-40 w-96 h-96 bg-gradient-to-r from-blue-300/20 to-cyan-300/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-gradient-to-r from-indigo-300/25 to-purple-300/25 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-indigo-100/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 -right-40 w-96 h-96 bg-indigo-100/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-gray-100/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
       {/* Header */}
@@ -467,7 +467,7 @@ const TaskCreationForm = () => {
             {/* Mobile progress steps */}
             <div className="mb-4">
               <div className="flex items-center justify-center space-x-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center">
                   {React.createElement(steps[currentStep - 1].icon, {
                     className: "w-6 h-6",
                   })}
@@ -480,7 +480,7 @@ const TaskCreationForm = () => {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                  className="bg-indigo-600 h-2 rounded-full transition-all duration-500"
                   style={{ width: `${(currentStep / 6) * 100}%` }}
                 ></div>
               </div>
@@ -502,7 +502,7 @@ const TaskCreationForm = () => {
                 type="button"
                 onClick={nextStep}
                 disabled={currentStep === 6 || !getStepValidation(currentStep)}
-                className="flex items-center space-x-1 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
+                className="flex items-center space-x-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
               >
                 <span>Next</span>
                 <ArrowLeft className="w-3 h-3 rotate-180" />
@@ -514,7 +514,7 @@ const TaskCreationForm = () => {
           {currentStep === 1 && (
             <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl w-fit">
+                <div className="p-3 bg-indigo-600 rounded-xl w-fit">
                   <Target className="w-6 h-6 text-white" />
                 </div>
                 <div className="min-w-0 flex-1 text-center">
@@ -599,7 +599,7 @@ const TaskCreationForm = () => {
           {currentStep === 2 && (
             <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl w-fit">
+                <div className="p-3 bg-green-600 rounded-xl w-fit">
                   <DollarSign className="w-6 h-6 text-white" />
                 </div>
                 <div className="min-w-0 flex-1 text-center">
@@ -671,7 +671,7 @@ const TaskCreationForm = () => {
               </div>
 
               {/* Enhanced Total Calculation - Mobile Optimized */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 mb-6">
+              <div className="bg-green-50 rounded-xl p-4 border border-green-200 mb-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
                     <div className="flex items-center justify-center space-x-2 mb-2">
@@ -735,7 +735,7 @@ const TaskCreationForm = () => {
           {currentStep === 3 && (
             <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl w-fit">
+                <div className="p-3 bg-purple-600 rounded-xl w-fit">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
                 <div className="min-w-0 flex-1 text-center">
@@ -852,7 +852,7 @@ const TaskCreationForm = () => {
           {currentStep === 4 && (
             <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl w-fit">
+                <div className="p-3 bg-orange-600 rounded-xl w-fit">
                   <Users className="w-6 h-6 text-white" />
                 </div>
                 <div className="min-w-0 flex-1 text-center">
@@ -1021,7 +1021,7 @@ const TaskCreationForm = () => {
           {currentStep === 5 && (
             <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl w-fit">
+                <div className="p-3 bg-indigo-600 rounded-xl w-fit">
                   <Users className="w-6 h-6 text-white" />
                 </div>
                 <div className="min-w-0 flex-1 text-center">
@@ -1043,7 +1043,7 @@ const TaskCreationForm = () => {
                     <select
                       value={contactMethod}
                       onChange={(e) => setContactMethod(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400 transition-all duration-200 appearance-none text-sm"
+                      className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 appearance-none text-sm"
                     >
                       <option value="EMAIL">📧 Email</option>
                       <option value="WHATSAPP">📱 WhatsApp</option>
@@ -1060,7 +1060,7 @@ const TaskCreationForm = () => {
                     type="text"
                     value={contactInfo}
                     onChange={(e) => setContactInfo(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400 transition-all duration-200 text-sm"
+                    className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm"
                     placeholder={
                       contactMethod === "EMAIL"
                         ? "your@email.com"
@@ -1081,7 +1081,7 @@ const TaskCreationForm = () => {
                       type="datetime-local"
                       value={expiresAt}
                       onChange={(e) => setExpiresAt(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400 transition-all duration-200 text-sm"
+                      className="w-full pl-12 pr-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm"
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
@@ -1096,10 +1096,10 @@ const TaskCreationForm = () => {
           {currentStep === 6 && (
             <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
               <div className="flex flex-col items-center justify-between mb-6 space-y-3">
-                <div className="flex flex-col items-center space-y-3">
-                  <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl w-fit">
-                    <FileText className="w-6 h-6 text-white" />
-                  </div>
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="p-3 bg-orange-600 rounded-xl w-fit">
+                      <FileText className="w-6 h-6 text-white" />
+                    </div>
                   <div className="min-w-0 flex-1 text-center">
                     <h2 className="text-xl font-bold text-gray-900">
                       Subtasks
@@ -1119,7 +1119,7 @@ const TaskCreationForm = () => {
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-3">
-                        <span className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        <span className="bg-indigo-600 text-white w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                           {index + 1}
                         </span>
                         <span className="truncate">Subtask {index + 1}</span>
@@ -1255,7 +1255,7 @@ const TaskCreationForm = () => {
                   <button
                     type="button"
                     onClick={addSubtask}
-                    className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm w-fit"
+                    className="flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm w-fit"
                   >
                     <Plus className="w-5 h-5" />
                     <span>Add Subtask</span>
@@ -1284,7 +1284,7 @@ const TaskCreationForm = () => {
 
           {/* Enhanced Submit Section */}
           {currentStep === 6 && (
-            <div className="mt-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
+            <div className="mt-6 bg-indigo-50 rounded-xl p-4 border border-indigo-200">
               <div className="text-center mb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
                   Ready to Launch?
@@ -1330,7 +1330,7 @@ const TaskCreationForm = () => {
                 </div>
 
                 <div className="bg-white/80 rounded-lg p-3 text-center">
-                  <Users className="w-4 h-6 text-blue-600 mx-auto mb-1" />
+                  <Users className="w-4 h-6 text-indigo-600 mx-auto mb-1" />
                   <div className="text-xs text-gray-600">Max Participants</div>
                   <div className="font-semibold text-gray-900 text-xs">
                     {maxParticipants}
@@ -1346,7 +1346,7 @@ const TaskCreationForm = () => {
                 </div>
 
                 <div className="bg-white/80 rounded-lg p-3 text-center">
-                  <Clock className="w-4 h-6 text-purple-600 mx-auto mb-1" />
+                  <Clock className="w-4 h-6 text-indigo-600 mx-auto mb-1" />
                   <div className="text-xs text-gray-600">Deadline</div>
                   <div className="font-semibold text-gray-900 text-xs">
                     {expiresAt ? "Set" : "Open"}
