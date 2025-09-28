@@ -49,6 +49,7 @@ const TaskCreationForm = () => {
   const [aiCriteria, setAiCriteria] = useState("");
   const [contactMethod, setContactMethod] = useState("EMAIL");
   const [contactInfo, setContactInfo] = useState("");
+  const [countryCode, setCountryCode] = useState("+1");
   const [expiresAt, setExpiresAt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [totalBudget, setTotalBudget] = useState(0);
@@ -94,6 +95,24 @@ const TaskCreationForm = () => {
     { code: "KE", name: "Kenya" },
     { code: "GH", name: "Ghana" },
     { code: "UG", name: "Uganda" },
+  ];
+
+  // Country codes for WhatsApp
+  const countryCodes = [
+    { code: "+1", country: "US/CA", flag: "🇺🇸" },
+    { code: "+44", country: "UK", flag: "🇬🇧" },
+    { code: "+49", country: "Germany", flag: "🇩🇪" },
+    { code: "+33", country: "France", flag: "🇫🇷" },
+    { code: "+61", country: "Australia", flag: "🇦🇺" },
+    { code: "+81", country: "Japan", flag: "🇯🇵" },
+    { code: "+91", country: "India", flag: "🇮🇳" },
+    { code: "+55", country: "Brazil", flag: "🇧🇷" },
+    { code: "+52", country: "Mexico", flag: "🇲🇽" },
+    { code: "+234", country: "Nigeria", flag: "🇳🇬" },
+    { code: "+27", country: "South Africa", flag: "🇿🇦" },
+    { code: "+254", country: "Kenya", flag: "🇰🇪" },
+    { code: "+233", country: "Ghana", flag: "🇬🇭" },
+    { code: "+256", country: "Uganda", flag: "🇺🇬" },
   ];
 
   // Available subtask types
@@ -232,7 +251,7 @@ const TaskCreationForm = () => {
         maxBonusReward,
         aiCriteria,
         contactMethod: contactMethod as ContactMethod,
-        contactInfo,
+        contactInfo: contactMethod === "WHATSAPP" ? `${countryCode}${contactInfo}` : contactInfo,
         expiresAt: expiresAt ? new Date(expiresAt) : undefined,
         restrictionsEnabled,
         ageRestriction,
@@ -400,6 +419,7 @@ const TaskCreationForm = () => {
     setAiCriteria("");
     setContactMethod("EMAIL");
     setContactInfo("");
+    setCountryCode("+1");
     setExpiresAt("");
     setSubtasks([
       {
@@ -1056,19 +1076,46 @@ const TaskCreationForm = () => {
                   <label className="block text-sm font-semibold text-gray-800">
                     Contact Info *
                   </label>
-                  <input
-                    type="text"
-                    value={contactInfo}
-                    onChange={(e) => setContactInfo(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm"
-                    placeholder={
-                      contactMethod === "EMAIL"
-                        ? "your@email.com"
-                        : contactMethod === "WHATSAPP"
-                        ? "+1234567890"
-                        : "email@example.com, +1234567890"
-                    }
-                  />
+                  {contactMethod === "WHATSAPP" ? (
+                    <div className="flex space-x-2">
+                      <div className="w-32 relative">
+                        <select
+                          value={countryCode}
+                          onChange={(e) => setCountryCode(e.target.value)}
+                          className="w-full px-3 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm appearance-none"
+                        >
+                          {countryCodes.map((country) => (
+                            <option key={country.code} value={country.code}>
+                              {country.flag} {country.code}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-2 top-3 w-4 h-4 text-gray-400 pointer-events-none" />
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          type="tel"
+                          value={contactInfo}
+                          onChange={(e) => setContactInfo(e.target.value)}
+                          className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm"
+                          placeholder="1234567890"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <input
+                      type="email"
+                      value={contactInfo}
+                      onChange={(e) => setContactInfo(e.target.value)}
+                      className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm"
+                      placeholder="your@email.com"
+                    />
+                  )}
+                  {contactMethod === "WHATSAPP" && (
+                    <p className="text-xs text-gray-500">
+                      Full number will be: {countryCode}{contactInfo || "1234567890"}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-3">
