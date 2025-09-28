@@ -17,7 +17,7 @@ export async function getAiRating(
     throw Error("gemini api not set.");
   }
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const MODEL_NAME = "gemini-1.5-flash";
+  const MODEL_NAME = "gemini-2.5-flash";
   const model = genAI.getGenerativeModel({
     model: MODEL_NAME,
     systemInstruction: `You are an expert evaluator reviewing user feedback.  
@@ -126,31 +126,34 @@ export async function improveCriteria(criteria: string): Promise<string> {
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const MODEL_NAME = "gemini-1.5-flash";
+  const MODEL_NAME = "gemini-2.5-flash";
   const model = genAI.getGenerativeModel({
     model: MODEL_NAME, // Use the most stable model
-    systemInstruction: `You are an expert at writing AI evaluation criteria for task submissions. Your job is to improve and enhance the provided criteria to make them more specific, comprehensive, and effective for AI rating systems.
+    systemInstruction: `You are an expert at improving AI evaluation criteria. Your job is to make the provided criteria clearer and more specific for rating user responses.
 
-Your improved criteria should:
-- Be more specific and actionable
-- Include clear examples of what constitutes high-quality vs low-quality responses
-- Cover different aspects like relevance, completeness, clarity, and insight
-- Be structured and easy to understand
-- Include specific scoring guidelines
-- Be comprehensive but concise
+REQUIREMENTS:
+- Output will be used by an AI system to rate submissions on a 1-10 scale
+- Must be concise
+- Must be clear and actionable
+- Focus on the core evaluation point only
 
-Return ONLY the improved criteria text, no additional commentary or formatting.`,
+FORMAT:
+- Write a single, clear statement that explains what to look for
+- Include brief scoring guidance (what makes responses good vs poor)
+- Keep it simple and direct
+
+Return ONLY the improved criteria statement, no examples or additional text.`,
   });
 
   // Use chat session like your working getAiRating function
   const chat = model.startChat();
 
-  const prompt = `Please improve and enhance this AI evaluation criteria to make it more effective for rating task submissions:
+  const prompt = `Improve this evaluation criteria to be clear and concise for AI rating. Make it a simple statement that explains what to look for and how to score responses.
 
 ORIGINAL CRITERIA:
 ${criteria}
 
-IMPROVED CRITERIA:`;
+IMPROVED CRITERIA (same number sentences as the original criteria):`;
 
   try {
     const result = await chat.sendMessage(prompt);
