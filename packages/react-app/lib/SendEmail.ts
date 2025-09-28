@@ -4,13 +4,13 @@ import nodemailer from "nodemailer";
 import 'dotenv/config'; 
 
 
-const chamapayEmail = process.env.CHAMAPAY_EMAIL as string;
-const chamapayPass = process.env.CHAMAPAY_PASS as string;
+const earnbaseEmail = process.env.EARNBASE_EMAIL as string;
+const earnbasePass = process.env.EARNBASE_PASS as string;
 
 
-if (!chamapayEmail || !chamapayPass) {
-  console.warn("⚠️ chamapay email and pass not found.");
-  throw new Error("⚠️ chamapay email and pass not found.");
+if (!earnbaseEmail || !earnbasePass) {
+  console.warn("⚠️ earnbase email and pass not found.");
+  throw new Error("⚠️ earnbase email and pass not found.");
 } else {
   console.log("Email and Pass: Loaded successfully");
 }
@@ -20,8 +20,8 @@ if (!chamapayEmail || !chamapayPass) {
 const transporter = nodemailer.createTransport({
   service: "gmail", // Use Gmail as the email service
   auth: {
-    user: chamapayEmail, 
-    pass: chamapayPass, 
+    user: earnbaseEmail, 
+    pass: earnbasePass, 
   },
 });
 
@@ -29,7 +29,7 @@ const transporter = nodemailer.createTransport({
 export async function sendEmail(to: string, subject: string, htmlBody: string, textBody: string) {
     try {
       const mailOptions = {
-        from: chamapayEmail,
+        from: earnbaseEmail,
         to,
         subject,
         text: textBody,
