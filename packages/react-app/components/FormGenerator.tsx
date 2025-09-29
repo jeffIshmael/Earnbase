@@ -255,7 +255,7 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
           console.log('WhatsApp notification sent to creator');
         } catch (whatsappError) {
           console.error('Failed to send WhatsApp notification:', whatsappError);
-          toast.error('Task submitted but failed to notify creator via WhatsApp');
+          // toast.error('Task submitted but failed to notify creator via WhatsApp');
         }
       } else if (task.contactMethod === 'EMAIL' && task.contactInfo) {
         try {

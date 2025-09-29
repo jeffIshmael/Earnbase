@@ -25,101 +25,100 @@ export async function POST(request: NextRequest) {
 
     const params: WhatsAppParams = await request.json();
 
-    // Template message payload - works without 24-hour window
-    const templatePayload = {
-      messaging_product: 'whatsapp',
-      to: params.creatorPhoneNo,
-      type: 'template',
-      template: {
-        name: 'task_response_notification', // Your template name
-        language: {
-          code: 'en'
-        },
-        components: [
-          {
-            type: 'body',
-            parameters: [
-              { 
-                type: 'text', 
-                text: params.taskTitle 
-              },
-              { 
-                type: 'text', 
-                text: params.participant 
-              },
-              { 
-                type: 'text', 
-                text: params.aiRating 
-              },
-              { 
-                type: 'text', 
-                text: params.Reward 
-              },
-              { 
-                type: 'text', 
-                text: params.TaskBalance 
-              },
-              { 
-                type: 'text', 
-                // Truncate response if too long for WhatsApp
-                text: params.response.length > 500 
-                  ? params.response.substring(0, 500) + '...' 
-                  : params.response
-              }
-            ]
-          }
-        ]
+    // Build ordered parameters intended for the body
+    const allParams = [
+      { type: 'text', text: params.taskTitle },
+      { type: 'text', text: params.participant },
+      { type: 'text', text: params.aiRating },
+      { type: 'text', text: params.Reward },
+      { type: 'text', text: params.TaskBalance },
+      { 
+        type: 'text', 
+        text: params.response.length > 500 
+          ? params.response.substring(0, 500) + '...'
+          : params.response
       }
-    };
+    ];
 
-    console.log('Sending WhatsApp template message:', JSON.stringify(templatePayload, null, 2));
+    // Try with decreasing parameter counts to handle template mismatch errors
+    const candidateCounts = [allParams.length, 5, 4, 3, 2];
+    let lastError: any = null;
 
-    const response = await fetch(
-      `https://graph.facebook.com/v22.0/${whatsappPhoneId}/messages`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${whatsappToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(templatePayload),
-      }
-    );
+    for (const count of candidateCounts) {
+      const parameters = allParams.slice(0, count);
 
-    const result = await response.json();
-
-    console.log('WhatsApp API Response Status:', response.status);
-    console.log('WhatsApp API Response:', JSON.stringify(result, null, 2));
-
-    if (!response.ok) {
-      console.error('WhatsApp Template Error:', result);
-      
-      const errorDetails = {
-        status: response.status,
-        error: result.error,
-        message: result.error?.message,
-        code: result.error?.code,
-        suggestion: getTemplateSuggestion(result.error)
+      const templatePayload = {
+        messaging_product: 'whatsapp',
+        to: params.creatorPhoneNo,
+        type: 'template',
+        template: {
+          name: 'task_response_notification',
+          language: { code: 'en' },
+          components: [
+            {
+              type: 'body',
+              parameters
+            }
+          ]
+        }
       };
-      
-      return NextResponse.json(
-        { 
-          error: `WhatsApp template error: ${result.error?.message || 'Unknown error'}`,
-          details: errorDetails
-        },
-        { status: 500 }
+
+      console.log(`Sending WhatsApp template with ${count} params:`, JSON.stringify(templatePayload, null, 2));
+
+      const response = await fetch(
+        `https://graph.facebook.com/v22.0/${whatsappPhoneId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${whatsappToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(templatePayload),
+        }
       );
+
+      const result = await response.json();
+      console.log('WhatsApp API Response Status:', response.status);
+      console.log('WhatsApp API Response:', JSON.stringify(result, null, 2));
+
+      if (response.ok) {
+        console.log('WhatsApp template message sent successfully:', result);
+        return NextResponse.json({ 
+          success: true, 
+          data: result,
+          messageId: result.messages?.[0]?.id,
+          recipientId: result.contacts?.[0]?.wa_id,
+          templateUsed: 'task_response_notification',
+          parametersUsed: count
+        });
+      }
+
+      // If parameter mismatch/template errors, keep trying with fewer params
+      const errorCode = result?.error?.code;
+      const isParamMismatch = errorCode === 131049 || errorCode === 132018 || errorCode === 100;
+      lastError = { responseStatus: response.status, result };
+      if (!isParamMismatch) {
+        break;
+      }
     }
 
-    console.log('WhatsApp template message sent successfully:', result);
-    
-    return NextResponse.json({ 
-      success: true, 
-      data: result,
-      messageId: result.messages?.[0]?.id,
-      recipientId: result.contacts?.[0]?.wa_id,
-      templateUsed: 'task_response_notification'
-    });
+    // If we reach here, all attempts failed
+    console.error('WhatsApp Template Error (all attempts failed):', lastError);
+    const error = lastError?.result?.error;
+    const errorDetails = {
+      status: lastError?.responseStatus,
+      error,
+      message: error?.message,
+      code: error?.code,
+      suggestion: getTemplateSuggestion(error)
+    };
+    return NextResponse.json(
+      { 
+        error: `WhatsApp template error: ${error?.message || 'Unknown error'}`,
+        details: errorDetails
+      },
+      { status: 500 }
+    );
     
   } catch (error) {
     console.error('Error sending WhatsApp template message:', error);

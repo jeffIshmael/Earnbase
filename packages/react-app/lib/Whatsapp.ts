@@ -45,6 +45,8 @@ export function getTemplateSuggestion(error: any): string {
     if (!error) return 'Unknown error occurred';
     
     switch (error.code) {
+      case 132018:
+        return 'Template parameter issue. Ensure the number and order of parameters match the approved template, and values meet variable type/length rules.';
       case 131026:
         return 'Template "task_response_notification" does not exist or is not approved. Create it in Meta Business Manager.';
       case 131047:
