@@ -241,7 +241,7 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
         participant: address?.slice(0, 6) + '...' + address?.slice(-4) || 'Unknown',
         response: textFeedback,
         aiRating: (rating?.rating || 1).toString(),
-        Reward: totalReward.toFixed(3),
+        Reward: totalReward.toFixed(3).toString(),
         TaskBalance: taskBalance
       };
 
