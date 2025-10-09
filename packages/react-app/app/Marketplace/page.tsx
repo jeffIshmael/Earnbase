@@ -18,13 +18,6 @@ const Marketplace = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'reward' | 'participants'>('newest');
-  
-  // Demo user profile - in real app this would come from user authentication
-  const [demoUser] = useState({
-    age: 22,
-    gender: 'f',
-    country: 'US'
-  });
 
   useEffect(() => {
     const fetchTasks = async () => {
