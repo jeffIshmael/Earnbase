@@ -25,6 +25,7 @@ import { injected } from 'wagmi/connectors';
 import { celo } from 'wagmi/chains';
 import { getUser, getUserSubmissions, registerUser } from '@/lib/Prismafnctns';
 import { toast } from 'sonner';
+import Image from 'next/image';
 import {updateEarnings} from '@/lib/Prismafnctns';
 
 
@@ -233,12 +234,18 @@ const MobileEarnBaseHome = () => {
         {/* Simple Header */}
         <div className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-20">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center">
-                <Coins className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-2">
+              <div>
+               <Image src="/logo.png" alt="EarnBase" width={40} height={40} className="object-contain rounded-full" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">EarnBase</h1>
+                <h1 className="text-5xl font-bold text-gray-900 tracking-tight text-center" style={{
+                  fontFamily: "'Licorice', cursive",
+                  fontSize: '2.5rem',
+                  fontWeight: '400',
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+                  letterSpacing: '0.02em'
+                }}>EarnBase</h1>
               </div>
             </div>
         
@@ -247,23 +254,14 @@ const MobileEarnBaseHome = () => {
         </div>
         {/* Welcome Section */}
         {isConnected && (
-          <div className="mx-4 mt-4 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-6 text-white">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-bold mb-1">Welcome Back!</h2>
-                <p className="text-indigo-200 text-sm">Ready to earn some rewards?</p>
-              </div>
-            </div>
-        
-            <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-              <div className="text-center">
-                <p className="text-indigo-200 text-xs mb-1">Total Earned</p>
-                {statsLoading ? (
-                  <div className="h-8 bg-white/20 rounded animate-pulse"></div>
-                ) : (
-                  <p className="text-2xl font-bold">{userStats.totalEarned}</p>
-                )}
-              </div>
+          <div className="mx-4 mt-4 bg-indigo-50 rounded-xl p-4 border border-indigo-200 shadow-sm">
+            <div className="text-center">
+              <p className="text-gray-600 text-sm mb-2 font-medium">Your total earnbase earnings</p>
+              {statsLoading ? (
+                <div className="h-8 bg-indigo-100 rounded animate-pulse"></div>
+              ) : (
+                <p className="text-3xl font-bold text-gray-700">{userStats.totalEarned}</p>
+              )}
             </div>
           </div>
         )}
@@ -291,10 +289,10 @@ const MobileEarnBaseHome = () => {
         {/* Tasks Section */}
         <div className="px-4 mt-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-900">Available Tasks</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Available Tasks</h3>
             <button 
               onClick={() => router.push('/Marketplace')}
-              className="text-indigo-600 text-sm font-medium flex items-center gap-1 hover:text-indigo-700 transition-colors"
+              className="text-indigo-500 text-sm font-medium flex items-center gap-1 hover:text-indigo-700 transition-colors"
             >
               View All
               <ArrowRight className="w-4 h-4" />
