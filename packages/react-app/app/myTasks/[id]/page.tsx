@@ -197,10 +197,137 @@ const MyTaskDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-300 rounded-full mx-auto mb-4 animate-spin"></div>
-          <div className="text-indigo-700 text-lg font-medium">Loading task...</div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+        {/* Animated background */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-200/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-1/3 left-1/2 w-60 h-60 bg-pink-200/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        </div>
+
+        {/* Header Skeleton */}
+        <div className="bg-white/90 backdrop-blur-xl border-b border-indigo-100 sticky top-0 z-50 shadow-lg">
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-9 h-9 bg-gray-200 rounded-xl animate-pulse"></div>
+                <div className="space-y-2">
+                  <div className="h-5 w-48 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative px-4 py-6 pb-24 space-y-6">
+          {/* Action Buttons Skeleton */}
+          <div className="flex flex-wrap gap-3">
+            <div className="h-12 w-32 bg-gray-200 rounded-xl animate-pulse"></div>
+            <div className="h-12 w-36 bg-gray-200 rounded-xl animate-pulse"></div>
+          </div>
+
+          {/* Tab Navigation Skeleton */}
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-1 border border-indigo-100 shadow-lg">
+            <div className="flex">
+              <div className="flex-1 h-12 bg-gray-200 rounded-xl animate-pulse mx-1"></div>
+              <div className="flex-1 h-12 bg-gray-200 rounded-xl animate-pulse mx-1"></div>
+            </div>
+          </div>
+
+          {/* Hero Card Skeleton */}
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-indigo-100 shadow-xl">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center space-x-3 flex-1 min-w-0">
+                <div className="w-12 h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reward and Status Skeleton */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="h-8 w-32 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+
+            <div className="space-y-2 mb-6">
+              <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 w-5/6 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-4 w-4/5 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Quick Stats Skeleton */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="h-6 w-20 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Budget Cards Skeleton */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg text-center">
+              <div className="w-8 h-8 bg-gray-200 rounded mx-auto mb-3 animate-pulse"></div>
+              <div className="h-4 w-20 bg-gray-200 rounded mx-auto mb-1 animate-pulse"></div>
+              <div className="h-6 w-24 bg-gray-200 rounded mx-auto animate-pulse"></div>
+            </div>
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg text-center">
+              <div className="w-8 h-8 bg-gray-200 rounded mx-auto mb-3 animate-pulse"></div>
+              <div className="h-4 w-24 bg-gray-200 rounded mx-auto mb-1 animate-pulse"></div>
+              <div className="h-6 w-20 bg-gray-200 rounded mx-auto animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Timeline Skeleton */}
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-5 border border-indigo-100 shadow-lg">
+            <div className="flex items-center mb-4">
+              <div className="w-5 h-5 bg-gray-200 rounded mr-2 animate-pulse"></div>
+              <div className="h-6 w-20 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Delete Button Skeleton */}
+          <div className="flex justify-end">
+            <div className="h-12 w-32 bg-gray-200 rounded-xl animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Loading indicator */}
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl px-6 py-3 shadow-lg border border-indigo-100">
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <div className="w-6 h-6 border-2 border-indigo-300 rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin absolute top-1 left-1"></div>
+              </div>
+              <div className="text-indigo-700 text-sm font-medium">Loading task details...</div>
+            </div>
+          </div>
         </div>
       </div>
     );

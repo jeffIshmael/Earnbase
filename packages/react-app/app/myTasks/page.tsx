@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {  DollarSign, Users, Eye, Edit, Target } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
-import { getAllTasks } from '@/lib/Prismafnctns';
+import { getAllTasks, getCreatorTasks } from '@/lib/Prismafnctns';
 import { getTask } from '@/lib/ReadFunctions';
+import { useAccount } from 'wagmi';
 
 type MyTask = Awaited<ReturnType<typeof getAllTasks>>[0] & { 
   responses: number;
@@ -21,14 +22,19 @@ const MyTasksPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'PAUSED' | 'COMPLETED'>('ALL');
   const [sortBy, setSortBy] = useState<'created' | 'participants' | 'budget'>('created');
+  const { address, isConnected } = useAccount();
 
   useEffect(() => {
+    if (!isConnected) {
+      setLoading(false);
+      return;
+    }
     const loadMyTasks = async () => {
       try {
         setLoading(true);
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        const allTasks = await getAllTasks();
+        const allTasks = await getCreatorTasks(address as string);
         const myTasks: MyTask[] = await Promise.all(
           allTasks.map(async (task) => {
             try {
@@ -65,7 +71,7 @@ const MyTasksPage = () => {
     };
 
     loadMyTasks();
-  }, []);
+  }, [address]);
 
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -124,19 +130,92 @@ const MyTasksPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-300 rounded-full mx-auto mb-4 animate-spin"></div>
-          <div className="text-indigo-700 text-lg font-medium">Loading your tasks...</div>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">My Tasks</h1>
+                <p className="text-gray-600 text-sm">Manage your created tasks</p>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Loading Content */}
+        <div className="px-4 py-6 pb-24">
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm animate-pulse">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="h-5 bg-gray-200 rounded mb-2 w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  </div>
+                  <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-2">
+                    <div className="h-4 bg-gray-200 rounded mb-1 w-12 mx-auto"></div>
+                    <div className="h-5 bg-gray-200 rounded w-16 mx-auto"></div>
+                  </div>
+                  <div className="text-center p-2">
+                    <div className="h-4 bg-gray-200 rounded mb-1 w-16 mx-auto"></div>
+                    <div className="h-5 bg-gray-200 rounded w-8 mx-auto"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <BottomNavigation />
+      </div>
+    );
+  }
+
+  if (!isConnected) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">My Tasks</h1>
+                <p className="text-gray-600 text-sm">Manage your created tasks</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Not Connected State */}
+        <div className="px-4 py-12 pb-24">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Target className="w-10 h-10 text-indigo-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Connect Your Wallet</h3>
+            <p className="text-gray-600 mb-6 max-w-sm mx-auto">
+              Connect your wallet to view and manage your created tasks
+            </p>
+            <button
+              onClick={() => window.location.href = '/Start'}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium"
+            >
+              Go to Home
+            </button>
+          </div>
+        </div>
+        <BottomNavigation />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white/90 backdrop-blur-xl border-b border-indigo-100 sticky top-0 z-50 shadow-lg">
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
