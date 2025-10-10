@@ -17,7 +17,7 @@ import { makePaymentToUser } from '@/lib/WriteFunctions';
 import { useAccount } from 'wagmi';
 import { toast } from 'sonner';
 import Confetti from 'react-confetti';
-import { createTaskSubmissionWithResponses } from '@/lib/Prismafnctns';
+import { createTaskSubmissionWithResponses, updateEarnings } from '@/lib/Prismafnctns';
 import { sendWhatsappResponse } from '@/lib/Whatsapp';
 import { sendEmailResponse } from '@/lib/Email';
 
@@ -201,6 +201,9 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
         setIsSubmitting(false);
         return;
       }
+
+      // Update earnings
+      await updateEarnings(address as string, BigInt(totalReward * Math.pow(10, 18)));
 
       // Update payment details with transaction hash
       const updatedPaymentDetails = {

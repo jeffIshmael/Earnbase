@@ -25,6 +25,7 @@ import { injected } from 'wagmi/connectors';
 import { celo } from 'wagmi/chains';
 import { getUser, getUserSubmissions, registerUser } from '@/lib/Prismafnctns';
 import { toast } from 'sonner';
+import {updateEarnings} from '@/lib/Prismafnctns';
 
 
 interface User {
