@@ -218,18 +218,18 @@ export default function WalletPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg text-center">
-          <Wallet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Connect Wallet</h1>
-          <p className="text-gray-600 mb-6">
+      <div className="min-h-screen bg-celo-lt-tan flex items-center justify-center p-4">
+        <div className="bg-white border-4 border-black p-8 max-w-md w-full text-center">
+          <Wallet className="w-16 h-16 text-celo-body mx-auto mb-4" />
+          <h1 className="text-h3 font-gt-alpina font-thin text-black mb-2">CONNECT WALLET</h1>
+          <p className="text-body-m text-celo-body mb-6 font-inter">
             Please connect your wallet to view your wallet information.
           </p>
           <button
             onClick={handleConnect}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-medium hover:from-indigo-700 hover:to-purple-700 transition shadow-lg"
+            className="bg-celo-purple text-white px-8 py-3 border-4 border-black font-inter font-heavy hover:bg-black hover:text-celo-purple transition-all duration-200"
           >
-            Connect Wallet
+            CONNECT WALLET
           </button>
         </div>
       </div>
@@ -237,43 +237,41 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-gray-50 pb-24">
-     
-
+    <div className="min-h-screen bg-celo-lt-tan pb-24">
       <div className="p-4 space-y-6">
         {/* Wallet Status */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm"
+          className="bg-white border-4 border-black p-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Wallet Status</h2>
+            <h2 className="text-h4 font-gt-alpina font-thin text-black">WALLET STATUS</h2>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-green-600 font-medium">Connected</span>
+              <div className="w-2 h-2 bg-celo-success"></div>
+              <span className="text-body-s text-celo-success font-inter font-heavy">CONNECTED</span>
             </div>
           </div>
 
           {/* Wallet Address */}
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <div className="bg-celo-dk-tan border-4 border-black p-4">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-600 mb-1">Wallet Address</p>
-                <p className="text-sm font-mono text-gray-900 truncate">
+                <p className="text-body-s text-celo-body mb-1 font-inter font-heavy">WALLET ADDRESS</p>
+                <p className="text-body-s font-mono text-black truncate font-inter">
                   {address}
                 </p>
               </div>
               <div className="flex items-center space-x-2 ml-3">
                 <button
                   onClick={() => copyToClipboard(address!)}
-                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                  className="p-2 text-celo-body hover:text-black hover:bg-celo-yellow border-2 border-black transition-all duration-200"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => openCeloScan(address!)}
-                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                  className="p-2 text-celo-body hover:text-black hover:bg-celo-yellow border-2 border-black transition-all duration-200"
                 >
                   <ExternalLink className="w-4 h-4" />
                 </button>
@@ -283,17 +281,17 @@ export default function WalletPage() {
 
           {/* Smart Account */}
           {smartAccount && (
-            <div className="mt-4 bg-indigo-50 rounded-xl p-4 border border-indigo-200">
+            <div className="mt-4 bg-celo-purple border-4 border-black p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-indigo-600 mb-1">Smart Account</p>
-                  <p className="text-sm font-mono text-indigo-900 truncate">
+                  <p className="text-body-s text-white mb-1 font-inter font-heavy">SMART ACCOUNT</p>
+                  <p className="text-body-s font-mono text-white truncate font-inter">
                     {smartAccount.address}
                   </p>
                 </div>
                 <button
                   onClick={() => copyToClipboard(smartAccount.address)}
-                  className="p-2 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition ml-3"
+                  className="p-2 text-white hover:text-celo-purple hover:bg-white border-2 border-white transition-all duration-200 ml-3"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
@@ -307,13 +305,13 @@ export default function WalletPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm"
+          className="bg-white border-4 border-black p-6"
         >
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Token Balances</h2>
+          <h2 className="text-h4 font-gt-alpina font-thin text-black mb-4">TOKEN BALANCES</h2>
           
           <div className="grid grid-cols-2 gap-4">
             {/* cUSD Card */}
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl p-4 text-white shadow-lg">
+            <div className="bg-celo-yellow border-4 border-black p-4 text-black">
               <div className="flex items-center space-x-2 mb-2">
                 <div className="relative w-8 h-8">
                   <Image
@@ -321,21 +319,21 @@ export default function WalletPage() {
                     alt="CUSD"
                     width={32}
                     height={32}
-                    className="object-cover bg-white rounded-full p-0.5"
+                    className="object-cover bg-white border-2 border-black"
                   />
                   <div className="absolute bottom-0 right-0 w-4 h-4">
                     <CeloLogo />
                   </div>
                 </div>
-                <p className="text-sm font-medium">cUSD Balance</p>
+                <p className="text-body-s font-inter font-heavy">CUSD BALANCE</p>
               </div>
-              <p className="text-2xl font-bold">
+              <p className="text-h3 font-gt-alpina font-thin">
                 {isLoading ? '...' : cUSDBalance || '0.000'}
               </p>
             </div>
 
             {/* USDC Card */}
-            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-4 text-white shadow-lg">
+            <div className="bg-celo-purple border-4 border-black p-4 text-white">
               <div className="flex items-center space-x-2 mb-2">
                 <div className="relative w-8 h-8">
                   <Image
@@ -343,15 +341,15 @@ export default function WalletPage() {
                     alt="USDC"
                     width={32}
                     height={32}
-                    className="object-cover rounded-full bg-white"
+                    className="object-cover border-2 border-white bg-white"
                   />
                   <div className="absolute bottom-0 right-0 w-4 h-4">
                     <CeloLogo />
                   </div>
                 </div>
-                <p className="text-sm font-medium">USDC Balance</p>
+                <p className="text-body-s font-inter font-heavy">USDC BALANCE</p>
               </div>
-              <p className="text-2xl font-bold">
+              <p className="text-h3 font-gt-alpina font-thin">
                 {isLoading ? '...' : usdcBalance || '0.000'}
               </p>
             </div>
@@ -361,10 +359,10 @@ export default function WalletPage() {
           <div className="flex justify-center mt-6">
             <button
               onClick={() => setShowTransferModal(true)}
-              className="bg-indigo-100 border border-indigo-600 text-indigo-700 hover:bg-indigo-600 hover:text-white font-medium py-3 px-8 rounded-xl shadow-sm transition-all flex items-center space-x-2"
+              className="bg-celo-forest text-white border-4 border-black font-inter font-heavy py-3 px-8 hover:bg-black hover:text-celo-forest transition-all duration-200 flex items-center space-x-2"
             >
               <ArrowUpRight className="w-4 h-4" />
-              <span>Send Tokens</span>
+              <span>SEND TOKENS</span>
             </button>
           </div>
         </motion.div>
@@ -374,19 +372,19 @@ export default function WalletPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm"
+      className="bg-white border-4 border-black p-6"
     >
         {/* Swap Section */}
     <div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Swap Tokens</h3>
+      <h3 className="text-h4 font-gt-alpina font-thin text-black mb-4">SWAP TOKENS</h3>
 
      
 
       <div className="space-y-6 relative z-0">
         {/* From */}
         <div className="relative z-0">
-          <label className="text-sm text-gray-600 mb-2 block">From</label>
-          <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100">
+          <label className="text-body-s text-celo-body mb-2 block font-inter font-heavy">FROM</label>
+          <div className="bg-celo-dk-tan border-4 border-black p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Image
@@ -394,7 +392,7 @@ export default function WalletPage() {
                   alt={currencyFrom || "Token"}
                   width={28}
                   height={28}
-                  className="rounded-full"
+                  className="border-2 border-black"
                 />
                 <select
                   value={currencyFrom || ""}
@@ -402,10 +400,10 @@ export default function WalletPage() {
                     setAmountFrom("");
                     setAmountTo("");
                     setCurrencyFrom(e.target.value as "cUSD" | "USDC" | "CELO");}}
-                  className="bg-white border border-gray-200 text-sm font-medium text-gray-800 rounded-md px-2 py-1 shadow-sm focus:outline-none"
+                  className="bg-white border-4 border-black text-body-s font-inter font-heavy text-black px-2 py-1 focus:outline-none focus:border-celo-yellow"
                 >
-                  <option value="">Select</option>
-                  <option value="cUSD">cUSD</option>
+                  <option value="">SELECT</option>
+                  <option value="cUSD">CUSD</option>
                   <option value="USDC">USDC</option>
                   <option value="CELO">CELO</option>
                 </select>
@@ -421,12 +419,12 @@ export default function WalletPage() {
                     await getQuoteWithAmount(value, currencyFrom === "cUSD", currencyFrom === "CELO");
                   }
                 }}            
-                className="bg-transparent text-right text-lg font-semibold text-gray-900 placeholder-gray-400 outline-none w-1/2"
+                className="bg-transparent text-right text-body-l font-inter font-heavy text-black placeholder-celo-body outline-none w-1/2"
               />
             </div>
             <div className="mt-2 text-right">
-              <span className="text-sm text-gray-400">
-                Balance: {currencyFrom === "cUSD" ? `${cUSDBalance} cUSD` : currencyFrom === "USDC" ? `${usdcBalance} USDC` : `${celoBalance} CELO`}
+              <span className="text-body-s text-celo-body font-inter">
+                BALANCE: {currencyFrom === "cUSD" ? `${cUSDBalance} cUSD` : currencyFrom === "USDC" ? `${usdcBalance} USDC` : `${celoBalance} CELO`}
               </span>
             </div>
           </div>
@@ -442,16 +440,16 @@ export default function WalletPage() {
               await getQuoteWithAmount(amountFrom, newCurrencyFrom === "cUSD", newCurrencyFrom === "CELO");
             }
           }}
-          className="bg-indigo-100 rounded-full p-2 border border-indigo-200 shadow-md hover:bg-indigo-200 transition-colors"
+          className="bg-celo-yellow border-4 border-black p-2 hover:bg-black hover:text-celo-yellow transition-all duration-200"
         >
-          <ArrowUpDown className="w-5 h-5 text-indigo-600" />
+          <ArrowUpDown className="w-5 h-5 text-black" />
         </button>
       </div>
     
         {/* To */}
     <div>
-      <label className="text-sm text-gray-600 mb-2 block">To</label>
-      <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100">
+      <label className="text-body-s text-celo-body mb-2 block font-inter font-heavy">TO</label>
+      <div className="bg-celo-dk-tan border-4 border-black p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Image
@@ -459,15 +457,15 @@ export default function WalletPage() {
               alt={currencyFrom === "cUSD" ? "USDC" : currencyFrom === "USDC" ? "cUSD" : currencyFrom === "CELO" ? "cUSD" : "cUSD"}
               width={28}
               height={28}
-              className="rounded-full"
+              className="border-2 border-black"
             />
-            <span className="font-medium text-gray-500">
+            <span className="font-inter font-heavy text-celo-body">
               {currencyFrom === "cUSD" ? "USDC" : currencyFrom === "USDC" ? "cUSD" : currencyFrom === "CELO" ? "cUSD" : null}
             </span>
           </div>
           {isFetchingQuote ? (
             <div className="flex items-center justify-end w-1/2">
-              <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-4 border-black border-t-transparent animate-spin"></div>
             </div>
           ) : (
             <input
@@ -475,13 +473,13 @@ export default function WalletPage() {
               placeholder="0.0"
               value={amountTo}
               readOnly
-              className="bg-transparent text-right text-lg font-semibold text-gray-500 placeholder-gray-400 outline-none w-1/2"
+              className="bg-transparent text-right text-body-l font-inter font-heavy text-celo-body placeholder-celo-body outline-none w-1/2"
             />
           )}
         </div>
         <div className="mt-2 text-right">
-          <span className="text-sm text-gray-400">
-            Balance: {currencyFrom === "cUSD" ? `${usdcBalance} USDC` : currencyFrom === "USDC" ? `${cUSDBalance} cUSD` : currencyFrom === "CELO" ? `${cUSDBalance} cUSD` : `--`}
+          <span className="text-body-s text-celo-body font-inter">
+            BALANCE: {currencyFrom === "cUSD" ? `${usdcBalance} USDC` : currencyFrom === "USDC" ? `${cUSDBalance} cUSD` : currencyFrom === "CELO" ? `${cUSDBalance} cUSD` : `--`}
           </span>
         </div>
       </div>
@@ -491,11 +489,11 @@ export default function WalletPage() {
     <div className="text-center pt-2">
       {isFetchingQuote ? (
         <div className="flex items-center justify-center space-x-2">
-          <div className="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm text-gray-400">Fetching rate...</p>
+          <div className="w-3 h-3 border-4 border-black border-t-transparent animate-spin"></div>
+          <p className="text-body-s text-celo-body font-inter">FETCHING RATE...</p>
         </div>
       ) : (
-        <p className="text-sm text-gray-400">
+        <p className="text-body-s text-celo-body font-inter">
           {exchangeRate}
         </p>
       )}
@@ -506,23 +504,23 @@ export default function WalletPage() {
             onClick={(e) => handleSwap(currencyFrom === "cUSD", currencyFrom === "CELO",e)}
             disabled={!isConnected || isNaN(Number(amountFrom)) || Number(amountFrom) <= 0 || !amountFrom || !currencyFrom || isSwapping || isFetchingQuote || isApproving}
             className={cn(
-              "w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-4 rounded-xl transition-all duration-200 shadow-lg",
+              "w-full bg-celo-yellow text-black border-4 border-black font-inter font-heavy py-4 transition-all duration-200",
               (isNaN(Number(amountFrom)) || Number(amountFrom) <= 0|| !amountFrom || !currencyFrom || isFetchingQuote) && "opacity-50 cursor-not-allowed",
               isApproving||isSwapping && "opacity-70 cursor-not-allowed"
             )}
           >
           {isApproving ? (
             <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Approving Tx...</span>
+              <div className="w-4 h-4 border-4 border-black border-t-transparent animate-spin"></div>
+              <span>APPROVING TX...</span>
             </div>
           ) :isSwapping ? (
             <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Swapping...</span>
+              <div className="w-4 h-4 border-4 border-black border-t-transparent animate-spin"></div>
+              <span>SWAPPING...</span>
             </div>
           ) : (
-            "Swap"
+            "SWAP"
           )}
         </button>
       </div>

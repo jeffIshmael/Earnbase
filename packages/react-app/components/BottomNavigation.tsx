@@ -17,38 +17,38 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     key: 'home',
-    label: 'Home',
+    label: 'HOME',
     icon: Home,
     path: '/Start',
-    color: 'from-indigo-500 to-purple-600'
+    color: 'bg-celo-yellow'
   },
   {
     key: 'mytasks',
-    label: 'My Tasks',
+    label: 'MY TASKS',
     icon: ClipboardList,
     path: '/myTasks',
-    color: 'from-indigo-500 to-purple-600'
+    color: 'bg-celo-purple'
   },
   {
     key: 'create',
-    label: 'Create',
+    label: 'CREATE',
     icon: Plus,
     path: '/CreateTask',
-    color: 'from-indigo-500 to-purple-600'
+    color: 'bg-celo-forest'
   },
   {
     key: 'history',
-    label: 'History',
+    label: 'HISTORY',
     icon: Clock,
     path: '/History',
-    color: 'from-indigo-500 to-purple-600'
+    color: 'bg-celo-orange'
   },
   {
     key: 'wallet',
-    label: 'Wallet',
+    label: 'WALLET',
     icon: Wallet,
     path: '/Wallet',
-    color: 'bg-indigo-400'
+    color: 'bg-celo-blue'
   }
 ];
 
@@ -77,12 +77,9 @@ export default function BottomNavigation() {
 
   return (
     <div className="fixed bottom-0 max-w-sm mx-auto left-0 right-0 z-50 pb-safe">
-      {/* Background blur effect */}
-      <div className="absolute  inset-0 bg-white/80 backdrop-blur-xl border-t border-white/20" />
-      
       {/* Navigation container */}
       <div className="relative">
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl shadow-black/10">
+        <div className="bg-white border-t-4 border-black">
           <div className="flex items-center justify-around relative">
             {navItems.map((item, index) => {
               const isActive = isMounted && activeTab === item.key;
@@ -92,22 +89,23 @@ export default function BottomNavigation() {
                   <motion.button
                     onClick={() => handleNavigation(item)}
                     className={cn(
-                      'relative flex flex-col items-center px-3 py-3 rounded-xl transition-all duration-300 group',
-                      isActive ? 'text-white' : 'text-gray-500 hover:text-gray-700',
+                      'relative flex flex-col items-center px-2 py-3 transition-all duration-200 group',
+                      isActive ? 'text-black' : 'text-celo-body',
                       // Special styling for create button
                       item.key === 'create' ? 'transform -translate-y-2' : ''
                     )}
                   >
-                    {/* Active background - hidden for create button since it has permanent background */}
+                    {/* Active background */}
                     <AnimatePresence>
-                      {isActive && item.key !== 'create' && (
+                      {isActive && (
                         <motion.div
                           initial={{ scale: 0, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0, opacity: 0 }}
                           transition={{ type: "spring", stiffness: 300, damping: 20 }}
                           className={cn(
-                            'absolute inset-0 bg-indigo-400 rounded-xl shadow-lg'
+                            'absolute inset-0 border-2 border-black',
+                            item.key === 'create' ? 'bg-celo-forest' : 'bg-celo-yellow'
                           )}
                         />
                       )}
@@ -115,67 +113,56 @@ export default function BottomNavigation() {
 
                     {/* Icon container */}
                     <div className={cn(
-                      'relative z-10 transition-all duration-300',
+                      'relative z-10 transition-all duration-200',
                       // Special permanent styling for create button
                       item.key === 'create' 
-                        ? 'p-3 rounded-full bg-indigo-400  text-white' 
+                        ? 'p-3 border-2 border-black bg-celo-forest text-white' 
                         : cn(
-                            'p-2 rounded-lg',
+                            'p-2',
                             isActive 
-                              ? 'text-white' 
-                              : 'group-hover:bg-gray-100 group-hover:text-gray-700'
+                              ? 'text-black' 
+                              : 'group-hover:bg-celo-dk-tan group-hover:text-black'
                           )
                     )}>
                       <item.icon className={cn(
-                        'transition-all duration-300',
+                        'transition-all duration-200',
                         // Special icon size for create button
                         item.key === 'create' ? 'w-6 h-6' : 'w-5 h-5',
                         isActive ? 'scale-110' : 'scale-100'
                       )} />
-                      
-                      {/* Sparkle effect for active items */}
-                      {isActive && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.1 }}
-                          className="absolute -top-1 -right-1"
-                        >
-                        </motion.div>
-                      )}
                     </div>
 
                     {/* Label */}
                     <motion.span
                       className={cn(
-                        'text-xs font-medium mt-1 transition-all duration-300 relative z-10',
+                        'text-eyebrow font-inter font-heavy mt-1 transition-all duration-200 relative z-10',
                         // Special label styling for create button
                         item.key === 'create'
-                          ? (isActive ? 'text-indigo-400' : 'text-gray-500')
-                          : (isActive ? 'text-white' : 'text-gray-500 group-hover:text-gray-700')
+                          ? (isActive ? 'text-celo-forest' : 'text-celo-body')
+                          : (isActive ? 'text-black' : 'text-celo-body group-hover:text-black')
                       )}
                       animate={{
-                        scale: isActive ? 1.1 : 1,
-                        fontWeight: isActive ? 600 : 500
+                        scale: isActive ? 1.05 : 1,
+                        fontWeight: isActive ? 750 : 400
                       }}
                     >
                       {item.label}
                     </motion.span>
 
-                    {/* Active indicator - hidden for create button */}
-                    {isActive && item.key !== 'create' && (
+                    {/* Active indicator */}
+                    {isActive && (
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
-                        className="absolute -bottom-1 w-6 h-1.5 bg-white rounded-full shadow-lg"
+                        transition={{ delay: 0.1, type: "spring", stiffness: 300 }}
+                        className="absolute -bottom-1 w-8 h-1 bg-black"
                       />
                     )}
                   </motion.button>
 
                   {/* Divider between items */}
                   {index < navItems.length - 1 && (
-                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-px h-8 bg-gradient-to-b from-transparent via-gray-200 to-transparent" />
+                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-px h-8 bg-black" />
                   )}
                 </div>
               );

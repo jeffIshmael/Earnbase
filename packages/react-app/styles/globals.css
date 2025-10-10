@@ -1,66 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@250;400;500;600;700;750&display=swap');
+@import url('https://fonts.cdnfonts.com/css/gt-alpina');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Celo Brand Colors */
+    --celo-yellow: #FCFF52;
+    --celo-forest: #4E632A;
+    --celo-purple: #1A0329;
+    --celo-lt-tan: #FBF6F1;
+    --celo-dk-tan: #E6E3D5;
+    --celo-brown: #635949;
+    --celo-pink: #F2A9E7;
+    --celo-orange: #F29E5F;
+    --celo-lime: #B2EBA1;
+    --celo-blue: #8AC0F9;
+    --celo-success: #329F3B;
+    --celo-error: #E70532;
+    --celo-inactive: #9B9B9B;
+    --celo-body: #666666;
+    
+    /* Legacy CSS Variables for compatibility */
+    --background: 251 96% 95%;
+    --foreground: 0 0% 0%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem
+    --popover-foreground: 0 0% 0%;
+    --primary: 60 100% 70%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 26 20% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 45 20% 85%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 300 80% 80%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 90% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 80%;
+    --input: 0 0% 100%;
+    --ring: 60 100% 70%;
+    --chart-1: 60 100% 70%;
+    --chart-2: 26 20% 20%;
+    --chart-3: 26 20% 20%;
+    --chart-4: 300 80% 80%;
+    --chart-5: 25 80% 60%;
+    --radius: 0px;
   }
+  
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
+    --background: 26 20% 20%;
+    --foreground: 0 0% 100%;
+    --card: 26 20% 20%;
+    --card-foreground: 0 0% 100%;
+    --popover: 26 20% 20%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 26 20% 20%;
+    --secondary: 26 20% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 26 20% 20%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 300 80% 80%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 90% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 26 20% 20%;
+    --ring: 60 100% 70%;
+    --chart-1: 60 100% 70%;
+    --chart-2: 26 20% 20%;
+    --chart-3: 26 20% 20%;
+    --chart-4: 300 80% 80%;
+    --chart-5: 25 80% 60%;
   }
 }
+
 @layer base {
   * {
     @apply border-border;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-celo-lt-tan text-black font-inter;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-gt-alpina font-thin;
+  }
+  
+  /* Celo-specific utility classes */
+  .celo-headline {
+    @apply font-gt-alpina font-thin text-black;
+  }
+  
+  .celo-body {
+    @apply font-inter text-celo-body;
+  }
+  
+  .celo-button-primary {
+    @apply bg-celo-yellow text-black border-4 border-black hover:bg-black hover:text-celo-yellow transition-all duration-200 font-inter font-heavy;
+  }
+  
+  .celo-button-secondary {
+    @apply bg-celo-purple text-white border-4 border-black hover:bg-black hover:text-celo-purple transition-all duration-200 font-inter font-heavy;
+  }
+  
+  .celo-card {
+    @apply bg-white border-4 border-black;
+  }
+  
+  .celo-input {
+    @apply border-4 border-black focus:ring-0 focus:border-celo-yellow bg-white text-black font-inter;
   }
 }

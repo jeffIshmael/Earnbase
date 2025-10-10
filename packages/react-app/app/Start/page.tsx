@@ -203,49 +203,43 @@ const MobileEarnBaseHome = () => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
-        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+        return 'bg-celo-success text-white border-2 border-black';
       case 'Medium':
-        return 'bg-amber-50 text-amber-700 border border-amber-200';
+        return 'bg-celo-orange text-black border-2 border-black';
       case 'Hard':
-        return 'bg-rose-50 text-rose-700 border border-rose-200';
+        return 'bg-celo-error text-white border-2 border-black';
       default:
-        return 'bg-gray-50 text-gray-700 border border-gray-200';
+        return 'bg-celo-inactive text-white border-2 border-black';
     }
   };
 
   const ConnectButton = () => (
     <div className="relative">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-0.5 h-6 bg-indigo-300" />
-      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white border border-indigo-300 rounded-full" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-0.5 h-6 bg-black" />
+      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-celo-yellow border-2 border-black" />
       
       <button
         onClick={handleConnect}
-        className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg flex items-center gap-2 hover:shadow-xl transition-all duration-200"
+        className="bg-celo-yellow hover:bg-black hover:text-celo-yellow text-black border-4 border-black font-inter font-heavy py-3 px-6 transition-all duration-200 flex items-center gap-2"
       >
         <Wallet className="w-4 h-4" />
-        <span>Connect Wallet</span>
+        <span>CONNECT WALLET</span>
       </button>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-celo-lt-tan">
       <div className="mb-24">
         {/* Simple Header */}
-        <div className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-20">
+        <div className="bg-celo-yellow border-b-4 border-black px-6 py-6 sticky top-0 z-20">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <div>
-               <Image src="/logo.png" alt="EarnBase" width={40} height={40} className="object-contain rounded-full" />
+               <Image src="/logo.png" alt="EarnBase" width={40} height={40} className="object-contain border-2 border-black" />
               </div>
               <div>
-                <h1 className="text-5xl font-bold text-gray-900 tracking-tight text-center" style={{
-                  fontFamily: "'Licorice', cursive",
-                  fontSize: '2.5rem',
-                  fontWeight: '400',
-                  textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
-                  letterSpacing: '0.02em'
-                }}>EarnBase</h1>
+                <h1 className="text-h2 font-gt-alpina font-thin text-black">EARNBASE</h1>
               </div>
             </div>
         
@@ -254,31 +248,31 @@ const MobileEarnBaseHome = () => {
         </div>
         {/* Welcome Section */}
         {isConnected && (
-          <div className="mx-4 mt-4 bg-indigo-50 rounded-xl p-4 border border-indigo-200 shadow-sm">
+          <div className="mx-6 mt-6 bg-white border-4 border-black p-6">
             <div className="text-center">
-              <p className="text-gray-600 text-sm mb-2 font-medium">Your total earnbase earnings</p>
+              <p className="text-body-s text-celo-body mb-3 font-inter font-heavy">YOUR TOTAL EARNBASE EARNINGS</p>
               {statsLoading ? (
-                <div className="h-8 bg-indigo-100 rounded animate-pulse"></div>
+                <div className="h-12 bg-celo-dk-tan animate-pulse"></div>
               ) : (
-                <p className="text-3xl font-bold text-gray-700">{userStats.totalEarned}</p>
+                <p className="text-h2 font-gt-alpina font-thin text-black">{userStats.totalEarned}</p>
               )}
             </div>
           </div>
         )}
         
              {/* Self Protocol Verification Warning */}
-        <div className="mx-4 mt-4">
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 shadow-sm">
+        <div className="mx-6 mt-6">
+          <div className="bg-celo-orange border-4 border-black p-6">
             <div className="flex items-start space-x-3">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-sm font-semibold text-amber-800">Self Protocol Integration</h3>
-            <div className="px-2 py-1 bg-amber-200 text-amber-800 text-xs font-medium rounded-full">
-              New
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-body-s font-inter font-heavy text-black">SELF PROTOCOL INTEGRATION</h3>
+            <div className="px-3 py-1 bg-black text-celo-orange text-eyebrow font-inter font-heavy">
+              NEW
             </div>
           </div>
-          <p className="text-xs text-amber-700 mb-3">
-            We&apos;ve integrated <span className="font-medium">Self Protocol</span> to give task creators the option
+          <p className="text-body-s text-black font-inter">
+            We&apos;ve integrated <span className="font-heavy">Self Protocol</span> to give task creators the option
             to set requirements (e.g., age, gender, country).
             Some tasks may require quick verification through Self before you can participate.
           </p>
@@ -287,104 +281,104 @@ const MobileEarnBaseHome = () => {
           </div>
         </div>
         {/* Tasks Section */}
-        <div className="px-4 mt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Available Tasks</h3>
+        <div className="px-6 mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-h4 font-gt-alpina font-thin text-black">AVAILABLE TASKS</h3>
             <button 
               onClick={() => router.push('/Marketplace')}
-              className="text-indigo-500 text-sm font-medium flex items-center gap-1 hover:text-indigo-700 transition-colors"
+              className="text-celo-purple text-body-s font-inter font-heavy flex items-center gap-2 hover:text-black transition-colors"
             >
-              View All
+              VIEW ALL
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
 
             {loading ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm animate-pulse">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-start space-x-3 flex-1 min-w-0">
-                        <div className="w-10 h-10 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                  <div key={i} className="bg-white border-4 border-black p-6 animate-pulse">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start space-x-4 flex-1 min-w-0">
+                        <div className="w-12 h-12 bg-celo-dk-tan flex-shrink-0"></div>
                         <div className="flex-1 min-w-0">
-                          <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
-                          <div className="h-3 bg-gray-200 rounded w-full"></div>
+                          <div className="h-5 bg-black mb-3 w-3/4"></div>
+                          <div className="h-4 bg-celo-body"></div>
                         </div>
                       </div>
-                      <div className="text-right ml-2 flex-shrink-0">
-                        <div className="h-4 bg-gray-200 rounded w-16 mb-1"></div>
-                        <div className="h-3 bg-gray-200 rounded w-20"></div>
+                      <div className="text-right ml-3 flex-shrink-0">
+                        <div className="h-5 bg-black mb-2 w-20"></div>
+                        <div className="h-4 bg-celo-body w-24"></div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="h-3 bg-gray-200 rounded w-20"></div>
-                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      <div className="h-4 bg-celo-body w-24"></div>
+                      <div className="h-4 bg-celo-body w-20"></div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : tasks.length === 0 ? (
-              <div className="text-center text-gray-500">
-                No tasks available
+              <div className="text-center text-celo-body text-body-m font-inter">
+                NO TASKS AVAILABLE
               </div>
             ) : null}
             {tasks.map((task) => (
               <div
                 key={task.id}
                 onClick={() => router.push(`/Task/${task.id}`)}
-                className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 active:scale-98 cursor-pointer"
+                className="bg-white border-4 border-black p-6 hover:bg-celo-dk-tan transition-all duration-200 active:scale-98 cursor-pointer"
               >
                 {/* Task Header */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start space-x-3 flex-1 min-w-0">
-                    <div className="p-2 bg-gray-50 rounded-lg flex-shrink-0">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start space-x-4 flex-1 min-w-0">
+                    <div className="p-3 bg-celo-purple border-2 border-black flex-shrink-0">
                       {(() => {
-                        const iconInfo = { iconType: 'trending', iconColor: 'text-emerald-600' };
+                        const iconInfo = { iconType: 'trending', iconColor: 'text-white' };
                         if (task.title.toLowerCase().includes('tech') || task.title.toLowerCase().includes('career')) {
                           iconInfo.iconType = 'users';
-                          iconInfo.iconColor = 'text-purple-600';
+                          iconInfo.iconColor = 'text-white';
                         } else if (task.title.toLowerCase().includes('health') || task.title.toLowerCase().includes('fitness')) {
                           iconInfo.iconType = 'shield';
-                          iconInfo.iconColor = 'text-blue-600';
+                          iconInfo.iconColor = 'text-white';
                         }
                         return renderTaskIcon(iconInfo.iconType, iconInfo.iconColor);
                       })()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 min-w-0">
-                        <h4 className="font-semibold text-gray-900 text-sm truncate flex-1">{task.title}</h4>
+                      <div className="flex items-center gap-3 mb-2 min-w-0">
+                        <h4 className="font-gt-alpina font-thin text-black text-body-l truncate flex-1">{task.title}</h4>
                         {task.restrictionsEnabled && (
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            <ShieldCheck className="w-3 h-3 text-green-500" />
+                            <ShieldCheck className="w-4 h-4 text-celo-success" />
                           </div>
                         )}
                       </div>
-                      <p className="text-xs text-gray-600 line-clamp-2">{task.description}</p>
+                      <p className="text-body-s text-celo-body font-inter line-clamp-2">{task.description}</p>
                     </div>
                   </div>
-                  <div className="text-right ml-2 flex-shrink-0">
-                    <p className="font-bold text-indigo-600 text-sm">{formatReward(task.baseReward)}</p>
-                    <p className="text-xs text-gray-500">{getTimeLeft(task.expiresAt as Date)}</p>
+                  <div className="text-right ml-3 flex-shrink-0">
+                    <p className="font-gt-alpina font-thin text-celo-purple text-body-l">{formatReward(task.baseReward)}</p>
+                    <p className="text-body-s text-celo-body font-inter">{getTimeLeft(task.expiresAt as Date)}</p>
                   </div>
                 </div>
                 {/* Task Footer */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <Users className="w-3 h-3" />
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center gap-2 text-body-s text-celo-body font-inter">
+                      <Users className="w-4 h-4" />
                       {task.currentParticipants}/{task.maxParticipants}
                     </div>
                   </div>
                   {/* Verification Badge for Premium Tasks */}
                   {task.restrictionsEnabled && !isVerified && (
-                    <div className="flex items-center gap-1 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>Verify Required</span>
+                    <div className="flex items-center gap-2 text-body-s text-celo-orange bg-celo-orange bg-opacity-20 px-3 py-1 border-2 border-celo-orange">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="font-inter font-heavy">VERIFY REQUIRED</span>
                     </div>
                   )}
                   {(!task.restrictionsEnabled || isVerified) && (
-                    <ArrowRight className="w-4 h-4 text-gray-400" />
+                    <ArrowRight className="w-5 h-5 text-celo-body" />
                   )}
                 </div>
               </div>

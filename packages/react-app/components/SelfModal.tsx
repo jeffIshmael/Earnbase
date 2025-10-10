@@ -141,32 +141,32 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
   };
 
   return (
-    <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6">
+    <div className="w-full max-w-sm bg-white border-4 border-black p-6">
       {/* Header */}
-      <div className="text-center relative mb-6">
+      <div className="text-center relative mb-8">
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute top-0 right-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="absolute top-0 right-0 p-2 hover:bg-celo-dk-tan transition-colors border-2 border-black"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-black" />
           </button>
         )}
-        <h1 className="text-xl font-bold mb-2 text-gray-800">
-          {process.env.NEXT_PUBLIC_SELF_APP_NAME || "Earnbase"}
+        <h1 className="text-h3 font-gt-alpina font-thin mb-3 text-black">
+          {process.env.NEXT_PUBLIC_SELF_APP_NAME || "EARNBASE"}
         </h1>
-        <p className="text-sm text-gray-600 mb-3">
-          Scan QR code with Self Protocol App to verify
+        <p className="text-body-s text-celo-body mb-4 font-inter">
+          SCAN QR CODE WITH SELF PROTOCOL APP TO VERIFY
         </p>
         
         {/* Error Display */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-            <div className="flex items-center space-x-2 text-red-700">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-sm font-medium">Error: {error}</span>
+          <div className="bg-celo-error border-4 border-black p-4 mb-6">
+            <div className="flex items-center space-x-3 text-white">
+              <AlertCircle className="w-5 h-5" />
+              <span className="text-body-s font-inter font-heavy">ERROR: {error}</span>
             </div>
-            <p className="text-xs text-red-600 mt-1">
+            <p className="text-body-s text-white mt-2 font-inter">
               Please ensure your wallet is connected and try again.
             </p>
           </div>
@@ -174,29 +174,29 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
         
         {/* Requirements Display */}
         {(restrictions.age || restrictions.gender || restrictions.countries) && (
-          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4">
-            <div className="space-y-1 text-xs text-indigo-600">
+          <div className="bg-celo-blue border-4 border-black p-4 mb-6">
+            <div className="space-y-2 text-body-s text-black font-inter">
               {restrictions.age && (
-                <div className="flex items-center space-x-2">
-                  <span className="font-semibold">Age:</span>
-                  <span className="font-mono bg-white px-2 py-1 rounded border border-indigo-200">
-                    {restrictions.age.min} - {restrictions.age.max} years
+                <div className="flex items-center space-x-3">
+                  <span className="font-heavy">AGE:</span>
+                  <span className="font-inter bg-white px-3 py-1 border-2 border-black">
+                    {restrictions.age.min} - {restrictions.age.max} YEARS
                   </span>
                 </div>
               )}
               {restrictions.gender && (
-                <div className="flex items-center space-x-2">
-                  <span className="font-semibold">Gender:</span>
-                  <span className="font-mono bg-white px-2 py-1 rounded border border-indigo-200">
-                    {restrictions.gender === 'F' ? 'Female' : 'Male'}
+                <div className="flex items-center space-x-3">
+                  <span className="font-heavy">GENDER:</span>
+                  <span className="font-inter bg-white px-3 py-1 border-2 border-black">
+                    {restrictions.gender === 'F' ? 'FEMALE' : 'MALE'}
                   </span>
                 </div>
               )}
               {restrictions.countries && restrictions.countries.length > 0 && (
-                <div className="flex items-center space-x-2">
-                  <span className="font-semibold">Countries:</span>
-                  <span className="font-mono bg-white px-2 py-1 rounded border border-indigo-200">
-                    {restrictions.countries.join(', ')}
+                <div className="flex items-center space-x-3">
+                  <span className="font-heavy">COUNTRIES:</span>
+                  <span className="font-inter bg-white px-3 py-1 border-2 border-black">
+                    {restrictions.countries.join(', ').toUpperCase()}
                   </span>
                 </div>
               )}
@@ -209,32 +209,32 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
         <div className="w-full">
           {/* Verification Status */}
           {verificationResult && (
-            <div className={`mb-4 p-3 rounded-lg border ${
+            <div className={`mb-6 p-4 border-4 ${
               verificationResult === 'success' 
-                ? 'bg-green-50 border-green-200 text-green-700' 
-                : 'bg-red-50 border-red-200 text-red-700'
+                ? 'bg-celo-success border-black text-white' 
+                : 'bg-celo-error border-black text-white'
             }`}>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 {verificationResult === 'success' ? (
-                  <CheckCircle className="w-4 h-4" />
+                  <CheckCircle className="w-5 h-5" />
                 ) : (
-                  <AlertCircle className="w-4 h-4" />
+                  <AlertCircle className="w-5 h-5" />
                 )}
-                <span className="text-sm font-medium">
+                <span className="text-body-s font-inter font-heavy">
                   {verificationResult === 'success' 
-                    ? 'Verification successful! Processing...' 
-                    : 'Verification failed. Please try again.'}
+                    ? 'VERIFICATION SUCCESSFUL! PROCESSING...' 
+                    : 'VERIFICATION FAILED. PLEASE TRY AGAIN.'}
                 </span>
               </div>
             </div>
           )}
           
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-6">
           {isVerifying ? (
-            <div className="w-[200px] h-[200px] bg-green-50 border-2 border-green-200 rounded-lg flex flex-col items-center justify-center">
-              <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-              <p className="text-green-700 text-sm font-medium">Verifying...</p>
-              <p className="text-green-600 text-xs">Please wait</p>
+            <div className="w-[200px] h-[200px] bg-celo-success border-4 border-black flex flex-col items-center justify-center">
+              <div className="w-12 h-12 border-4 border-white border-t-transparent animate-spin mb-4"></div>
+              <p className="text-white text-body-s font-inter font-heavy">VERIFYING...</p>
+              <p className="text-white text-body-s font-inter">PLEASE WAIT</p>
             </div>
           ) : selfApp ? (
             <SelfQRcodeWrapper
@@ -247,52 +247,52 @@ export default function SelfModal({requirements, onVerificationSuccess, onClose}
               }}
             />
           ) : (
-            <div className="w-[200px] h-[200px] bg-gray-200 animate-pulse flex items-center justify-center rounded-lg">
-              <p className="text-gray-500 text-sm">Loading QR Code...</p>
+            <div className="w-[200px] h-[200px] bg-celo-dk-tan animate-pulse flex items-center justify-center border-4 border-black">
+              <p className="text-black text-body-s font-inter">LOADING QR CODE...</p>
             </div>
           )}
         </div>
 
-        <div className="flex flex-col gap-2 mb-4">
+        <div className="flex flex-col gap-3 mb-6">
           <button
             type="button"
             onClick={copyToClipboard}
             disabled={!universalLink || isVerifying}
-            className="w-full bg-gray-800 hover:bg-gray-700 transition-colors text-white p-3 rounded-lg text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-celo-purple hover:bg-black hover:text-celo-purple transition-all duration-200 text-white p-4 border-4 border-black text-body-s font-inter font-heavy disabled:bg-celo-inactive disabled:cursor-not-allowed"
           >
-            {linkCopied ? "Copied!" : "Copy Universal Link"}
+            {linkCopied ? "COPIED!" : "COPY UNIVERSAL LINK"}
           </button>
 
           <button
             type="button"
             onClick={openSelfApp}
             disabled={!universalLink || isVerifying}
-            className="w-full bg-blue-600 hover:bg-blue-500 transition-colors text-white p-3 rounded-lg text-sm disabled:bg-blue-300 disabled:cursor-not-allowed"
+            className="w-full bg-celo-yellow hover:bg-black hover:text-celo-yellow transition-all duration-200 text-black p-4 border-4 border-black text-body-s font-inter font-heavy disabled:bg-celo-inactive disabled:cursor-not-allowed"
           >
-            Open Self App
+            OPEN SELF APP
           </button>
         </div>
         <div className="text-center">
-          <span className="text-gray-500 text-xs uppercase tracking-wide">Address</span>
-          <div className="bg-gray-100 rounded-md px-3 py-2 w-full text-center break-all text-xs font-mono text-gray-800 border border-gray-200 mt-1">
-            {address ? address : <span className="text-gray-400">Not connected</span>}
+          <span className="text-celo-body text-eyebrow font-inter font-heavy uppercase tracking-wide">ADDRESS</span>
+          <div className="bg-celo-dk-tan border-4 border-black px-4 py-3 w-full text-center break-all text-body-s font-inter text-black mt-2">
+            {address ? address : <span className="text-celo-body">NOT CONNECTED</span>}
           </div>
         </div>
 
         {/* Toast notification */}
         {showToast && (
-          <div className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 py-3 px-4 rounded-lg shadow-xl text-sm z-10 transition-all duration-300 ${
+          <div className={`absolute bottom-6 left-1/2 transform -translate-x-1/2 py-4 px-6 border-4 border-black text-body-s z-10 transition-all duration-300 ${
             toastType === 'success' 
-              ? 'bg-green-500 text-white border border-green-400' 
+              ? 'bg-celo-success text-white' 
               : toastType === 'error'
-              ? 'bg-red-500 text-white border border-red-400'
-              : 'bg-blue-500 text-white border border-blue-400'
+              ? 'bg-celo-error text-white'
+              : 'bg-celo-blue text-black'
           }`}>
-            <div className="flex items-center space-x-2">
-              {toastType === 'success' && <CheckCircle className="w-4 h-4" />}
-              {toastType === 'error' && <AlertCircle className="w-4 h-4" />}
-              {toastType === 'info' && <Info className="w-4 h-4" />}
-              <span className="font-medium">{toastMessage}</span>
+            <div className="flex items-center space-x-3">
+              {toastType === 'success' && <CheckCircle className="w-5 h-5" />}
+              {toastType === 'error' && <AlertCircle className="w-5 h-5" />}
+              {toastType === 'info' && <Info className="w-5 h-5" />}
+              <span className="font-inter font-heavy">{toastMessage.toUpperCase()}</span>
             </div>
           </div>
         )}

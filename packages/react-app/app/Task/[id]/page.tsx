@@ -122,70 +122,63 @@ const TaskDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-        {/* Animated background elements */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-200/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-          <div className="absolute top-1/3 left-1/2 w-60 h-60 bg-pink-200/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
-        </div>
-
+      <div className="min-h-screen bg-celo-lt-tan">
         {/* Header Skeleton */}
-        <div className="relative bg-white/90 backdrop-blur-xl border-b border-indigo-100 sticky top-0 z-50 shadow-lg">
-          <div className="px-4 py-4">
+        <div className="relative bg-celo-yellow border-b-4 border-black sticky top-0 z-50">
+          <div className="px-6 py-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-gray-200 rounded-xl animate-pulse"></div>
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-black animate-pulse"></div>
                 <div className="space-y-2">
-                  <div className="h-5 w-48 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-                </div>
+                  <div className="h-6 w-48 bg-black animate-pulse"></div>
+                  <div className="h-4 w-32 bg-black animate-pulse"></div>
+        </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="relative px-4 py-6 pb-24 space-y-6">
+        <div className="relative px-6 py-8 pb-24 space-y-8">
           {/* Hero Card Skeleton */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-indigo-100 shadow-xl">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3 flex-1 min-w-0">
-                <div className="w-12 h-12 bg-gray-200 rounded-xl animate-pulse"></div>
-                <div className="min-w-0 flex-1 space-y-2">
-                  <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+          <div className="bg-white border-4 border-black p-8">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center space-x-4 flex-1 min-w-0">
+                <div className="w-16 h-16 bg-celo-purple animate-pulse"></div>
+                <div className="min-w-0 flex-1 space-y-3">
+                  <div className="h-8 w-3/4 bg-black animate-pulse"></div>
+                  <div className="h-5 w-24 bg-black animate-pulse"></div>
                 </div>
               </div>
             </div>
 
             {/* Reward and Status Skeleton */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="h-8 w-32 bg-gray-200 rounded animate-pulse"></div>
-              <div className="h-6 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="h-10 w-40 bg-celo-yellow animate-pulse"></div>
+              <div className="h-8 w-20 bg-celo-forest animate-pulse"></div>
             </div>
 
-            <div className="space-y-2 mb-6">
-              <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
-              <div className="h-4 w-5/6 bg-gray-200 rounded animate-pulse"></div>
-              <div className="h-4 w-4/5 bg-gray-200 rounded animate-pulse"></div>
+            <div className="space-y-3 mb-8">
+              <div className="h-5 w-full bg-black animate-pulse"></div>
+              <div className="h-5 w-5/6 bg-black animate-pulse"></div>
+              <div className="h-5 w-4/5 bg-black animate-pulse"></div>
             </div>
 
             {/* Quick Stats Skeleton */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <div className="bg-celo-dk-tan border-2 border-black p-6">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-5 h-5 bg-black animate-pulse"></div>
+                  <div className="h-4 w-24 bg-black animate-pulse"></div>
                 </div>
-                <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-8 w-20 bg-black animate-pulse"></div>
               </div>
               
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div>
+              <div className="bg-celo-dk-tan border-2 border-black p-6">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-5 h-5 bg-black animate-pulse"></div>
+                  <div className="h-4 w-20 bg-black animate-pulse"></div>
                 </div>
-                <div className="h-6 w-20 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-8 w-24 bg-black animate-pulse"></div>
               </div>
             </div>
           </div>
@@ -304,18 +297,18 @@ const TaskDetailPage = () => {
 
   if (error || !task) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-rose-50 to-pink-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-celo-lt-tan flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
-          <div className="w-24 h-24 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-red-200">
-            <AlertCircle className="w-12 h-12 text-red-500" />
+          <div className="w-24 h-24 bg-red-500 flex items-center justify-center mx-auto mb-6 border-4 border-black">
+            <AlertCircle className="w-12 h-12 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-red-700 mb-3">Task Not Found</h2>
-          <p className="text-red-600 mb-8 leading-relaxed">{error || 'The task you are looking for does not exist.'}</p>
+          <h2 className="text-h2 font-gt-alpina font-thin text-black mb-3 tracking-tight">TASK NOT FOUND</h2>
+          <p className="text-body-m font-inter text-black/70 mb-8 leading-relaxed">{error || 'The task you are looking for does not exist.'}</p>
           <button
             onClick={() => router.back()}
-            className="bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 transition-all duration-300 font-medium"
+            className="bg-celo-yellow text-black px-8 py-3 hover:bg-black hover:text-celo-yellow transition-all duration-300 font-inter font-heavy border-4 border-black"
           >
-            Go Back
+            GO BACK
           </button>
         </div>
       </div>
@@ -338,13 +331,13 @@ const TaskDetailPage = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ACTIVE':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-celo-forest text-white';
       case 'PAUSED':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-celo-orange text-black';
       case 'COMPLETED':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-celo-purple text-white';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-celo-dk-tan text-black';
     }
   };
 
@@ -424,28 +417,28 @@ const TaskDetailPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative">
+    <div className="min-h-screen bg-celo-lt-tan relative">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/3 left-1/2 w-60 h-60 bg-pink-200/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-celo-yellow/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-celo-purple/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 left-1/2 w-60 h-60 bg-celo-forest/20 rounded-full blur-3xl animate-pulse"></div>
       </div>
 
       {/* Header */}
-      <div className="relative bg-white/90 backdrop-blur-xl border-b border-indigo-100 sticky top-0 z-50 shadow-lg">
+      <div className="relative bg-celo-yellow border-b-4 border-black sticky top-0 z-50">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <button 
                 onClick={() => router.back()}
-                className="p-2 hover:bg-indigo-50 rounded-xl transition-all duration-200 group"
+                className="p-2 hover:bg-black hover:text-celo-yellow transition-all duration-200 group border-2 border-black"
               >
-                <ArrowLeft className="w-5 h-5 text-indigo-600 group-hover:text-indigo-700" />
+                <ArrowLeft className="w-5 h-5 text-black group-hover:text-celo-yellow" />
               </button>
               <div className="max-w-48">
-                <h1 className="text-lg font-bold text-gray-900 truncate">{task.title}</h1>
-                <p className="text-gray-600 text-sm">by {(task.creator.walletAddress).slice(0, 6) + '...' + (task.creator.walletAddress).slice(-4)}</p>
+                <h1 className="text-h4 font-gt-alpina font-thin text-black truncate tracking-tight">{task.title}</h1>
+                <p className="text-eyebrow font-inter text-black/70">by {(task.creator.walletAddress).slice(0, 6) + '...' + (task.creator.walletAddress).slice(-4)}</p>
               </div>
             </div>
           </div>
@@ -477,27 +470,27 @@ const TaskDetailPage = () => {
         ) : (
           <>
             {/* Hero Card */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-indigo-100 shadow-xl">
+            <div className="bg-white border-4 border-black p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-3 flex-1 min-w-0">
-              <div className="p-3 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl border border-indigo-200">
+              <div className="p-3 bg-celo-purple border-2 border-black">
                 {(() => {
-                  const iconInfo = { iconType: 'trending', iconColor: 'text-emerald-600' };
+                  const iconInfo = { iconType: 'trending', iconColor: 'text-white' };
                   if (task.title.toLowerCase().includes('tech') || task.title.toLowerCase().includes('career')) {
                     iconInfo.iconType = 'users';
-                    iconInfo.iconColor = 'text-purple-600';
+                    iconInfo.iconColor = 'text-white';
                   } else if (task.title.toLowerCase().includes('health') || task.title.toLowerCase().includes('fitness')) {
                     iconInfo.iconType = 'shield';
-                    iconInfo.iconColor = 'text-blue-600';
+                    iconInfo.iconColor = 'text-white';
                   }
                   return renderTaskIcon(iconInfo.iconType, iconInfo.iconColor, 'w-6 h-6');
                 })()}
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="text-xl font-bold text-gray-900 mb-1 leading-tight">{task.title}</h2>
+                <h2 className="text-h3 font-gt-alpina font-thin text-black mb-1 leading-tight tracking-tight">{task.title}</h2>
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-600 text-sm">Task</span>
-                  <Shield className="w-4 h-4 text-green-500" />
+                  <span className="text-body-s font-inter text-black/70">Task</span>
+                  <Shield className="w-4 h-4 text-celo-forest" />
                 </div>
               </div>
             </div>
@@ -506,33 +499,33 @@ const TaskDetailPage = () => {
           {/* Reward and Status */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <div className="text-h3 font-gt-alpina font-thin text-black tracking-tight">
                 {Number(task.baseReward) / Math.pow(10, 18)} cUSD
               </div>
             </div>
-            <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
+            <div className={`px-3 py-1 text-eyebrow font-inter font-heavy border-2 border-black ${getStatusColor(task.status)}`}>
               {task.status}
             </div>
           </div>
 
-          <p className="text-gray-700 text-sm mb-6 leading-relaxed">{task.description}</p>
+          <p className="text-body-s font-inter text-black/70 mb-6 leading-relaxed">{task.description}</p>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-200">
+            <div className="bg-celo-lt-tan border-4 border-black p-4">
               <div className="flex items-center space-x-2 mb-2">
-                <Users className="w-4 h-4 text-indigo-600" />
-                <span className="text-indigo-600 text-xs">Participants</span>
+                <Users className="w-4 h-4 text-celo-purple" />
+                <span className="text-celo-purple text-eyebrow font-inter font-heavy">PARTICIPANTS</span>
               </div>
-              <div className="text-lg font-bold text-indigo-700">{task.currentParticipants}/{task.maxParticipants}</div>
+              <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">{task.currentParticipants}/{task.maxParticipants}</div>
             </div>
             
-            <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+            <div className="bg-celo-lt-tan border-4 border-black p-4">
               <div className="flex items-center space-x-2 mb-2">
-                <Clock className="w-4 h-4 text-purple-600" />
-                <span className="text-purple-600 text-xs">Time Left</span>
+                <Clock className="w-4 h-4 text-celo-purple" />
+                <span className="text-celo-purple text-eyebrow font-inter font-heavy">TIME LEFT</span>
               </div>
-              <div className="text-lg font-bold text-purple-700">
+              <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
                 {task.expiresAt ? Math.max(0, Math.ceil((new Date(task.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : '∞'} days
               </div>
             </div>
@@ -541,68 +534,68 @@ const TaskDetailPage = () => {
 
         {/* Action Button */}
         {userSubmission ? (
-          <div className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200 text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-white" />
+          <div className="w-full bg-celo-forest border-4 border-black p-6 text-center">
+            <div className="w-16 h-16 bg-celo-yellow flex items-center justify-center mx-auto mb-4 border-2 border-black">
+              <CheckCircle className="w-8 h-8 text-black" />
             </div>
-            <h3 className="text-xl font-bold text-green-800 mb-2">Task Completed! 🎉</h3>
-            <p className="text-green-700 mb-4">You&apos;ve already completed this task</p>
-            <div className="bg-white rounded-xl p-4 border border-green-200 mb-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+            <h3 className="text-h3 font-gt-alpina font-thin text-white mb-2 tracking-tight">TASK COMPLETED! 🎉</h3>
+            <p className="text-body-s font-inter text-white/90 mb-4">You&apos;ve already completed this task</p>
+            <div className="bg-white border-4 border-black p-4 mb-4">
+              <div className="grid grid-cols-2 gap-4 text-body-s">
                 <div>
-                  <span className="text-green-600 font-medium">AI Rating:</span>
-                  <div className="text-lg font-bold text-green-700">{userSubmission.aiRating}/10</div>
+                  <span className="text-celo-forest font-inter font-heavy">AI RATING:</span>
+                  <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">{userSubmission.aiRating}/10</div>
                 </div>
                 <div>
-                  <span className="text-green-600 font-medium">Reward Earned:</span>
-                  <div className="text-lg font-bold text-green-700">{Number(userSubmission.reward).toFixed(4)} cUSD</div>
+                  <span className="text-celo-forest font-inter font-heavy">REWARD EARNED:</span>
+                  <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">{Number(userSubmission.reward).toFixed(4)} cUSD</div>
                 </div>
               </div>
               {userSubmission.aiFeedback && (
                 <div className="mt-3 text-left">
-                  <span className="text-green-600 font-medium text-sm">AI Feedback:</span>
-                  <p className="text-green-700 text-sm mt-1">{userSubmission.aiFeedback}</p>
+                  <span className="text-celo-forest font-inter font-heavy text-body-s">AI FEEDBACK:</span>
+                  <p className="text-black/70 font-inter text-body-s mt-1">{userSubmission.aiFeedback}</p>
                 </div>
               )}
             </div>
             <button
               onClick={() => setActiveTab('subtasks')}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+              className="px-6 py-2 bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow transition-colors text-body-s font-inter font-heavy border-2 border-black"
             >
-              View Your Responses
+              VIEW YOUR RESPONSES
             </button>
           </div>
         ) : (
           <button 
             onClick={handleStartTask}
             disabled={isStartingTask}
-            className={`w-full font-medium py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] disabled:scale-100 flex items-center justify-center space-x-2 ${
+            className={`w-full font-inter font-heavy py-4 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] disabled:scale-100 flex items-center justify-center space-x-2 border-4 border-black text-body-l ${
               isVerified 
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+                ? 'bg-celo-forest text-white hover:bg-black hover:text-celo-forest'
                 : hasRequirements 
-                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700'
-                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'
+                  ? 'bg-celo-orange text-black hover:bg-black hover:text-celo-orange'
+                  : 'bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow'
             }`}
           >
             {isStartingTask ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span>Starting Task...</span>
+                <div className="w-5 h-5 border-2 border-black border-t-transparent animate-spin"></div>
+                <span>STARTING TASK...</span>
               </>
             ) : isVerified ? (
               <>
                 <Play className="w-5 h-5" />
-                <span>Start Task</span>
+                <span>START TASK</span>
               </>
             ) : hasRequirements ? (
               <>
                 <Shield className="w-5 h-5" />
-                <span>Verify Identity to Start</span>
+                <span>VERIFY IDENTITY TO START</span>
               </>
             ) : (
               <>
                 <Play className="w-5 h-5" />
-                <span>Start Task</span>
+                <span>START TASK</span>
               </>
             )}
           </button>

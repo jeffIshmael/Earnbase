@@ -8,59 +8,100 @@ module.exports = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			'gt-alpina': ['GT Alpina', 'serif'],
+  			'inter': ['Inter', 'sans-serif'],
+  		},
+  		fontSize: {
+  			'h1': ['72px', { lineHeight: '84px', letterSpacing: '-0.01em' }],
+  			'h2': ['54px', { lineHeight: '72px', letterSpacing: '-0.01em' }],
+  			'h3': ['48px', { lineHeight: '48px', letterSpacing: '-0.01em' }],
+  			'h4': ['40px', { lineHeight: '40px', letterSpacing: '-0.01em' }],
+  			'body-l': ['20px', { lineHeight: '26px', letterSpacing: '-0.01em' }],
+  			'body-m': ['16px', { lineHeight: '26px', letterSpacing: '-0.01em' }],
+  			'body-s': ['14px', { lineHeight: '18px', letterSpacing: '-0.01em' }],
+  			'eyebrow': ['12px', { lineHeight: '16px', letterSpacing: '0em' }],
+  		},
+  		fontWeight: {
+  			'thin': '250',
+  			'heavy': '750',
+  		},
   		colors: {
-  			colors: {
-  				primary: '#00955f',
-  				primaryComp: '#00c77f',
-  				disableCard: '#C8D0CB',
-  				primaryLight: '#CFF2E5',
-  				secondary: '#EA3C58'
+  			// Celo Brand Colors
+  			'celo': {
+  				'yellow': '#FCFF52',
+  				'forest': '#4E632A',
+  				'purple': '#1A0329',
+  				'lt-tan': '#FBF6F1',
+  				'dk-tan': '#E6E3D5',
+  				'brown': '#635949',
+  				'pink': '#F2A9E7',
+  				'orange': '#F29E5F',
+  				'lime': '#B2EBA1',
+  				'blue': '#8AC0F9',
+  				'success': '#329F3B',
+  				'error': '#E70532',
+  				'inactive': '#9B9B9B',
+  				'body': '#666666',
   			},
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
+  			// Legacy colors for compatibility
+  			colors: {
+  				primary: '#FCFF52',
+  				primaryComp: '#1A0329',
+  				disableCard: '#9B9B9B',
+  				primaryLight: '#FBF6F1',
+  				secondary: '#4E632A'
+  			},
+  			background: '#FBF6F1',
+  			foreground: '#000000',
   			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
+  				DEFAULT: '#FFFFFF',
+  				foreground: '#000000'
   			},
   			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
+  				DEFAULT: '#FFFFFF',
+  				foreground: '#000000'
   			},
   			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
+  				DEFAULT: '#FCFF52',
+  				foreground: '#000000'
   			},
   			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
+  				DEFAULT: '#1A0329',
+  				foreground: '#FFFFFF'
   			},
   			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
+  				DEFAULT: '#E6E3D5',
+  				foreground: '#666666'
   			},
   			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
+  				DEFAULT: '#F2A9E7',
+  				foreground: '#000000'
   			},
   			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
+  				DEFAULT: '#E70532',
+  				foreground: '#FFFFFF'
   			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
+  			border: '#CCCCCC',
+  			input: '#FFFFFF',
+  			ring: '#FCFF52',
   			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
+  				'1': '#FCFF52',
+  				'2': '#4E632A',
+  				'3': '#1A0329',
+  				'4': '#F2A9E7',
+  				'5': '#F29E5F'
   			}
   		},
   		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
+  			'none': '0px',
+  			'sm': '2px',
+  			'DEFAULT': '4px',
+  			'md': '6px',
+  			'lg': '8px',
+  			'xl': '12px',
+  			'2xl': '16px',
+  			'3xl': '24px',
   		}
   	}
   },
