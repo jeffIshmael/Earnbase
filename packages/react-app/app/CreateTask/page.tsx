@@ -455,11 +455,11 @@ const TaskCreationForm = () => {
         <div className="max-w-sm mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-black hover:text-celo-yellow transition-all duration-200 group border-2 border-black">
+              <button className="p-2 hover:bg-black hover:text-celo-yellow transition-all duration-200 group border-2 border-gray-700">
                 <ArrowLeft className="w-5 h-5 text-black group-hover:text-celo-yellow" />
               </button>
               <div>
-                <h1 className="text-h2 font-gt-alpina font-thin text-black tracking-tight">
+                <h1 className="text-h4 font-gt-alpina font-bold text-black tracking-tight">
                   CREATE TASK
                 </h1>
                 <p className="text-body-s font-inter text-black/70">
@@ -471,74 +471,18 @@ const TaskCreationForm = () => {
         </div>
       </div>
 
-      <div className="relative max-w-sm mx-auto px-3 py-4 pb-24">
+      <div className="relative max-w-sm mx-auto px-3 py-4 pb-6">
         <form onSubmit={handleSubmit}>
-          {/* Enhanced Progress Steps */}
-          <div className="bg-white border-4 border-black p-4 mb-6 overflow-hidden">
-            <div className="flex flex-col items-center justify-between mb-4 space-y-2">
-              <h3 className="text-body-l font-inter font-heavy text-black">
-                SETUP PROGRESS
-              </h3>
-              <span className="text-eyebrow font-inter font-heavy text-black bg-celo-yellow px-3 py-1 border-2 border-black w-fit">
-                STEP {currentStep} OF 6
-              </span>
-            </div>
-
-            {/* Mobile progress steps */}
-            <div className="mb-4">
-              <div className="flex items-center justify-center space-x-3 mb-3">
-                <div className="w-12 h-12 bg-celo-purple text-white flex items-center justify-center border-2 border-black">
-                  {React.createElement(steps[currentStep - 1].icon, {
-                    className: "w-6 h-6",
-                  })}
-                </div>
-                <div>
-                  <div className="text-body-s font-inter font-heavy text-celo-purple">
-                    {steps[currentStep - 1].name}
-                  </div>
-                </div>
-              </div>
-              <div className="w-full bg-celo-lt-tan border-2 border-black h-2">
-                <div
-                  className="bg-celo-purple h-2 transition-all duration-500"
-                  style={{ width: `${(currentStep / 6) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Step Navigation */}
-            <div className="flex justify-between mt-4">
-              <button
-                type="button"
-                onClick={prevStep}
-                disabled={currentStep === 1}
-                className="flex items-center space-x-1 px-3 py-2 text-black hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-body-s font-inter font-heavy border-2 border-black"
-              >
-                <ArrowLeft className="w-3 h-3" />
-                <span>BACK</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={nextStep}
-                disabled={currentStep === 6 || !getStepValidation(currentStep)}
-                className="flex items-center space-x-1 px-4 py-2 bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-body-s font-inter font-heavy border-2 border-black"
-              >
-                <span>NEXT</span>
-                <ArrowLeft className="w-3 h-3 rotate-180" />
-              </button>
-            </div>
-          </div>
 
           {/* Step Content */}
           {currentStep === 1 && (
             <div className="bg-white border-4 border-black p-4">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-celo-purple w-fit border-2 border-black">
+                {/* <div className="p-3 bg-celo-purple w-fit border-2 border-black">
                   <Target className="w-6 h-6 text-white" />
-                </div>
+                </div> */}
                 <div className="min-w-0 flex-1 text-center">
-                  <h2 className="text-h3 font-gt-alpina font-thin text-black tracking-tight">
+                  <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
                     TASK INFORMATION
                   </h2>
                   <p className="text-body-s font-inter text-black/70 mt-1">
@@ -1463,7 +1407,71 @@ const TaskCreationForm = () => {
             </div>
           )}
         </form>
+
+        {/* Progress Indicator - Below Form Content */}
+        <div className="mt-6 px-4">
+          <div className="bg-white border-4 border-black p-3">
+            <div className="flex flex-col items-center space-y-3">
+              {/* Current Step Info */}
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-celo-purple text-white flex items-center justify-center border-2 border-black">
+                  {React.createElement(steps[currentStep - 1].icon, {
+                    className: "w-4 h-4",
+                  })}
+                </div>
+                <div className="text-center">
+                  <div className="text-eyebrow font-inter font-heavy text-celo-purple">
+                    {steps[currentStep - 1].name}
+                  </div>
+                  <div className="text-xs font-inter text-black/70">
+                    STEP {currentStep} OF 6
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Dots */}
+              <div className="flex space-x-1.5">
+                {steps.map((step, index) => (
+                  <div
+                    key={step.id}
+                    className={`w-2.5 h-2.5 border-2 border-black transition-all duration-300 ${
+                      index + 1 === currentStep
+                        ? 'bg-celo-purple'
+                        : index + 1 < currentStep
+                        ? 'bg-celo-forest'
+                        : 'bg-white'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between w-full">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  className="flex items-center space-x-1 px-2 py-1.5 text-black hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs font-inter font-heavy border-2 border-black"
+                >
+                  <ArrowLeft className="w-3 h-3" />
+                  <span>BACK</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  disabled={currentStep === 6 || !getStepValidation(currentStep)}
+                  className="flex items-center space-x-1 px-3 py-1.5 bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs font-inter font-heavy border-2 border-black"
+                >
+                  <span>NEXT</span>
+                  <ArrowLeft className="w-3 h-3 rotate-180" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
       <BottomNavigation />
     </div>
   );
