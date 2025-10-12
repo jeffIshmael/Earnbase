@@ -132,7 +132,7 @@ const MyTasksPage = () => {
     return (
       <div className="min-h-screen bg-celo-lt-tan">
         {/* Header */}
-        <div className="bg-celo-yellow border-b-4 border-black sticky top-0 z-50">
+        <div className="bg-celo-yellow border-b-4 rounded-b-2xl border-black sticky top-0 z-50">
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
@@ -178,11 +178,11 @@ const MyTasksPage = () => {
     return (
       <div className="min-h-screen bg-celo-lt-tan">
         {/* Header */}
-        <div className="bg-celo-yellow border-b-4 border-black sticky top-0 z-50">
+        <div className="bg-celo-yellow border-b-4 border-black rounded-b-2xl sticky top-0 z-50">
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-h3 font-gt-alpina font-thin text-black">MY TASKS</h1>
+                <h1 className="text-h4 font-gt-alpina font-thin text-black">MY TASKS</h1>
                 <p className="text-body-s text-celo-body font-inter">MANAGE YOUR CREATED TASKS</p>
               </div>
             </div>
@@ -215,7 +215,7 @@ const MyTasksPage = () => {
   return (
     <div className="min-h-screen bg-celo-lt-tan">
       {/* Header */}
-      <div className="bg-celo-yellow border-b-4 border-black sticky top-0 z-50">
+      <div className="bg-celo-yellow border-b-4 rounded-b-2xl border-black sticky top-0 z-50">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -226,75 +226,90 @@ const MyTasksPage = () => {
         </div>
       </div>
 
-      <div className="px-4 py-6 pb-24 space-y-2">
+      <div className="px-4 py-6 pb-24 space-y-4">
 
 
         {/* Tasks Grid */}
         {sortedTasks.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-celo-dk-tan border-4 border-black flex items-center justify-center mx-auto mb-6">
-              <Target className="w-12 h-12 text-black" />
+    <div className="text-center py-12">
+      <div className="w-24 h-24 bg-celo-dk-tan border-4 border-black flex items-center justify-center mx-auto mb-6 rounded-2xl shadow-[4px_4px_0_0_rgba(55,65,81,1)]">
+        <Target className="w-12 h-12 text-black" />
+      </div>
+      <h3 className="text-h3 font-gt-alpina font-thin text-black mb-2">NO TASKS FOUND</h3>
+      <p className="text-body-m text-celo-body mb-6 font-inter">
+        {searchTerm || statusFilter !== 'ALL' 
+          ? 'Try adjusting your search or filters'
+          : 'Create your first task to get started!'
+        }
+      </p>
+      {!searchTerm && statusFilter === 'ALL' && (
+        <button
+          onClick={() => router.push('/CreateTask')}
+          className="px-6 py-3 bg-celo-purple text-white border-4 border-black rounded-xl hover:bg-black hover:text-celo-purple transition-all duration-200 font-inter font-heavy shadow-[4px_4px_0_0_rgba(55,65,81,1)]"
+        >
+          CREATE YOUR FIRST TASK
+        </button>
+      )}
+    </div>
+  ) : (
+    <div className="space-y-4 w-full">
+      {sortedTasks.map((task) => (
+        <div
+          key={task.id}
+          onClick={() => router.push(`/myTasks/${task.id}`)}
+          className="bg-gradient-to-br from-white via-celo-lt-tan/10 to-white border-[3px] border-black rounded-2xl p-4 shadow-[4px_4px_0_0_rgba(55,65,81,1)] hover:shadow-[6px_6px_0_0_rgba(55,65,81,1)] transition-all duration-200 cursor-pointer group w-full"
+        >
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-inter font-extrabold text-black text-lg tracking-wide group-hover:text-celo-purple truncate transition">
+                {task.title.toUpperCase()}
+              </h3>
+              <p className="text-body-s text-celo-body line-clamp-2 font-inter mt-1">
+                {task.description}
+              </p>
             </div>
-            <h3 className="text-h3 font-gt-alpina font-thin text-black mb-2">NO TASKS FOUND</h3>
-            <p className="text-body-m text-celo-body mb-6 font-inter">
-              {searchTerm || statusFilter !== 'ALL' 
-                ? 'Try adjusting your search or filters'
-                : 'Create your first task to get started!'
-              }
-            </p>
-            {!searchTerm && statusFilter === 'ALL' && (
-              <button
-                onClick={() => router.push('/CreateTask')}
-                className="px-6 py-3 bg-celo-purple text-white border-4 border-black hover:bg-black hover:text-celo-purple transition-all duration-200 font-inter font-heavy"
-              >
-                CREATE YOUR FIRST TASK
-              </button>
-            )}
+            <span className={`px-3 py-1 text-xs font-inter font-bold uppercase rounded-md ${getStatusColor(task.status)}`}>
+              {task.status}
+            </span>
           </div>
-        ) : (
-          <div className="grid gap-4 w-full">
-            {sortedTasks.map((task) => (
-              <div
-                key={task.id}
-                className="bg-white border-4 border-black p-4 hover:bg-celo-dk-tan transition-all duration-200 cursor-pointer w-full max-w-full overflow-hidden"
-                onClick={() => router.push(`/myTasks/${task.id}`)}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-inter font-heavy text-black text-body-l mb-1 truncate">{task.title.toUpperCase()}</h3>
-                    <p className="text-body-s text-celo-body line-clamp-2 font-inter">{task.description}</p>
-                  </div>
-                  <div className="flex items-center space-x-2 flex-shrink-0">
-                    <span className={`px-2 py-1 text-eyebrow font-inter font-heavy ${getStatusColor(task.status)}`}>
-                      {task.status}
-                    </span>
-                  </div>
-                </div>
 
-                {/* Task Stats */}
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className="text-center p-2">
-                    <div className="flex items-center justify-center space-x-1 mb-1">
-                      <DollarSign className="w-4 h-4 text-celo-purple" />
-                      <span className="text-eyebrow text-celo-purple font-inter font-heavy">BALANCE</span>
-                    </div>
-                    <div className="text-body-s font-inter font-heavy text-celo-purple">
-                      {(Number(task.balance) / Math.pow(10, 18)).toFixed(3)} cUSD
-                    </div>
-                  </div>
-                  
-                  <div className="text-center p-2">
-                    <div className="flex items-center justify-center space-x-1 mb-1">
-                      <Eye className="w-4 h-4 text-celo-success" />
-                      <span className="text-eyebrow text-celo-success font-inter font-heavy">RESPONSES</span>
-                    </div>
-                    <div className="text-body-s font-inter font-heavy text-celo-success">{task.responses}</div>
-                  </div>
-                </div>
+          {/* Divider */}
+          <div className="border-t-2 border-black/20 my-3"></div>
+
+          {/* Stats Section */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="text-center p-1.5 bg-celo-lt-tan/30 rounded-lg border-2 border-black">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <DollarSign className="w-4 h-4 text-celo-purple" />
+                <span className="text-xs font-inter font-bold text-celo-purple">BALANCE</span>
               </div>
-            ))}
+              <p className="text-sm font-inter font-heavy text-celo-purple">
+                {(Number(task.balance) / Math.pow(10, 18)).toFixed(3)} cUSD
+              </p>
+            </div>
+
+            <div className="text-center p-1.5 bg-celo-lt-tan/30 rounded-lg border-2 border-black">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Users className="w-4 h-4 text-celo-forest" />
+                <span className="text-xs font-inter font-bold text-celo-forest">PARTICIPANTS</span>
+              </div>
+              <p className="text-sm font-inter font-heavy text-celo-forest">
+                {task.currentParticipants}/{task.maxParticipants}
+              </p>
+            </div>
+
+            <div className="text-center p-1.5 bg-celo-lt-tan/30 rounded-lg border-2 border-black">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <span className="text-xs font-inter font-bold text-celo-success">RESPONSES</span>
+              </div>
+              <p className="text-sm font-inter font-heavy text-celo-success">{task.responses}</p>
+            </div>
           </div>
-        )}
+        </div>
+      ))}
+    </div>
+  )}
       </div>
 
       <BottomNavigation />
