@@ -21,6 +21,7 @@ import {
   Zap,
   Gift,
   Calendar,
+  Mail,
 } from "lucide-react";
 import { createCompleteTask } from "@/lib/Prismafnctns";
 import { ContactMethod, SubtaskType } from "@prisma/client";
@@ -442,27 +443,27 @@ const TaskCreationForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className="min-h-screen bg-celo-lt-tan relative">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-indigo-100/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/2 -right-40 w-96 h-96 bg-indigo-100/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-gray-100/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-celo-yellow/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 -right-40 w-96 h-96 bg-celo-forest/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-celo-purple/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
       {/* Header */}
-      <div className="relative bg-white/90 backdrop-blur-xl border-b border-white/50 sticky top-0 z-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="relative bg-celo-yellow border-b-4 border-black sticky top-0 z-50">
+        <div className="max-w-sm mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-white/80 rounded-xl transition-all duration-200 group">
-                <ArrowLeft className="w-5 h-5 text-gray-700 group-hover:text-gray-900" />
+              <button className="p-2 hover:bg-black hover:text-celo-yellow transition-all duration-200 group border-2 border-gray-700">
+                <ArrowLeft className="w-5 h-5 text-black group-hover:text-celo-yellow" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Create New Task
+                <h1 className="text-h4 font-gt-alpina font-bold text-black tracking-tight">
+                  CREATE TASK
                 </h1>
-                <p className="text-gray-500 text-sm">
+                <p className="text-body-s font-inter text-black/70">
                   Build engaging tasks and reward participants
                 </p>
               </div>
@@ -471,77 +472,21 @@ const TaskCreationForm = () => {
         </div>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-3 py-4 pb-24">
+      <div className="relative max-w-sm mx-auto px-3 py-4 pb-32">
         <form onSubmit={handleSubmit}>
-          {/* Enhanced Progress Steps */}
-          <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 mb-6 border border-white/50 shadow-xl overflow-hidden">
-            <div className="flex flex-col items-center justify-between mb-4 space-y-2">
-              <h3 className="text-base font-semibold text-gray-800">
-                Setup Progress
-              </h3>
-              <span className="text-xs font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full w-fit">
-                Step {currentStep} of 6
-              </span>
-            </div>
-
-            {/* Mobile progress steps */}
-            <div className="mb-4">
-              <div className="flex items-center justify-center space-x-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center">
-                  {React.createElement(steps[currentStep - 1].icon, {
-                    className: "w-6 h-6",
-                  })}
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-indigo-600">
-                    {steps[currentStep - 1].name}
-                  </div>
-                </div>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-indigo-600 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${(currentStep / 6) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Step Navigation */}
-            <div className="flex justify-between mt-4">
-              <button
-                type="button"
-                onClick={prevStep}
-                disabled={currentStep === 1}
-                className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
-              >
-                <ArrowLeft className="w-3 h-3" />
-                <span>Back</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={nextStep}
-                disabled={currentStep === 6 || !getStepValidation(currentStep)}
-                className="flex items-center space-x-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
-              >
-                <span>Next</span>
-                <ArrowLeft className="w-3 h-3 rotate-180" />
-              </button>
-            </div>
-          </div>
 
           {/* Step Content */}
           {currentStep === 1 && (
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
+            <div className="bg-white border-2 border-black p-4">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-indigo-600 rounded-xl w-fit">
+                {/* <div className="p-3 bg-celo-purple w-fit border-2 border-black">
                   <Target className="w-6 h-6 text-white" />
-                </div>
+                </div> */}
                 <div className="min-w-0 flex-1 text-center">
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Task Information
+                  <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
+                    TASK INFORMATION
                   </h2>
-                  <p className="text-gray-500 mt-1 text-sm">
+                  <p className="text-body-s font-inter text-black/70 mt-1">
                     Define what participants will accomplish
                   </p>
                 </div>
@@ -549,24 +494,24 @@ const TaskCreationForm = () => {
 
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold text-gray-800">
-                    Task Title *
+                  <label className="block text-body-s font-inter font-heavy text-black">
+                    TASK TITLE *
                   </label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-base"
+                    className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-m font-inter"
                     placeholder="Enter an engaging title..."
                   />
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold text-gray-800">
-                    Max Participants *
+                  <label className="block text-body-s font-inter font-heavy text-black">
+                    MAX PARTICIPANTS *
                   </label>
                   <div className="relative">
-                    <Users className="absolute left-4 top-3 w-5 h-5 text-gray-400" />
+                    <Users className="absolute left-4 top-3 w-5 h-5 text-black/50" />
                     <input
                       type="number"
                       value={maxParticipants}
@@ -574,40 +519,40 @@ const TaskCreationForm = () => {
                         setMaxParticipants(parseInt(e.target.value))
                       }
                       min="1"
-                      className="w-full pl-12 pr-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-base"
+                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-m font-inter"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold text-gray-800">
-                    Task Description *
+                  <label className="block text-body-s font-inter font-heavy text-black">
+                    TASK DESCRIPTION *
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={5}
-                    className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 resize-none text-sm"
+                    className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter"
                     placeholder="Describe what participants need to do in detail. Be specific about requirements and expectations..."
                   />
-                  <div className="flex justify-between items-center mt-2 text-xs">
+                  <div className="flex justify-between items-center mt-2 text-eyebrow">
                     <p
-                      className={`${
+                      className={`font-inter font-heavy ${
                         description.length < 200
                           ? "text-red-500"
                           : description.length > 500
-                          ? "text-yellow-500"
-                          : "text-green-500"
+                          ? "text-celo-orange"
+                          : "text-celo-forest"
                       }`}
                     >
-                      {description.length} characters
+                      {description.length} CHARACTERS
                     </p>
-                    <p className="text-gray-400">
+                    <p className="text-black/50 font-inter">
                       Recommended: 200-500 characters
                     </p>
                   </div>
                   {description.length > 0 && description.length < 200 && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="text-eyebrow text-red-500 mt-1 font-inter font-heavy">
                       Description is too short. Please provide more details.
                     </p>
                   )}
@@ -617,16 +562,16 @@ const TaskCreationForm = () => {
           )}
 
           {currentStep === 2 && (
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
+            <div className="bg-white border-2 border-black p-4">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-green-600 rounded-xl w-fit">
+                <div className="p-3 bg-celo-forest w-fit border-2 border-black">
                   <DollarSign className="w-6 h-6 text-white" />
                 </div>
                 <div className="min-w-0 flex-1 text-center">
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Reward Structure
+                  <h2 className="text-h3 font-gt-alpina font-thin text-black tracking-tight">
+                    REWARD STRUCTURE
                   </h2>
-                  <p className="text-gray-500 mt-1 text-sm">
+                  <p className="text-body-s font-inter text-black/70 mt-1">
                     Set up incentives for quality participation
                   </p>
                 </div>
@@ -635,18 +580,18 @@ const TaskCreationForm = () => {
               <div className="space-y-6 mb-6">
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
-                    <label className="block text-sm font-semibold text-gray-800">
-                      Base Reward (cUSD) *
+                    <label className="block text-body-s font-inter font-heavy text-black">
+                      BASE REWARD (cUSD) *
                     </label>
                     <div className="group relative">
-                      <Info className="w-4 h-4 text-gray-400" />
-                      <div className="invisible group-hover:visible absolute bottom-6 left-0 bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                      <Info className="w-4 h-4 text-black/50" />
+                      <div className="invisible group-hover:visible absolute bottom-6 left-0 bg-black text-white text-eyebrow px-2 py-1 whitespace-nowrap z-10 border-2 border-black font-inter">
                         Guaranteed payment for all participants
                       </div>
                     </div>
                   </div>
                   <div className="relative">
-                    <span className="absolute left-4 top-3 text-gray-500 font-medium text-sm">
+                    <span className="absolute left-4 top-3 text-black font-heavy text-body-s font-inter">
                       $
                     </span>
                     <input
@@ -655,7 +600,7 @@ const TaskCreationForm = () => {
                       onChange={(e) => setBaseReward(e.target.value)}
                       step="0.01"
                       min="0"
-                      className="w-full pl-8 pr-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-400 transition-all duration-200 text-base"
+                      className="w-full pl-8 pr-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-m font-inter"
                       placeholder="0.00"
                     />
                   </div>
@@ -663,18 +608,18 @@ const TaskCreationForm = () => {
 
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
-                    <label className="block text-sm font-semibold text-gray-800">
-                      Max Bonus (cUSD) *
+                    <label className="block text-body-s font-inter font-heavy text-black">
+                      MAX BONUS (cUSD) *
                     </label>
                     <div className="group relative">
-                      <Info className="w-4 h-4 text-gray-400" />
-                      <div className="invisible group-hover:visible absolute bottom-6 left-0 bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+                      <Info className="w-4 h-4 text-black/50" />
+                      <div className="invisible group-hover:visible absolute bottom-6 left-0 bg-black text-white text-eyebrow px-2 py-1 whitespace-nowrap z-10 border-2 border-black font-inter">
                         Additional reward for high-quality submissions
                       </div>
                     </div>
                   </div>
                   <div className="relative">
-                    <span className="absolute left-4 top-3 text-gray-500 font-medium text-sm">
+                    <span className="absolute left-4 top-3 text-black font-heavy text-body-s font-inter">
                       $
                     </span>
                     <input
@@ -683,7 +628,7 @@ const TaskCreationForm = () => {
                       onChange={(e) => setMaxBonusReward(e.target.value)}
                       step="0.01"
                       min="0"
-                      className="w-full pl-8 pr-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-400 transition-all duration-200 text-base"
+                      className="w-full pl-8 pr-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-m font-inter"
                       placeholder="0.00"
                     />
                   </div>
@@ -691,16 +636,16 @@ const TaskCreationForm = () => {
               </div>
 
               {/* Enhanced Total Calculation - Mobile Optimized */}
-              <div className="bg-green-50 rounded-xl p-4 border border-green-200 mb-6">
+              <div className="bg-celo-lt-tan border-2 border-black p-4 mb-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
                     <div className="flex items-center justify-center space-x-2 mb-2">
-                      <Gift className="w-5 h-5 text-green-600" />
-                      <span className="text-sm font-semibold text-green-800">
-                        Per Participant
+                      <Gift className="w-5 h-5 text-celo-forest" />
+                      <span className="text-body-s font-inter font-heavy text-celo-forest">
+                        PER PARTICIPANT
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-green-700">
+                    <p className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
                       $
                       {(
                         (parseFloat(baseReward) || 0) +
@@ -711,37 +656,37 @@ const TaskCreationForm = () => {
 
                   <div className="text-center">
                     <div className="flex items-center justify-center space-x-2 mb-2">
-                      <Users className="w-5 h-5 text-green-600" />
-                      <span className="text-sm font-semibold text-green-800">
-                        Participants
+                      <Users className="w-5 h-5 text-celo-purple" />
+                      <span className="text-body-s font-inter font-heavy text-celo-purple">
+                        PARTICIPANTS
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-green-700">
+                    <p className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
                       {maxParticipants}
                     </p>
                   </div>
                 </div>
                 <div className="text-center mt-4">
                   <div className="flex items-center justify-center space-x-2 mb-2">
-                    <DollarSign className="w-5 h-5 text-green-600" />
-                    <span className="text-sm font-semibold text-green-800">
-                      Total Required
+                    <DollarSign className="w-5 h-5 text-celo-forest" />
+                    <span className="text-body-s font-inter font-heavy text-celo-forest">
+                      TOTAL REQUIRED
                     </span>
                   </div>
-                  <p className="text-3xl font-bold text-green-700">
+                  <p className="text-h3 font-gt-alpina font-thin text-black tracking-tight">
                     ${calculateTotalRequired().toFixed(2)}
                   </p>
                 </div>
               </div>
 
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <div className="bg-celo-yellow border-2 border-black p-4">
                 <div className="flex items-start space-x-3">
-                  <Zap className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Zap className="w-5 h-5 text-black mt-0.5 flex-shrink-0" />
                   <div className="min-w-0">
-                    <h4 className="text-sm font-semibold text-blue-800">
-                      How rewards work
+                    <h4 className="text-body-s font-inter font-heavy text-black">
+                      HOW REWARDS WORK
                     </h4>
-                    <p className="text-sm text-blue-700 mt-1">
+                    <p className="text-body-s font-inter text-black/70 mt-1">
                       All participants receive the base reward. Bonus rewards
                       are distributed based on AI rating of submission quality
                       (0-100% of max bonus).
@@ -753,16 +698,16 @@ const TaskCreationForm = () => {
           )}
 
           {currentStep === 3 && (
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
+            <div className="bg-white border-2 border-black p-4">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-purple-600 rounded-xl w-fit">
+                <div className="p-3 bg-celo-purple w-fit border-2 border-black">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
                 <div className="min-w-0 flex-1 text-center">
-                  <h2 className="text-xl font-bold text-gray-900">
-                    AI Rating Criteria
+                  <h2 className="text-h3 font-gt-alpina font-thin text-black tracking-tight">
+                    AI RATING CRITERIA
                   </h2>
-                  <p className="text-gray-500 mt-1 text-sm">
+                  <p className="text-body-s font-inter text-black/70 mt-1">
                     Define quality standards for automatic evaluation
                   </p>
                 </div>
@@ -771,25 +716,25 @@ const TaskCreationForm = () => {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex flex-col-2 justify-between">
-                    <label className="block text-sm font-semibold text-gray-800">
-                      Rating Criteria *
+                    <label className="block text-body-s font-inter font-heavy text-black">
+                      RATING CRITERIA *
                     </label>
                     {aiCriteria.length >= 10 && (
                       <button
                         type="button"
                         onClick={handleImproveCriteria}
                         disabled={isImprovingCriteria}
-                        className="flex items-center gap-2 text-indigo-500 hover:text-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                        className="flex items-center gap-2 text-celo-purple hover:text-white hover:bg-celo-purple disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border-2 border-celo-purple px-2 py-1"
                       >
                         {isImprovingCriteria ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                            <span className="text-sm">Improving...</span>
+                            <div className="w-4 h-4 border-2 border-celo-purple border-t-transparent animate-spin"></div>
+                            <span className="text-eyebrow font-inter font-heavy">IMPROVING...</span>
                           </>
                         ) : (
                           <>
                             <Sparkles className="w-4 h-4" />
-                            <span className="text-sm">Improve with AI</span>
+                            <span className="text-eyebrow font-inter font-heavy">IMPROVE WITH AI</span>
                           </>
                         )}
                       </button>
@@ -801,38 +746,38 @@ const TaskCreationForm = () => {
                       onChange={(e) => setAiCriteria(e.target.value)}
                       rows={6}
                       disabled={isImprovingCriteria}
-                      className={`w-full px-4 py-3 bg-white/90 border rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-400 transition-all duration-200 resize-none text-sm ${
+                      className={`w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter ${
                         isImprovingCriteria
-                          ? 'border-purple-300 bg-purple-50/50 cursor-not-allowed opacity-75'
-                          : 'border-gray-200'
+                          ? 'border-celo-purple bg-celo-purple/10 cursor-not-allowed opacity-75'
+                          : ''
                       }`}
                       placeholder="Example: Look for detailed feedback, specific suggestions, constructive criticism, and actionable insights. Higher ratings for comprehensive responses that show understanding of the task."
                     />
                     {isImprovingCriteria && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-purple-50/80 rounded-lg">
-                        <div className="flex items-center space-x-2 text-purple-600">
-                          <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                          <span className="text-sm font-medium">AI is improving your criteria...</span>
+                      <div className="absolute inset-0 flex items-center justify-center bg-celo-purple/20 border-4 border-celo-purple">
+                        <div className="flex items-center space-x-2 text-celo-purple">
+                          <div className="w-4 h-4 border-2 border-celo-purple border-t-transparent animate-spin"></div>
+                          <span className="text-body-s font-inter font-heavy">AI IS IMPROVING YOUR CRITERIA...</span>
                         </div>
                       </div>
                     )}
                   </div>
-                  <div className="flex justify-between items-center mt-2 text-xs">
+                  <div className="flex justify-between items-center mt-2 text-eyebrow">
                     <p
-                      className={`${
+                      className={`font-inter font-heavy ${
                         aiCriteria.length < 10
                           ? "text-red-500"
                           : aiCriteria.length < 50
-                          ? "text-yellow-500"
-                          : "text-green-500"
+                          ? "text-celo-orange"
+                          : "text-celo-forest"
                       }`}
                     >
-                      {aiCriteria.length} characters
+                      {aiCriteria.length} CHARACTERS
                     </p>
-                    <p className="text-gray-400">Be specific and detailed</p>
+                    <p className="text-black/50 font-inter">Be specific and detailed</p>
                   </div>
                   {aiCriteria.length > 0 && aiCriteria.length < 10 && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="text-eyebrow text-red-500 mt-1 font-inter font-heavy">
                       AI criteria is too short. Please provide more specific
                       instructions.
                     </p>
@@ -840,46 +785,46 @@ const TaskCreationForm = () => {
 
                 </div>
 
-                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                  <h4 className="font-semibold text-purple-800 mb-3 text-sm">
-                    Tips for effective AI criteria:
+                <div className="bg-celo-purple border-2 border-black p-4">
+                  <h4 className="font-inter font-heavy text-white mb-3 text-body-s">
+                    TIPS FOR EFFECTIVE AI CRITERIA:
                   </h4>
-                  <ul className="space-y-2 text-xs text-purple-700">
+                  <ul className="space-y-2 text-eyebrow text-white">
                     <li className="flex items-start space-x-2">
-                      <Star className="w-4 h-4 mt-0.5 text-purple-500 flex-shrink-0" />
-                      <span>
+                      <Star className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
+                      <span className="font-inter">
                         Be specific about what constitutes quality work
                       </span>
                     </li>
                     <li className="flex items-start space-x-2">
-                      <Star className="w-4 h-4 mt-0.5 text-purple-500 flex-shrink-0" />
-                      <span>Include examples of good vs poor responses</span>
+                      <Star className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
+                      <span className="font-inter">Include examples of good vs poor responses</span>
                     </li>
                     <li className="flex items-start space-x-2">
-                      <Star className="w-4 h-4 mt-0.5 text-purple-500 flex-shrink-0" />
-                      <span>Mention required elements or structure</span>
+                      <Star className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
+                      <span className="font-inter">Mention required elements or structure</span>
                     </li>
                     <li className="flex items-start space-x-2">
-                      <Star className="w-4 h-4 mt-0.5 text-purple-500 flex-shrink-0" />
-                      <span>Specify length or depth requirements</span>
+                      <Star className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
+                      <span className="font-inter">Specify length or depth requirements</span>
                     </li>
                   </ul>
                 </div>
               </div>
             </div>
           )}
-
+          {/* Restrictions */}
           {currentStep === 4 && (
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
+            <div className="bg-white border-2 border-black p-4">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-orange-600 rounded-xl w-fit">
+                <div className="p-3 bg-celo-orange w-fit border-2 border-black">
                   <Users className="w-6 h-6 text-white" />
                 </div>
                 <div className="min-w-0 flex-1 text-center">
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Participant Restrictions
+                  <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
+                    PARTICIPANT RESTRICTIONS
                   </h2>
-                  <p className="text-gray-500 mt-1 text-sm">
+                  <p className="text-body-s font-inter text-black/70 mt-1">
                     Set filters for who can participate
                   </p>
                 </div>
@@ -887,12 +832,12 @@ const TaskCreationForm = () => {
 
               <div className="space-y-6">
                 {/* Main toggle */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-celo-lt-tan border-2 border-black">
                   <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Enable Restrictions
+                    <h3 className="font-inter font-heavy text-black text-body-s">
+                      ENABLE RESTRICTIONS
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-body-s font-inter text-black/70">
                       Turn on to filter participants
                     </p>
                   </div>
@@ -903,17 +848,17 @@ const TaskCreationForm = () => {
                       onChange={(e) => setRestrictionsEnabled(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                    <div className="w-11 h-6 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-5 after:w-5 after:transition-all peer-checked:bg-celo-purple"></div>
                   </label>
                 </div>
 
                 {restrictionsEnabled && (
                   <div className="space-y-6">
                     {/* Age Restriction */}
-                    <div className="p-4 bg-white border border-gray-200 rounded-lg">
+                    <div className="p-4 bg-white border-2 border-black">
                       <div className="flex items-center justify-between mb-4">
-                        <h4 className="font-semibold text-gray-900">
-                          Age Restriction
+                        <h4 className="font-inter font-heavy text-black text-body-s">
+                          AGE RESTRICTION
                         </h4>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -924,15 +869,15 @@ const TaskCreationForm = () => {
                             }
                             className="sr-only peer"
                           />
-                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                          <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
                         </label>
                       </div>
 
                       {ageRestriction && (
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Minimum Age *
+                            <label className="block text-body-s font-inter font-heavy text-black mb-2">
+                              MINIMUM AGE *
                             </label>
                             <input
                               type="number"
@@ -942,13 +887,13 @@ const TaskCreationForm = () => {
                               }
                               min="13"
                               max="100"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                              className="w-full px-3 py-2 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
                               required
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Maximum Age *
+                            <label className="block text-body-s font-inter font-heavy text-black mb-2">
+                              MAXIMUM AGE *
                             </label>
                             <input
                               type="number"
@@ -958,7 +903,7 @@ const TaskCreationForm = () => {
                               }
                               min="13"
                               max="100"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                              className="w-full px-3 py-2 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
                               required
                             />
                           </div>
@@ -967,10 +912,10 @@ const TaskCreationForm = () => {
                     </div>
 
                     {/* Gender Restriction */}
-                    <div className="p-4 bg-white border border-gray-200 rounded-lg">
+                    <div className="p-4 bg-white border-2 border-black">
                       <div className="flex items-center justify-between mb-4">
-                        <h4 className="font-semibold text-gray-900">
-                          Gender Restriction
+                        <h4 className="font-inter font-heavy text-black text-body-s">
+                          GENDER RESTRICTION
                         </h4>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -981,7 +926,7 @@ const TaskCreationForm = () => {
                             }
                             className="sr-only peer"
                           />
-                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                          <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
                         </label>
                       </div>
 
@@ -994,9 +939,9 @@ const TaskCreationForm = () => {
                               value="M"
                               checked={gender === "M"}
                               onChange={(e) => setGender(e.target.value)}
-                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                              className="mr-2 text-celo-purple focus:ring-celo-purple"
                             />
-                            <span className="text-sm text-gray-700">Male</span>
+                            <span className="text-body-s font-inter text-black">Male</span>
                           </label>
                           <label className="flex items-center">
                             <input
@@ -1005,9 +950,9 @@ const TaskCreationForm = () => {
                               value="F"
                               checked={gender === "F"}
                               onChange={(e) => setGender(e.target.value)}
-                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                              className="mr-2 text-celo-purple focus:ring-celo-purple"
                             />
-                            <span className="text-sm text-gray-700">
+                            <span className="text-body-s font-inter text-black">
                               Female
                             </span>
                           </label>
@@ -1018,14 +963,14 @@ const TaskCreationForm = () => {
                 )}
 
                 {!restrictionsEnabled && (
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="p-4 bg-celo-yellow border-2 border-black">
                     <div className="flex items-start space-x-3">
-                      <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <Info className="w-5 h-5 text-black mt-0.5 flex-shrink-0" />
                       <div>
-                        <h4 className="text-sm font-semibold text-blue-800">
-                          No Restrictions
+                        <h4 className="text-body-s font-inter font-heavy text-black">
+                          NO RESTRICTIONS
                         </h4>
-                        <p className="text-xs text-blue-700 mt-1">
+                        <p className="text-body-s font-inter text-black/70 mt-1">
                           Your task will be open to all participants. Enable
                           restrictions above if you want to filter participants
                           by age, gender, or location.
@@ -1037,18 +982,18 @@ const TaskCreationForm = () => {
               </div>
             </div>
           )}
-
+          {/* Contact Information */}
           {currentStep === 5 && (
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
+            <div className="bg-white border-2 border-black p-4">
               <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-indigo-600 rounded-xl w-fit">
-                  <Users className="w-6 h-6 text-white" />
+                <div className="p-3 bg-celo-lime w-fit border-2 border-black">
+                  <Mail className="w-6 h-6 text-black" />
                 </div>
                 <div className="min-w-0 flex-1 text-center">
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Contact Information
+                  <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
+                    CONTACT INFORMATION
                   </h2>
-                  <p className="text-gray-500 mt-1 text-sm">
+                  <p className="text-body-s font-inter text-black/70 mt-1">
                     How participants can reach you
                   </p>
                 </div>
@@ -1056,25 +1001,25 @@ const TaskCreationForm = () => {
 
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold text-gray-800">
-                    Contact Method *
+                  <label className="block text-body-s font-inter font-heavy text-black">
+                    CONTACT METHOD *
                   </label>
                   <div className="relative">
                     <select
                       value={contactMethod}
                       onChange={(e) => setContactMethod(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 appearance-none text-sm"
+                      className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 appearance-none text-body-m font-inter"
                     >
                       <option value="EMAIL">📧 Email</option>
                       <option value="WHATSAPP">📱 WhatsApp</option>
                     </select>
-                    <ChevronDown className="absolute right-4 top-3 w-5 h-5 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-4 top-3 w-5 h-5 text-black pointer-events-none" />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold text-gray-800">
-                    Contact Info *
+                  <label className="block text-body-s font-inter font-heavy text-black">
+                    CONTACT INFO *
                   </label>
                   {contactMethod === "WHATSAPP" ? (
                     <div className="flex space-x-2">
@@ -1082,7 +1027,7 @@ const TaskCreationForm = () => {
                         <select
                           value={countryCode}
                           onChange={(e) => setCountryCode(e.target.value)}
-                          className="w-full px-3 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm appearance-none"
+                          className="w-full px-3 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter appearance-none"
                         >
                           {countryCodes.map((country) => (
                             <option key={country.code} value={country.code}>
@@ -1090,14 +1035,14 @@ const TaskCreationForm = () => {
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute right-2 top-3 w-4 h-4 text-gray-400 pointer-events-none" />
+                        <ChevronDown className="absolute right-2 top-3 w-4 h-4 text-black pointer-events-none" />
                       </div>
                       <div className="flex-1">
                         <input
                           type="tel"
                           value={contactInfo}
                           onChange={(e) => setContactInfo(e.target.value)}
-                          className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm"
+                          className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
                           placeholder="1234567890"
                         />
                       </div>
@@ -1107,31 +1052,31 @@ const TaskCreationForm = () => {
                       type="email"
                       value={contactInfo}
                       onChange={(e) => setContactInfo(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm"
+                      className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
                       placeholder="your@email.com"
                     />
                   )}
                   {contactMethod === "WHATSAPP" && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-body-s font-inter text-black/70">
                       Full number will be: {countryCode}{contactInfo || "1234567890"}
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-sm font-semibold text-gray-800">
-                    Task Deadline (Optional)
+                  <label className="block text-body-s font-inter font-heavy text-black">
+                    TASK DEADLINE (OPTIONAL)
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute left-4 top-3 w-5 h-5 text-gray-400" />
+                    <Calendar className="absolute left-4 top-3 w-5 h-5 text-black" />
                     <input
                       type="datetime-local"
                       value={expiresAt}
                       onChange={(e) => setExpiresAt(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 bg-white/90 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm"
+                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-body-s font-inter text-black/70 mt-2">
                     Leave empty for no deadline. Tasks without deadlines run
                     until manually closed.
                   </p>
@@ -1140,18 +1085,19 @@ const TaskCreationForm = () => {
             </div>
           )}
 
+          {/* Subtasks */}
           {currentStep === 6 && (
-            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-white/50 shadow-xl">
+            <div className="bg-white border-2 border-black p-4">
               <div className="flex flex-col items-center justify-between mb-6 space-y-3">
                   <div className="flex flex-col items-center space-y-3">
-                    <div className="p-3 bg-orange-600 rounded-xl w-fit">
+                    <div className="p-3 bg-celo-orange w-fit border-2 border-black">
                       <FileText className="w-6 h-6 text-white" />
                     </div>
                   <div className="min-w-0 flex-1 text-center">
-                    <h2 className="text-xl font-bold text-gray-900">
-                      Subtasks
+                    <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
+                      SUBTASKS
                     </h2>
-                    <p className="text-gray-500 mt-1 text-sm">
+                    <p className="text-body-s font-inter text-black/70 mt-1">
                       Break down your task into manageable parts
                     </p>
                   </div>
@@ -1162,20 +1108,20 @@ const TaskCreationForm = () => {
                 {subtasks.map((subtask, index) => (
                   <div
                     key={subtask.id}
-                    className="bg-white/90 border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all duration-200"
+                    className="bg-celo-lt-tan border-2 border-black p-4"
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-3">
-                        <span className="bg-indigo-600 text-white w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                      <h3 className="text-body-l font-inter font-heavy text-black flex items-center space-x-3">
+                        <span className="bg-celo-purple text-white w-10 h-10 flex items-center justify-center text-body-s font-inter font-heavy border-2 border-black">
                           {index + 1}
                         </span>
-                        <span className="truncate">Subtask {index + 1}</span>
+                        <span className="truncate">SUBTASK {index + 1}</span>
                       </h3>
                       {subtasks.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeSubtask(subtask.id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 hover:scale-105 flex-shrink-0"
+                          className="p-2 text-celo-orange hover:bg-celo-orange hover:text-white border-2 border-celo-orange transition-all duration-200"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1184,8 +1130,8 @@ const TaskCreationForm = () => {
 
                     <div className="space-y-4 mb-4">
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-gray-800">
-                          Subtask Title *
+                        <label className="block text-body-s font-inter font-heavy text-black">
+                          SUBTASK TITLE *
                         </label>
                         <input
                           type="text"
@@ -1193,14 +1139,14 @@ const TaskCreationForm = () => {
                           onChange={(e) =>
                             updateSubtask(subtask.id, "title", e.target.value)
                           }
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 text-sm"
+                          className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
                           placeholder="Enter subtask title"
                         />
                       </div>
 
                       <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-gray-800">
-                          Input Type *
+                        <label className="block text-body-s font-inter font-heavy text-black">
+                          INPUT TYPE *
                         </label>
                         <div className="relative">
                           <select
@@ -1208,7 +1154,7 @@ const TaskCreationForm = () => {
                             onChange={(e) =>
                               updateSubtask(subtask.id, "type", e.target.value)
                             }
-                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 appearance-none text-sm"
+                            className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 appearance-none text-body-s font-inter"
                           >
                             {availableSubtaskTypes.map((type) => (
                               <option key={type.value} value={type.value}>
@@ -1216,14 +1162,14 @@ const TaskCreationForm = () => {
                               </option>
                             ))}
                           </select>
-                          <ChevronDown className="absolute right-3 top-3 w-5 h-5 text-gray-400 pointer-events-none" />
+                          <ChevronDown className="absolute right-3 top-3 w-5 h-5 text-black pointer-events-none" />
                         </div>
                       </div>
                     </div>
 
                     <div className="mb-4 space-y-3">
-                      <label className="block text-sm font-semibold text-gray-800">
-                        Description (Optional)
+                      <label className="block text-body-s font-inter font-heavy text-black">
+                        DESCRIPTION (OPTIONAL)
                       </label>
                       <textarea
                         value={subtask.description}
@@ -1235,15 +1181,15 @@ const TaskCreationForm = () => {
                           )
                         }
                         rows={2}
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 resize-none text-sm"
+                        className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter"
                         placeholder="Additional details about this subtask..."
                       />
                     </div>
 
                     {subtask.type === "MULTIPLE_CHOICE" && (
                       <div className="mb-4 space-y-3">
-                        <label className="block text-sm font-semibold text-gray-800">
-                          Options (one per line) *
+                        <label className="block text-body-s font-inter font-heavy text-black">
+                          OPTIONS (ONE PER LINE) *
                         </label>
                         <textarea
                           value={subtask.options || ""}
@@ -1251,7 +1197,24 @@ const TaskCreationForm = () => {
                             updateSubtask(subtask.id, "options", e.target.value)
                           }
                           rows={3}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-200 resize-none text-sm"
+                          className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter"
+                          placeholder="Option 1, Option 2, Option 3&#10;Or use new lines"
+                        />
+                      </div>
+                    )}
+
+                    {subtask.type === "CHOICE_SELECTION" && (
+                      <div className="mb-4 space-y-3">
+                        <label className="block text-body-s font-inter font-heavy text-black">
+                          OPTIONS (ONE PER LINE) *
+                        </label>
+                        <textarea
+                          value={subtask.options || ""}
+                          onChange={(e) =>
+                            updateSubtask(subtask.id, "options", e.target.value)
+                          }
+                          rows={3}
+                          className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter"
                           placeholder="Option 1, Option 2, Option 3&#10;Or use new lines"
                         />
                       </div>
@@ -1269,14 +1232,14 @@ const TaskCreationForm = () => {
                               e.target.checked
                             )
                           }
-                          className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded transition-all duration-200"
+                          className="h-5 w-5 text-celo-purple focus:ring-celo-purple border-black border-2 transition-all duration-200"
                         />
-                        <span className="text-sm font-semibold text-gray-800">
-                          Required field
+                        <span className="text-body-s font-inter font-heavy text-black">
+                          REQUIRED FIELD
                         </span>
                       </label>
 
-                      <div className="flex items-center space-x-2 text-xs text-gray-500">
+                      <div className="flex items-center space-x-2 text-body-s font-inter text-black/70">
                         {subtask.type === "TEXT_INPUT" && (
                           <FileText className="w-4 h-4" />
                         )}
@@ -1297,27 +1260,27 @@ const TaskCreationForm = () => {
                   </div>
                 ))}
 
-                {/* Floating Add Subtask Button - Better UX */}
+                {/* Add Subtask Button */}
                 <div className="mt-6 flex justify-center">
                   <button
                     type="button"
                     onClick={addSubtask}
-                    className="flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm w-fit"
+                    className="flex items-center space-x-2 bg-celo-forest text-white px-6 py-3 font-inter font-heavy hover:bg-black hover:text-celo-forest transition-all duration-200 border-2 border-black text-body-s"
                   >
                     <Plus className="w-5 h-5" />
-                    <span>Add Subtask</span>
+                    <span>ADD SUBTASK</span>
                   </button>
                 </div>
               </div>
 
-              <div className="mt-6 bg-orange-50 rounded-lg p-4 border border-orange-200">
+              <div className="mt-6 bg-celo-yellow border-2 border-black p-4">
                 <div className="flex items-start space-x-3">
-                  <Info className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <Info className="w-5 h-5 text-black mt-0.5 flex-shrink-0" />
                   <div className="min-w-0">
-                    <h4 className="text-sm font-semibold text-orange-800">
-                      Subtask Guidelines
+                    <h4 className="text-body-s font-inter font-heavy text-black">
+                      SUBTASK GUIDELINES
                     </h4>
-                    <p className="text-xs text-orange-700 mt-1">
+                    <p className="text-body-s font-inter text-black/70 mt-1">
                       Keep subtasks focused and specific. Each subtask should
                       have a clear purpose and contribute to the overall task
                       goal. Consider the time participants will need for each
@@ -1331,33 +1294,33 @@ const TaskCreationForm = () => {
 
           {/* Enhanced Submit Section */}
           {currentStep === 6 && (
-            <div className="mt-6 bg-indigo-50 rounded-xl p-4 border border-indigo-200">
+            <div className="mt-6 bg-celo-lt-tan border-2 border-black p-4">
               <div className="text-center mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  Ready to Launch?
+                <h3 className="text-h3 font-gt-alpina font-thin text-black tracking-tight mb-2">
+                  READY TO LAUNCH?
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-body-s font-inter text-black/70">
                   Review your task details and submit to go live
                 </p>
               </div>
 
               {/* Validation Errors */}
               {getValidationErrors().length > 0 && (
-                <div className="bg-red-50 rounded-lg p-4 border border-red-200 mb-6">
+                <div className="bg-red-500 border-2 border-black p-4 mb-6">
                   <div className="flex items-start space-x-3">
-                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                    <AlertCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
                     <div className="min-w-0">
-                      <h4 className="text-sm font-semibold text-red-800 mb-2">
-                        Please fix the following issues:
+                      <h4 className="text-body-s font-inter font-heavy text-white mb-2">
+                        PLEASE FIX THE FOLLOWING ISSUES:
                       </h4>
-                      <ul className="space-y-1 text-xs text-red-700">
+                      <ul className="space-y-1 text-eyebrow text-white">
                         {getValidationErrors().map((error, index) => (
                           <li
                             key={index}
                             className="flex items-start space-x-2"
                           >
                             <span>•</span>
-                            <span>{error}</span>
+                            <span className="font-inter">{error}</span>
                           </li>
                         ))}
                       </ul>
@@ -1368,50 +1331,50 @@ const TaskCreationForm = () => {
 
               {/* Task Summary - Mobile Optimized */}
               <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-white/80 rounded-lg p-3 text-center">
-                  <Target className="w-4 h-6 text-indigo-600 mx-auto mb-1" />
-                  <div className="text-xs text-gray-600">Task Type</div>
-                  <div className="font-semibold text-gray-900 text-xs">
-                    {subtasks.length} Subtasks
+                <div className="bg-white border-2 border-black p-3 text-center">
+                  <Target className="w-4 h-6 text-celo-purple mx-auto mb-1" />
+                  <div className="text-eyebrow text-black/70 font-inter">TASK TYPE</div>
+                  <div className="font-inter font-heavy text-black text-eyebrow">
+                    {subtasks.length} SUBTASKS
                   </div>
                 </div>
 
-                <div className="bg-white/80 rounded-lg p-3 text-center">
-                  <Users className="w-4 h-6 text-indigo-600 mx-auto mb-1" />
-                  <div className="text-xs text-gray-600">Max Participants</div>
-                  <div className="font-semibold text-gray-900 text-xs">
+                <div className="bg-white border-2 border-black p-3 text-center">
+                  <Users className="w-4 h-6 text-celo-purple mx-auto mb-1" />
+                  <div className="text-eyebrow text-black/70 font-inter">MAX PARTICIPANTS</div>
+                  <div className="font-inter font-heavy text-black text-eyebrow">
                     {maxParticipants}
                   </div>
                 </div>
 
-                <div className="bg-white/80 rounded-lg p-3 text-center">
-                  <DollarSign className="w-4 h-6 text-green-600 mx-auto mb-1" />
-                  <div className="text-xs text-gray-600">Total Budget</div>
-                  <div className="font-semibold text-gray-900 text-xs">
+                <div className="bg-white border-2 border-black p-3 text-center">
+                  <DollarSign className="w-4 h-6 text-celo-forest mx-auto mb-1" />
+                  <div className="text-eyebrow text-black/70 font-inter">TOTAL BUDGET</div>
+                  <div className="font-inter font-heavy text-black text-eyebrow">
                     ${calculateTotalRequired().toFixed(2)}
                   </div>
                 </div>
 
-                <div className="bg-white/80 rounded-lg p-3 text-center">
-                  <Clock className="w-4 h-6 text-indigo-600 mx-auto mb-1" />
-                  <div className="text-xs text-gray-600">Deadline</div>
-                  <div className="font-semibold text-gray-900 text-xs">
-                    {expiresAt ? "Set" : "Open"}
+                <div className="bg-white border-2 border-black p-3 text-center">
+                  <Clock className="w-4 h-6 text-celo-purple mx-auto mb-1" />
+                  <div className="text-eyebrow text-black/70 font-inter">DEADLINE</div>
+                  <div className="font-inter font-heavy text-black text-eyebrow">
+                    {expiresAt ? "SET" : "OPEN"}
                   </div>
                 </div>
               </div>
 
               {/* Restrictions Summary */}
               {restrictionsEnabled && (
-                <div className="bg-orange-50 rounded-lg p-4 border border-orange-200 mb-6">
-                  <h4 className="font-semibold text-orange-800 mb-3 text-sm">
-                    Active Restrictions:
+                <div className="bg-celo-orange border-2 border-black p-4 mb-6">
+                  <h4 className="font-inter font-heavy text-black mb-3 text-body-s">
+                    ACTIVE RESTRICTIONS:
                   </h4>
-                  <div className="space-y-2 text-xs text-orange-700">
+                  <div className="space-y-2 text-eyebrow text-black">
                     {ageRestriction && (
                       <div className="flex items-center space-x-2">
                         <span>•</span>
-                        <span>
+                        <span className="font-inter">
                           Age: {minAge} - {maxAge} years
                         </span>
                       </div>
@@ -1419,7 +1382,7 @@ const TaskCreationForm = () => {
                     {genderRestriction && (
                       <div className="flex items-center space-x-2">
                         <span>•</span>
-                        <span>
+                        <span className="font-inter">
                           Gender: {gender === "M" ? "Male" : "Female"}
                         </span>
                       </div>
@@ -1427,7 +1390,7 @@ const TaskCreationForm = () => {
                     {countryRestriction && countries.length > 0 && (
                       <div className="flex items-center space-x-2">
                         <span>•</span>
-                        <span>Countries: {countries.length} selected</span>
+                        <span className="font-inter">Countries: {countries.length} selected</span>
                       </div>
                     )}
                   </div>
@@ -1438,24 +1401,24 @@ const TaskCreationForm = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting || getValidationErrors().length > 0}
-                  className="flex items-center justify-center space-x-3 bg-indigo-600 text-white px-12 py-4 rounded-lg font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-lg"
+                  className="flex items-center justify-center space-x-3 bg-celo-yellow text-black px-12 py-4 font-inter font-heavy shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-body-l border-2 border-black"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Creating...</span>
+                      <div className="w-6 h-6 border-3 border-black border-t-transparent animate-spin"></div>
+                      <span>CREATING...</span>
                     </>
                   ) : (
                     <>
                       <Save className="w-6 h-6" />
-                      <span>Create Task</span>
+                      <span>CREATE TASK</span>
                     </>
                   )}
                 </button>
               </div>
 
               <div className="mt-4 text-center">
-                <p className="text-xs text-gray-500">
+                <p className="text-eyebrow text-black/50 font-inter">
                   By creating this task, you agree to pay the specified rewards
                   to participants who complete the requirements.
                 </p>
@@ -1463,7 +1426,71 @@ const TaskCreationForm = () => {
             </div>
           )}
         </form>
+
+        {/* Progress Indicator - Below Form Content */}
+        <div className="mt-6 px-4">
+          <div className="bg-white border-2 border-black p-3">
+            <div className="flex flex-col items-center space-y-3">
+              {/* Current Step Info */}
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-celo-purple text-white flex items-center justify-center border-2 border-black">
+                  {React.createElement(steps[currentStep - 1].icon, {
+                    className: "w-4 h-4",
+                  })}
+                </div>
+                <div className="text-center">
+                  <div className="text-eyebrow font-inter font-heavy text-celo-purple">
+                    {steps[currentStep - 1].name}
+                  </div>
+                  <div className="text-xs font-inter text-black/70">
+                    STEP {currentStep} OF 6
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Dots */}
+              <div className="flex space-x-1.5">
+                {steps.map((step, index) => (
+                  <div
+                    key={step.id}
+                    className={`w-2.5 h-2.5 border-2 border-black transition-all duration-300 ${
+                      index + 1 === currentStep
+                        ? 'bg-celo-purple'
+                        : index + 1 < currentStep
+                        ? 'bg-celo-forest'
+                        : 'bg-white'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between w-full">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  className="flex items-center space-x-1 px-2 py-1.5 text-black hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs font-inter font-heavy border-2 border-black"
+                >
+                  <ArrowLeft className="w-3 h-3" />
+                  <span>BACK</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  disabled={currentStep === 6 || !getStepValidation(currentStep)}
+                  className="flex items-center space-x-1 px-3 py-1.5 bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs font-inter font-heavy border-2 border-black"
+                >
+                  <span>NEXT</span>
+                  <ArrowLeft className="w-3 h-3 rotate-180" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
       <BottomNavigation />
     </div>
   );

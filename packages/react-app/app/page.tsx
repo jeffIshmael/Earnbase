@@ -30,7 +30,7 @@ export default function LandingPage() {
   }, [isInterfaceReady]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-indigo-100 to-purple-100">
+    <div className="min-h-screen flex flex-col bg-celo-lt-tan">
       
       {/* Centered Content */}
       <div className="flex-1 flex flex-col justify-center items-center px-6 text-center max-w-2xl mx-auto">
@@ -39,10 +39,10 @@ export default function LandingPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center px-4 py-1 rounded-full bg-indigo-100 text-indigo-700 text-sm font-medium mb-4"
+          className="inline-flex items-center px-6 py-2 border-2 border-black bg-celo-yellow text-black text-body-s font-inter font-heavy mb-6"
         >
           <Sparkles className="w-4 h-4 mr-2" />
-          Powered by AI & Onchain Rewards
+          POWERED BY AI & ONCHAIN REWARDS
         </motion.div>
 
         {/* Headline */}
@@ -50,9 +50,9 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4"
+          className="text-h1 font-gt-alpina font-thin text-black mb-6"
         >
-          Get Paid for Sharing <span className="text-indigo-600">Smart Feedback</span>
+          GET PAID FOR SHARING <span className="text-celo-purple italic">SMART FEEDBACK</span>
         </motion.h1>
 
         {/* Subtext */}
@@ -60,7 +60,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-lg text-gray-600 mb-8"
+          className="text-body-l text-celo-body mb-10 font-inter"
         >
           Earn tokens by submitting feedback on platform tasks. Our AI scores the value of your input — the better your insight, the higher the payout.
         </motion.p>
@@ -70,7 +70,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left w-full max-w-md mb-10"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left w-full max-w-lg mb-12"
         >
           {[
             "AI-reviewed feedback scoring",
@@ -78,9 +78,9 @@ export default function LandingPage() {
             "Instant crypto payouts",
             "Farcaster + MetaMask supported"
           ].map((feature, i) => (
-            <div key={i} className="flex items-start space-x-2">
-              <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
-              <span className="text-gray-700">{feature}</span>
+            <div key={i} className="flex items-start space-x-3">
+              <CheckCircle className="w-6 h-6 text-celo-success mt-1 flex-shrink-0" />
+              <span className="text-body-m text-black font-inter">{feature}</span>
             </div>
           ))}
         </motion.div>
@@ -91,17 +91,17 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-xl shadow-md transition-all flex items-center gap-2"
+          className="px-8 py-4 bg-celo-yellow hover:bg-black hover:text-celo-yellow text-black border-4 border-black text-body-l font-inter font-heavy transition-all duration-200 flex items-center gap-3"
         >
-          Start Earning Now
-          <ArrowRight className="w-4 h-4" />
+          START EARNING NOW
+          <ArrowRight className="w-5 h-5" />
         </motion.button>
 
       </div>
 
       {/* Footer */}
-      <footer className="text-center text-sm text-gray-400 py-6">
-        © {new Date().getFullYear()} EarnBase — Your Insight. Your Value.
+      <footer className="text-center text-body-s text-celo-body py-8 font-inter">
+        © {new Date().getFullYear()} EARNBASE — YOUR INSIGHT. YOUR VALUE.
       </footer>
     </div>
   );

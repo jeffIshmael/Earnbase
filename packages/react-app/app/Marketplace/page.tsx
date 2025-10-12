@@ -70,26 +70,26 @@ const Marketplace = () => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
-        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+        return 'bg-celo-lime text-black border-2 border-black';
       case 'Medium':
-        return 'bg-amber-100 text-amber-700 border-amber-200';
+        return 'bg-celo-orange text-black border-2 border-black';
       case 'Hard':
-        return 'bg-rose-100 text-rose-700 border-rose-200';
+        return 'bg-celo-error text-white border-2 border-black';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-celo-dk-tan text-black border-2 border-black';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ACTIVE':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-celo-success text-white border-2 border-black';
       case 'PAUSED':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-celo-orange text-black border-2 border-black';
       case 'COMPLETED':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-celo-blue text-white border-2 border-black';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-celo-dk-tan text-black border-2 border-black';
     }
   };
 
@@ -106,30 +106,30 @@ const Marketplace = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-gray-50">
+    <div className="min-h-screen bg-celo-lt-tan">
       <div className="mb-24">
         {/* Header */}
-        <div className="bg-white/90 backdrop-blur-sm border-b border-indigo-100 p-4 sticky top-0 z-10 shadow-sm">
+        <div className="bg-celo-yellow border-b-4 border-black p-4 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => router.push('/Start')}
-                className="p-2 hover:bg-indigo-50 rounded-xl transition-all duration-200 group"
+                className="p-2 hover:bg-black hover:text-celo-yellow border-2 border-black transition-all duration-200"
                 title="Back to Home"
               >
-                <ArrowLeft className="w-5 h-5 text-indigo-600 group-hover:text-indigo-700" />
+                <ArrowLeft className="w-5 h-5 text-black" />
               </button>
-              <h1 className="text-xl font-bold">
-                Available Tasks
+              <h1 className="text-h3 font-gt-alpina font-thin text-black">
+                AVAILABLE TASKS
               </h1>
             </div>
             {isConnected && (
               <button
                 onClick={() => router.push('/CreateTask')}
-                className="flex items-center space-x-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-xl font-medium shadow-lg hover:from-indigo-700 hover:to-purple-700 transition"
+                className="flex items-center space-x-2 bg-celo-purple text-white px-4 py-2 border-4 border-black font-inter font-heavy hover:bg-black hover:text-celo-purple transition-all duration-200"
               >
                 <Plus className="w-5 h-5" />
-                <span>Create</span>
+                <span>CREATE</span>
               </button>
             )}
           </div>
@@ -137,34 +137,34 @@ const Marketplace = () => {
         </div>
 
         {/* Search and Filter Bar */}
-        <div className="bg-white/80 backdrop-blur-sm border-b border-indigo-100 p-4">
+        <div className="bg-white border-b-4 border-black p-4">
           <div className="max-w-7xl mx-auto space-y-3">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-celo-body" />
               <input
                 type="text"
-                placeholder="Search tasks by title, description, category, or tags..."
+                placeholder="SEARCH TASKS BY TITLE, DESCRIPTION, CATEGORY, OR TAGS..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400"
+                className="w-full pl-10 pr-4 py-2 bg-white border-4 border-black focus:outline-none focus:border-celo-yellow font-inter text-black"
               />
             </div>
 
             {/* Sort Options */}
             <div className="flex space-x-2">
               {[
-                { key: 'newest', label: 'Newest' },
-                { key: 'reward', label: 'Highest Reward' },
-                { key: 'participants', label: 'Most Popular' }
+                { key: 'newest', label: 'NEWEST' },
+                { key: 'reward', label: 'HIGHEST REWARD' },
+                { key: 'participants', label: 'MOST POPULAR' }
               ].map((option) => (
                 <button
                   key={option.key}
                   onClick={() => setSortBy(option.key as any)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-3 py-1 text-eyebrow font-inter font-heavy transition-all duration-200 border-2 border-black ${
                     sortBy === option.key
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-celo-yellow text-black'
+                      : 'bg-celo-dk-tan text-black hover:bg-celo-yellow'
                   }`}
                 >
                   {option.label}
@@ -177,13 +177,13 @@ const Marketplace = () => {
         {/* Task List */}
         {isLoading ? (
           <div className="flex items-center justify-center min-h-96">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-black border-t-transparent"></div>
           </div>
         ) : filteredTasks.length === 0 ? (
           <div className="text-center py-16">
-            <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No tasks found</h3>
-            <p className="text-gray-600">
+            <Target className="w-16 h-16 text-celo-body mx-auto mb-4" />
+            <h3 className="text-h3 font-gt-alpina font-thin text-black mb-2">NO TASKS FOUND</h3>
+            <p className="text-body-m text-celo-body font-inter">
               {searchTerm ? 'Try adjusting your search terms' : 'No tasks are currently available'}
             </p>
           </div>
@@ -196,10 +196,10 @@ const Marketplace = () => {
                 <Link
                   key={task.id}
                   href={`/Task/${task.id}`}
-                  className={`block bg-white/80 backdrop-blur-sm rounded-xl p-4 border shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02] ${
+                  className={`block bg-white border-4 border-black p-4 hover:bg-celo-dk-tan transition-all duration-200 ${
                     eligibility.eligible 
-                      ? 'border-indigo-200 hover:border-indigo-300' 
-                      : 'border-gray-200 opacity-75'
+                      ? 'hover:border-celo-yellow' 
+                      : 'opacity-75'
                   }`}
                 >
 
@@ -208,14 +208,14 @@ const Marketplace = () => {
                     <div className="flex items-start space-x-3 flex-1 min-w-0">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-gray-900 truncate flex-1">{task.title}</h3>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${getStatusColor(task.status)}`}>
+                          <h3 className="text-body-l font-inter font-heavy text-black truncate flex-1">{task.title.toUpperCase()}</h3>
+                          <span className={`px-2 py-1 text-eyebrow font-inter font-heavy flex-shrink-0 ${getStatusColor(task.status)}`}>
                             {task.status}
                           </span>
                         </div>
-                        <p className="text-gray-600 text-sm line-clamp-2 mb-2">{task.description}</p>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <span className="capitalize">Task</span>
+                        <p className="text-body-s text-celo-body line-clamp-2 mb-2 font-inter">{task.description}</p>
+                        <div className="flex items-center space-x-2 text-eyebrow text-celo-body font-inter">
+                          <span className="capitalize">TASK</span>
                           <span>•</span>
                           <span>{formatDate(task.createdAt.toISOString())}</span>
                         </div>
@@ -227,49 +227,49 @@ const Marketplace = () => {
                   <div className="grid grid-cols-2 gap-4 mb-3">
                     <div className="text-center">
                       <div className="flex items-center justify-center space-x-1 mb-1">
-                        <Users className="w-4 h-4 text-blue-600" />
-                        <span className="text-xs text-gray-600">Participants</span>
+                        <Users className="w-4 h-4 text-celo-blue" />
+                        <span className="text-eyebrow text-celo-body font-inter font-heavy">PARTICIPANTS</span>
                       </div>
-                      <p className="text-sm font-semibold text-blue-700">
+                      <p className="text-body-s font-inter font-heavy text-celo-blue">
                         {task.currentParticipants}/{task.maxParticipants}
                       </p>
                     </div>
                     
                     <div className="text-center">
                       <div className="flex items-center justify-center space-x-1 mb-1">
-                        <Coins className="w-4 h-4 text-green-600" />
-                        <span className="text-xs text-gray-600">Reward</span>
+                        <Coins className="w-4 h-4 text-celo-success" />
+                        <span className="text-eyebrow text-celo-body font-inter font-heavy">REWARD</span>
                       </div>
-                      <p className="text-sm font-semibold text-green-700">
+                      <p className="text-body-s font-inter font-heavy text-celo-success">
                         {formatReward(task.baseReward)}
                       </p>
                     </div>
                     
                     <div className="text-center">
                       <div className="flex items-center justify-center space-x-1 mb-1">
-                        <Target className="w-4 h-4 text-purple-600" />
-                        <span className="text-xs text-gray-600">Subtasks</span>
+                        <Target className="w-4 h-4 text-celo-purple" />
+                        <span className="text-eyebrow text-celo-body font-inter font-heavy">SUBTASKS</span>
                       </div>
-                      <p className="text-sm font-semibold text-purple-700">
+                      <p className="text-body-s font-inter font-heavy text-celo-purple">
                         {task.subtasks.length}
                       </p>
                     </div>
                     <div className="text-center">
                       <div className="flex items-center justify-center space-x-1 mb-1">
-                        <Clock className="w-4 h-4 text-amber-600" />
-                        <span className="text-xs text-gray-600">Time Left</span>
+                        <Clock className="w-4 h-4 text-celo-orange" />
+                        <span className="text-eyebrow text-celo-body font-inter font-heavy">TIME LEFT</span>
                       </div>
-                      <p className="text-sm font-semibold text-amber-700">
+                      <p className="text-body-s font-inter font-heavy text-celo-orange">
                         {task.expiresAt ? getTimeLeft(task.expiresAt as Date) : 'N/A'}
                       </p>
                     </div>
                   </div>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-end text-xs text-gray-500">
+                  <div className="flex items-center justify-end text-eyebrow text-celo-body font-inter">
 
                     <div className="flex items-center space-x-1">
-                      <span>View Details</span>
+                      <span>VIEW DETAILS</span>
                       <ArrowRight className="w-3 h-3" />
                     </div>
                   </div>

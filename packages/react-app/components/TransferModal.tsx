@@ -104,7 +104,7 @@ const TransferModal = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6 pb-20"
         onClick={onClose}
       >
         <motion.div 
@@ -112,64 +112,64 @@ const TransferModal = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 20, opacity: 0 }}
           transition={{ type: "spring", damping: 25 }}
-          className="bg-white rounded-2xl w-full max-w-sm relative overflow-hidden shadow-xl"
+          className="bg-white border-4 border-black w-full max-w-sm relative overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Modal Header */}
-          <div className="border-b border-gray-100 p-4 relative">
-            <h3 className="text-lg font-semibold text-gray-900 text-center">Transfer Tokens</h3>
+          <div className="border-b-4 border-black p-6 relative">
+            <h3 className="text-h3 font-gt-alpina font-thin text-black text-center">TRANSFER TOKENS</h3>
             <button 
               onClick={onClose}
-              className="absolute right-4 top-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
+              className="absolute right-6 top-6 p-2 hover:bg-celo-dk-tan transition-colors border-2 border-black"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-black" />
             </button>
           </div>
           
           {/* Modal Content */}
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-6">
             {/* Token Selection */}
             <div>
-              <label className="text-sm text-gray-600 mb-2 block">Token</label>
-              <div className="flex space-x-2">
+              <label className="text-body-s text-celo-body mb-3 block font-inter font-heavy">TOKEN</label>
+              <div className="flex space-x-3">
                 <button
                   onClick={() => setTransferToken('cUSD')}
                   className={cn(
-                    'flex-1 py-3 px-4 rounded-lg border transition-colors flex items-center justify-center',
+                    'flex-1 py-4 px-4 border-4 transition-all duration-200 flex items-center justify-center font-inter font-heavy',
                     transferToken === 'cUSD'
-                      ? 'bg-indigo-200 border-indigo-300 text-indigo-700 shadow-sm'
-                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                      ? 'bg-celo-yellow border-black text-black'
+                      : 'bg-celo-dk-tan border-black text-black hover:bg-celo-purple hover:text-white'
                   )}
                 >
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <Image 
                       src="/static/cusdLogo.jpg" 
                       alt="cUSD" 
-                      width={20} 
-                      height={20} 
-                      className="rounded-full"
+                      width={24} 
+                      height={24} 
+                      className="border-2 border-black"
                     />
-                    <span>cUSD</span>
+                    <span className="text-body-s">CUSD</span>
                   </div>
                 </button>
                 <button
                   onClick={() => setTransferToken('USDC')}
                   className={cn(
-                    'flex-1 py-3 px-4 rounded-lg border transition-colors flex items-center justify-center',
+                    'flex-1 py-4 px-4 border-4 transition-all duration-200 flex items-center justify-center font-inter font-heavy',
                     transferToken === 'USDC'
-                      ? 'bg-indigo-200 border-indigo-300 text-indigo-700 shadow-sm'
-                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                      ? 'bg-celo-yellow border-black text-black'
+                      : 'bg-celo-dk-tan border-black text-black hover:bg-celo-purple hover:text-white'
                   )}
                 >
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <Image 
                       src="/static/usdclogo.png" 
                       alt="USDC" 
-                      width={20} 
-                      height={20} 
-                      className="rounded-full"
+                      width={24} 
+                      height={24} 
+                      className="border-2 border-black"
                     />
-                    <span>USDC</span>
+                    <span className="text-body-s">USDC</span>
                   </div>
                 </button>
               </div>
@@ -178,41 +178,41 @@ const TransferModal = ({
             {/* Token-specific warning */}
             <div>
             {transferToken === 'cUSD' && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-3 text-sm rounded-md">
-                <strong>Important:</strong> Ensure the recipient’s wallet supports <strong>cUSD on Celo</strong>. 
-                Tokens sent to unsupported wallets are <strong>not recoverable</strong>.
+            <div className="bg-celo-orange border-4 border-black text-black p-4 text-body-s font-inter">
+                <strong className="font-heavy">IMPORTANT:</strong> Ensure the recipient&apos;s wallet supports <strong className="font-heavy">CUSD ON CELO</strong>. 
+                Tokens sent to unsupported wallets are <strong className="font-heavy">NOT RECOVERABLE</strong>.
             </div>
             )}
 
             {transferToken === 'USDC' && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-3 text-sm rounded-md">
-                <strong>Heads up:</strong> Make sure the recipient wallet or exchange supports <strong>USDC on the Celo network</strong>.
-                Transfers to incompatible networks may result in <strong>permanent loss of funds</strong>.
+            <div className="bg-celo-orange border-4 border-black text-black p-4 text-body-s font-inter">
+                <strong className="font-heavy">HEADS UP:</strong> Make sure the recipient wallet or exchange supports <strong className="font-heavy">USDC ON THE CELO NETWORK</strong>.
+                Transfers to incompatible networks may result in <strong className="font-heavy">PERMANENT LOSS OF FUNDS</strong>.
             </div>
             )}
             </div>
 
             {/* Recipient Address */}
             <div>
-              <label className="text-sm text-gray-600 mb-2 block">Recipient Address</label>
+              <label className="text-body-s text-celo-body mb-3 block font-inter font-heavy">RECIPIENT ADDRESS</label>
               <input
                 type="text"
                 placeholder="0x..."
                 value={recipientAddress}
                 onChange={(e) => setRecipientAddress(e.target.value)}
-                className="w-full bg-gray-50 rounded-lg p-3 border-2 border-gray-200 focus:border-indigo-300 focus:ring-1 focus:ring-indigo-200 outline-none transition-all font-mono text-sm"
+                className="w-full bg-white border-4 border-black p-4 focus:border-celo-yellow focus:ring-0 outline-none transition-all font-inter text-body-s"
               />
             </div>
 
             {/* Amount Input */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm text-gray-600">Amount</label>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-body-s text-celo-body font-inter font-heavy">AMOUNT</label>
                 <button 
                   onClick={() => setTransferAmount(transferToken === 'cUSD' ? cUSDBalance : usdcBalance)}
-                  className="text-xs text-indigo-600 hover:text-indigo-700"
+                  className="text-body-s text-celo-purple hover:text-black font-inter font-heavy"
                 >
-                  Max: {transferToken === 'cUSD' ? cUSDBalance : usdcBalance} {transferToken}
+                  MAX: {transferToken === 'cUSD' ? cUSDBalance : usdcBalance} {transferToken}
                 </button>
               </div>
               <div className="relative">
@@ -221,9 +221,9 @@ const TransferModal = ({
                   placeholder="0.0"
                   value={transferAmount}
                   onChange={(e) => setTransferAmount(e.target.value)}
-                  className="w-full bg-gray-50 rounded-lg p-3 border-2 border-gray-200 focus:border-indigo-300 focus:ring-1 focus:ring-indigo-200 outline-none transition-all pr-16"
+                  className="w-full bg-white border-4 border-black p-4 focus:border-celo-yellow focus:ring-0 outline-none transition-all pr-20 font-inter text-body-s"
                 />
-                <span className="absolute right-3 top-3 text-gray-500 font-medium">
+                <span className="absolute right-4 top-4 text-celo-body font-inter font-heavy">
                   {transferToken}
                 </span>
               </div>
@@ -236,45 +236,45 @@ const TransferModal = ({
               onClick={handleTransfer}
               disabled={!transferAmount || !recipientAddress || isTransferring}
               className={cn(
-                "w-full mt-6 py-3.5 rounded-lg font-medium transition-all relative",
+                "w-full mt-8 py-4 border-4 border-black font-inter font-heavy transition-all duration-200 relative",
                 !transferAmount || !recipientAddress || isTransferring
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md hover:shadow-lg hover:from-indigo-700 hover:to-purple-700"
+                  ? "bg-celo-inactive text-white cursor-not-allowed"
+                  : "bg-celo-yellow hover:bg-black hover:text-celo-yellow text-black"
               )}
             >
               {isTransferring ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Transferring...</span>
+                <div className="flex items-center justify-center space-x-3">
+                  <div className="w-5 h-5 border-2 border-current border-t-transparent animate-spin"></div>
+                  <span className="text-body-s">TRANSFERRING...</span>
                 </div>
               ) : (
-                `Transfer ${transferToken}`
+                `TRANSFER ${transferToken}`
               )}
             </button>
 
             {/* Transaction Status */}
             {transferStatus && (
               <div className={cn(
-                "p-3 rounded-lg text-sm mt-4 flex items-start space-x-2",
+                "p-4 border-4 border-black text-body-s mt-6 flex items-start space-x-3",
                 transferStatus.success 
-                  ? "bg-emerald-50 text-emerald-700" 
-                  : "bg-red-50 text-red-700"
+                  ? "bg-celo-success text-white" 
+                  : "bg-celo-error text-white"
               )}>
                 {transferStatus.success ? (
-                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
                 ) : (
-                  <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
                 )}
                 <div>
-                  <p>{transferStatus.message}</p>
+                  <p className="font-inter">{transferStatus.message.toUpperCase()}</p>
                   {transferStatus.txHash && (
                     <a 
                       href={`https://celoscan.io/tx/${transferStatus.txHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs mt-1 inline-block text-indigo-600 hover:underline"
+                      className="text-body-s mt-2 inline-block text-celo-yellow hover:text-white font-inter font-heavy"
                     >
-                      View on Celo Explorer
+                      VIEW ON CELO EXPLORER
                     </a>
                   )}
                 </div>

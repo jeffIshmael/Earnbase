@@ -11,11 +11,11 @@ export default function HistoryPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg text-center">
-          <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Connect Wallet</h1>
-          <p className="text-gray-600">
+      <div className="min-h-screen bg-celo-lt-tan flex items-center justify-center p-4">
+        <div className="bg-white border-4 border-black p-8 max-w-md w-full text-center">
+          <Clock className="w-16 h-16 text-celo-body mx-auto mb-4" />
+          <h1 className="text-h3 font-gt-alpina font-thin text-black mb-2">CONNECT WALLET</h1>
+          <p className="text-body-m text-celo-body font-inter">
             Please connect your wallet to view your task history.
           </p>
         </div>
@@ -24,25 +24,25 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-gray-50 pb-24">
+    <div className="min-h-screen bg-celo-lt-tan pb-24">
       {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-indigo-100 p-4 sticky top-0 z-10 shadow-sm">
+      <div className="bg-celo-yellow border-b-4 border-black p-4 sticky top-0 z-10">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-            <Clock className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-celo-orange border-2 border-black flex items-center justify-center">
+            <Clock className="w-6 h-6 text-black" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Task History</h1>
-            <p className="text-sm text-gray-600">Your participation journey</p>
+            <h1 className="text-h3 font-gt-alpina font-thin text-black">TASK HISTORY</h1>
+            <p className="text-body-s text-celo-body font-inter">YOUR PARTICIPATION JOURNEY</p>
           </div>
         </div>
       </div>
 
       <div className="p-4">
         <div className="text-center py-16">
-          <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">History Coming Soon</h3>
-          <p className="text-gray-600">Your task participation history will appear here.</p>
+          <Clock className="w-16 h-16 text-celo-body mx-auto mb-4" />
+          <h3 className="text-h3 font-gt-alpina font-thin text-black mb-2">HISTORY COMING SOON</h3>
+          <p className="text-body-m text-celo-body font-inter">Your task participation history will appear here.</p>
         </div>
       </div>
 

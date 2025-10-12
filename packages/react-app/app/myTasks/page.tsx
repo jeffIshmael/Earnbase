@@ -97,26 +97,26 @@ const MyTasksPage = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ACTIVE':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-celo-success text-white border-2 border-black';
       case 'PAUSED':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-celo-orange text-black border-2 border-black';
       case 'COMPLETED':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-celo-blue text-white border-2 border-black';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-celo-dk-tan text-black border-2 border-black';
     }
   };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
-        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+        return 'bg-celo-lime text-black border-2 border-black';
       case 'Medium':
-        return 'bg-amber-100 text-amber-700 border-amber-200';
+        return 'bg-celo-orange text-black border-2 border-black';
       case 'Hard':
-        return 'bg-rose-100 text-rose-700 border-rose-200';
+        return 'bg-celo-error text-white border-2 border-black';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-celo-dk-tan text-black border-2 border-black';
     }
   };
 
@@ -130,14 +130,14 @@ const MyTasksPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-celo-lt-tan">
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div className="bg-celo-yellow border-b-4 rounded-b-2xl border-black sticky top-0 z-50">
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-xl font-bold text-gray-900">My Tasks</h1>
-                <p className="text-gray-600 text-sm">Manage your created tasks</p>
+                <h1 className="text-h3 font-gt-alpina font-thin text-black">MY TASKS</h1>
+                <p className="text-body-s text-celo-body font-inter">MANAGE YOUR CREATED TASKS</p>
               </div>
             </div>
           </div>
@@ -147,22 +147,22 @@ const MyTasksPage = () => {
         <div className="px-4 py-6 pb-24">
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm animate-pulse">
+              <div key={i} className="bg-white border-4 border-black p-4 animate-pulse">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <div className="h-5 bg-gray-200 rounded mb-2 w-3/4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    <div className="h-5 bg-black rounded mb-2 w-3/4"></div>
+                    <div className="h-4 bg-black rounded w-full"></div>
                   </div>
-                  <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                  <div className="h-6 bg-celo-purple rounded w-16"></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-2">
-                    <div className="h-4 bg-gray-200 rounded mb-1 w-12 mx-auto"></div>
-                    <div className="h-5 bg-gray-200 rounded w-16 mx-auto"></div>
+                    <div className="h-4 bg-black rounded mb-1 w-12 mx-auto"></div>
+                    <div className="h-5 bg-black rounded w-16 mx-auto"></div>
                   </div>
                   <div className="text-center p-2">
-                    <div className="h-4 bg-gray-200 rounded mb-1 w-16 mx-auto"></div>
-                    <div className="h-5 bg-gray-200 rounded w-8 mx-auto"></div>
+                    <div className="h-4 bg-black rounded mb-1 w-16 mx-auto"></div>
+                    <div className="h-5 bg-black rounded w-8 mx-auto"></div>
                   </div>
                 </div>
               </div>
@@ -176,14 +176,14 @@ const MyTasksPage = () => {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-celo-lt-tan">
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div className="bg-celo-yellow border-b-4 border-black rounded-b-2xl sticky top-0 z-50">
           <div className="px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-xl font-bold text-gray-900">My Tasks</h1>
-                <p className="text-gray-600 text-sm">Manage your created tasks</p>
+                <h1 className="text-h4 font-gt-alpina font-thin text-black">MY TASKS</h1>
+                <p className="text-body-s text-celo-body font-inter">MANAGE YOUR CREATED TASKS</p>
               </div>
             </div>
           </div>
@@ -192,18 +192,18 @@ const MyTasksPage = () => {
         {/* Not Connected State */}
         <div className="px-4 py-12 pb-24">
           <div className="text-center">
-            <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Target className="w-10 h-10 text-indigo-600" />
+            <div className="w-20 h-20 bg-celo-purple border-4 border-black flex items-center justify-center mx-auto mb-6">
+              <Target className="w-10 h-10 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Connect Your Wallet</h3>
-            <p className="text-gray-600 mb-6 max-w-sm mx-auto">
+            <h3 className="text-h3 font-gt-alpina font-thin text-black mb-2">CONNECT YOUR WALLET</h3>
+            <p className="text-body-m text-celo-body mb-6 max-w-sm mx-auto font-inter">
               Connect your wallet to view and manage your created tasks
             </p>
             <button
               onClick={() => window.location.href = '/Start'}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium"
+              className="px-6 py-3 bg-celo-purple text-white border-4 border-black hover:bg-black hover:text-celo-purple transition-all duration-200 font-inter font-heavy"
             >
-              Go to Home
+              GO TO HOME
             </button>
           </div>
         </div>
@@ -213,88 +213,103 @@ const MyTasksPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-celo-lt-tan">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
+      <div className="bg-celo-yellow border-b-4 rounded-b-2xl border-black sticky top-0 z-50">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">My Tasks</h1>
-              <p className="text-gray-600 text-sm">Manage your created tasks</p>
+              <h1 className="text-h3 font-gt-alpina font-thin text-black">MY TASKS</h1>
+              <p className="text-body-s text-celo-body font-inter">MANAGE YOUR CREATED TASKS</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="px-4 py-6 pb-24 space-y-2">
+      <div className="px-4 py-6 pb-24 space-y-4">
 
 
         {/* Tasks Grid */}
         {sortedTasks.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Target className="w-12 h-12 text-gray-400" />
+    <div className="text-center py-12">
+      <div className="w-24 h-24 bg-celo-dk-tan border-4 border-black flex items-center justify-center mx-auto mb-6 rounded-2xl shadow-[4px_4px_0_0_rgba(55,65,81,1)]">
+        <Target className="w-12 h-12 text-black" />
+      </div>
+      <h3 className="text-h3 font-gt-alpina font-thin text-black mb-2">NO TASKS FOUND</h3>
+      <p className="text-body-m text-celo-body mb-6 font-inter">
+        {searchTerm || statusFilter !== 'ALL' 
+          ? 'Try adjusting your search or filters'
+          : 'Create your first task to get started!'
+        }
+      </p>
+      {!searchTerm && statusFilter === 'ALL' && (
+        <button
+          onClick={() => router.push('/CreateTask')}
+          className="px-6 py-3 bg-celo-purple text-white border-4 border-black rounded-xl hover:bg-black hover:text-celo-purple transition-all duration-200 font-inter font-heavy shadow-[4px_4px_0_0_rgba(55,65,81,1)]"
+        >
+          CREATE YOUR FIRST TASK
+        </button>
+      )}
+    </div>
+  ) : (
+    <div className="space-y-4 w-full">
+      {sortedTasks.map((task) => (
+        <div
+          key={task.id}
+          onClick={() => router.push(`/myTasks/${task.id}`)}
+          className="bg-gradient-to-br from-white via-celo-lt-tan/10 to-white border-[3px] border-black rounded-2xl p-4 shadow-[4px_4px_0_0_rgba(55,65,81,1)] hover:shadow-[6px_6px_0_0_rgba(55,65,81,1)] transition-all duration-200 cursor-pointer group w-full"
+        >
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-inter font-extrabold text-black text-lg tracking-wide group-hover:text-celo-purple truncate transition">
+                {task.title.toUpperCase()}
+              </h3>
+              <p className="text-body-s text-celo-body line-clamp-2 font-inter mt-1">
+                {task.description}
+              </p>
             </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No tasks found</h3>
-            <p className="text-gray-500 mb-6">
-              {searchTerm || statusFilter !== 'ALL' 
-                ? 'Try adjusting your search or filters'
-                : 'Create your first task to get started!'
-              }
-            </p>
-            {!searchTerm && statusFilter === 'ALL' && (
-              <button
-                onClick={() => router.push('/CreateTask')}
-                className="px-6 py-3 bg-indigo-400  text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
-              >
-                Create Your First Task
-              </button>
-            )}
+            <span className={`px-3 py-1 text-xs font-inter font-bold uppercase rounded-md ${getStatusColor(task.status)}`}>
+              {task.status}
+            </span>
           </div>
-        ) : (
-          <div className="grid gap-4 w-full">
-            {sortedTasks.map((task) => (
-              <div
-                key={task.id}
-                className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-indigo-100 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer w-full max-w-full overflow-hidden"
-                onClick={() => router.push(`/myTasks/${task.id}`)}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-bold text-gray-900 text-lg mb-1 truncate">{task.title}</h3>
-                    <p className="text-gray-600 text-sm line-clamp-2">{task.description}</p>
-                  </div>
-                  <div className="flex items-center space-x-2 flex-shrink-0">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
-                      {task.status}
-                    </span>
-                  </div>
-                </div>
 
-                {/* Task Stats */}
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className="text-center p-2">
-                    <div className="flex items-center justify-center space-x-1 mb-1">
-                      <DollarSign className="w-4 h-4 text-purple-600" />
-                      <span className="text-xs text-purple-600">Balance</span>
-                    </div>
-                    <div className="text-sm font-bold text-purple-700">
-                      {(Number(task.balance) / Math.pow(10, 18)).toFixed(3)} cUSD
-                    </div>
-                  </div>
-                  
-                  <div className="text-center p-2">
-                    <div className="flex items-center justify-center space-x-1 mb-1">
-                      <Eye className="w-4 h-4 text-green-600" />
-                      <span className="text-xs text-green-600">Responses</span>
-                    </div>
-                    <div className="text-sm font-bold text-green-700">{task.responses}</div>
-                  </div>
-                </div>
+          {/* Divider */}
+          <div className="border-t-2 border-black/20 my-3"></div>
+
+          {/* Stats Section */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="text-center p-1.5 bg-celo-lt-tan/30 rounded-lg border-2 border-black">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <DollarSign className="w-4 h-4 text-celo-purple" />
+                <span className="text-xs font-inter font-bold text-celo-purple">BALANCE</span>
               </div>
-            ))}
+              <p className="text-sm font-inter font-heavy text-celo-purple">
+                {(Number(task.balance) / Math.pow(10, 18)).toFixed(3)} cUSD
+              </p>
+            </div>
+
+            <div className="text-center p-1.5 bg-celo-lt-tan/30 rounded-lg border-2 border-black">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Users className="w-4 h-4 text-celo-forest" />
+                <span className="text-xs font-inter font-bold text-celo-forest">PARTICIPANTS</span>
+              </div>
+              <p className="text-sm font-inter font-heavy text-celo-forest">
+                {task.currentParticipants}/{task.maxParticipants}
+              </p>
+            </div>
+
+            <div className="text-center p-1.5 bg-celo-lt-tan/30 rounded-lg border-2 border-black">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <span className="text-xs font-inter font-bold text-celo-success">RESPONSES</span>
+              </div>
+              <p className="text-sm font-inter font-heavy text-celo-success">{task.responses}</p>
+            </div>
           </div>
-        )}
+        </div>
+      ))}
+    </div>
+  )}
       </div>
 
       <BottomNavigation />
