@@ -42,7 +42,7 @@ export default function LandingPage() {
       <div className="max-w-sm mx-auto min-h-screen flex flex-col">
         
         {/* Hero Section */}
-        <div className="flex-1 flex flex-col justify-center items-center px-6 py-16 text-center">
+        <div className="flex-1 flex flex-col justify-center items-center px-6 py-10 text-center">
           
           {/* Sub Badge */}
           <motion.div
@@ -62,7 +62,7 @@ export default function LandingPage() {
             className="text-h1 font-gt-alpina font-thin leading-tight mb-6 tracking-tight"
           >
             Get Paid for Sharing <br />
-            <span className="text-celo-purple italic font-light">Smart Feedback</span>
+            <span className="text-celo-purple italic font-light"> Feedback</span>
           </motion.h1>
 
           {/* Subtext */}
@@ -72,7 +72,7 @@ export default function LandingPage() {
             transition={{ delay: 0.2 }}
             className="text-body-l text-celo-body mb-12 font-inter leading-relaxed"
           >
-            Earn tokens by submitting insights on platform tasks. Our AI measures the value of your ideas — the sharper your feedback, the higher your rewards.
+            Earn tokens by submitting feedback on platform tasks. Our AI measures the value of your ideas — the sharper your feedback, the higher your rewards.
           </motion.p>
 
           {/* Features List */}
@@ -113,10 +113,6 @@ export default function LandingPage() {
           </motion.button>
         </div>
 
-        {/* Footer */}
-        <footer className="text-center text-body-s text-celo-body py-8 font-inter border-t-4 border-black bg-white">
-          © {new Date().getFullYear()} <span className="font-heavy">EARNBASE</span> — YOUR INSIGHT. YOUR VALUE.
-        </footer>
       </div>
     </div>
   );

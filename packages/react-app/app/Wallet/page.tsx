@@ -154,7 +154,7 @@ export default function WalletPage() {
       toast.error("Quote not available. Please try again.");
       return;
     }
-    if (!address) {
+    if (!address || !isConnected) {
       toast.error("Please connect wallet.");
       return;
     }
@@ -288,7 +288,7 @@ export default function WalletPage() {
           className="bg-white border-4 border-black p-6 rounded-2xl shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-[8px_8px_0_0_rgba(0,0,0,1)] transition-all duration-200"
         >
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-wide">
+            <h2 className="text-h5 font-gt-alpina font-bold text-black tracking-wide">
               WALLET STATUS
             </h2>
             <div className="flex items-center space-x-2">
@@ -357,23 +357,23 @@ export default function WalletPage() {
           transition={{ delay: 0.1 }}
           className="bg-white border-4 border-black p-6 rounded-2xl shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
         >
-          <h2 className="text-h4 font-gt-alpina font-thin text-black mb-5 tracking-wide">
+          <h2 className="text-h5 font-gt-alpina font-bold text-black mb-5 tracking-wide">
             TOKEN BALANCES
           </h2>
 
           <div className="grid grid-cols-2 gap-5">
             {/* cUSD Card */}
-            <div className="bg-celo-yellow border-4 border-black p-5 text-black rounded-xl hover:scale-[1.02] transition-transform duration-200">
+            <div className="bg-celo-yellow border-2 border-black p-5 text-black rounded-xl hover:scale-[1.02] transition-transform duration-200">
               <div className="flex items-center space-x-2 mb-3">
-                <div className="relative w-8 h-8">
+                <div className="relative w-10 h-10">
                   <Image
                     src="/static/cusdLogo.jpg"
                     alt="CUSD"
-                    width={32}
-                    height={32}
-                    className="object-cover bg-white border-2 border-black rounded-md"
+                    width={50}
+                    height={50}
+                    className="object-cover border-2 border-white bg-white rounded-full"
                   />
-                  <div className="absolute bottom-0 right-0 w-4 h-4">
+                  <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full">
                     <CeloLogo />
                   </div>
                 </div>
@@ -381,23 +381,23 @@ export default function WalletPage() {
                   CUSD BALANCE
                 </p>
               </div>
-              <p className="text-h3 font-gt-alpina font-thin">
+              <p className="text-h4 font-gt-alpina font-thin">
                 {isLoading ? "..." : cUSDBalance || "0.000"}
               </p>
             </div>
 
             {/* USDC Card */}
-            <div className="bg-celo-purple border-4 border-black p-5 text-white rounded-xl hover:scale-[1.02] transition-transform duration-200">
+            <div className="bg-celo-purple border-2 border-black p-4 text-white rounded-xl hover:scale-[1.02] transition-transform duration-200">
               <div className="flex items-center space-x-2 mb-3">
                 <div className="relative w-8 h-8">
                   <Image
                     src="/static/usdclogo.png"
                     alt="USDC"
-                    width={32}
-                    height={32}
-                    className="object-cover border-2 border-white bg-white rounded-md"
+                    width={50}
+                    height={50}
+                    className="object-cover border-2 border-white bg-white rounded-full"
                   />
-                  <div className="absolute bottom-0 right-0 w-4 h-4">
+                  <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full">
                     <CeloLogo />
                   </div>
                 </div>
@@ -405,7 +405,7 @@ export default function WalletPage() {
                   USDC BALANCE
                 </p>
               </div>
-              <p className="text-h3 font-gt-alpina font-thin">
+              <p className="text-h4 font-gt-alpina font-thin">
                 {isLoading ? "..." : usdcBalance || "0.000"}
               </p>
             </div>
@@ -430,7 +430,7 @@ export default function WalletPage() {
           transition={{ delay: 0.2 }}
           className="bg-white border-4 border-black p-6 rounded-2xl shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
         >
-          <h3 className="text-h4 font-gt-alpina font-thin text-black mb-5 tracking-wide">
+          <h3 className="text-h5 font-gt-alpina font-bold text-black mb-5 tracking-wide">
             SWAP TOKENS
           </h3>
 
@@ -440,7 +440,7 @@ export default function WalletPage() {
               <label className="text-body-s text-celo-body mb-2 block font-inter font-heavy">
                 FROM
               </label>
-              <div className="bg-celo-dk-tan border-4 border-black p-4 rounded-xl">
+              <div className="bg-celo-lk-tan border-4 border-black p-4 rounded-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Image
@@ -454,7 +454,7 @@ export default function WalletPage() {
                       alt={currencyFrom || "Token"}
                       width={28}
                       height={28}
-                      className="border-2 border-black rounded-md"
+                      className=" rounded-full"
                     />
                     <select
                       value={currencyFrom || ""}
@@ -465,7 +465,7 @@ export default function WalletPage() {
                           e.target.value as "cUSD" | "USDC" | "CELO"
                         );
                       }}
-                      className="bg-white border-4 border-black text-body-s font-inter font-heavy text-black px-3 py-1 rounded-md focus:outline-none focus:border-celo-yellow"
+                      className="bg-white border-2 border-black text-body-s font-inter font-heavy text-black px-3 py-1 rounded-md focus:outline-none focus:border-black"
                     >
                       <option value="">SELECT</option>
                       <option value="cUSD">CUSD</option>
@@ -490,6 +490,9 @@ export default function WalletPage() {
                     }}
                     className="bg-transparent text-right text-body-l font-inter font-heavy text-black placeholder-celo-body outline-none w-1/2"
                   />
+                </div>
+                <div className="text-right text-body-s text-celo-body font-inter mt-2">
+                  Balance: {currencyFrom === "cUSD" ? (cUSDBalance || "0.000") : currencyFrom === "USDC" ? (usdcBalance || "0.000") : (celoBalance || "0.000")}
                 </div>
               </div>
             </div>
@@ -539,7 +542,7 @@ export default function WalletPage() {
                       alt="toToken"
                       width={28}
                       height={28}
-                      className="border-2 border-black rounded-md"
+                      className="rounded-full"
                     />
                     <span className="font-inter font-heavy text-celo-body">
                       {currencyFrom === "cUSD"
@@ -562,6 +565,9 @@ export default function WalletPage() {
                       className="bg-transparent text-right text-body-l font-inter font-heavy text-celo-body outline-none w-1/2"
                     />
                   )}
+                </div>
+                <div className="text-right text-body-s text-celo-body font-inter mt-2">
+                  Balance: {currencyFrom === "cUSD" ? (usdcBalance || "0.000") : currencyFrom === "USDC" ? (cUSDBalance || "0.000") : (cUSDBalance || "0.000")}
                 </div>
               </div>
             </div>

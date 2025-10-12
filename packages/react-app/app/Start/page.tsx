@@ -219,7 +219,7 @@ const MobileEarnBaseHome = () => {
 
       <button
         onClick={handleConnect}
-        className="bg-celo-yellow hover:bg-black hover:text-celo-yellow text-black border-4 border-black font-inter font-heavy py-3 px-6 transition-all duration-200 flex items-center gap-2"
+        className="bg-celo-forest hover:bg-black hover:text-celo-forest text-white border-4 border-black font-inter font-heavy py-3 px-6 border-[3px] border-black rounded-2xl p-6 shadow-[4px_4px_0_0_rgba(55,65,81,1)] hover:shadow-[6px_6px_0_0_rgba(55,65,81,1)] transition-all duration-200 flex items-center gap-2"
       >
         <Wallet className="w-4 h-4" />
         <span>CONNECT WALLET</span>

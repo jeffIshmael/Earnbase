@@ -452,21 +452,12 @@ const TaskCreationForm = () => {
       </div>
 
       {/* Header */}
-      <div className="relative bg-celo-yellow border-b-4 border-black sticky top-0 z-50">
-        <div className="max-w-sm mx-auto px-4 py-4">
+      <div className="bg-celo-yellow border-b-4 rounded-b-2xl border-black sticky top-0 z-50">
+        <div className="px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button className="p-2 hover:bg-black hover:text-celo-yellow transition-all duration-200 group border-2 border-gray-700">
-                <ArrowLeft className="w-5 h-5 text-black group-hover:text-celo-yellow" />
-              </button>
-              <div>
-                <h1 className="text-h4 font-gt-alpina font-bold text-black tracking-tight">
-                  CREATE TASK
-                </h1>
-                <p className="text-body-s font-inter text-black/70">
-                  Build engaging tasks and reward participants
-                </p>
-              </div>
+            <div>
+              <h1 className="text-h4 font-gt-alpina font-thin text-black">CREATE TASK</h1>
+              <p className="text-body-s text-celo-body font-thin">BUILD ENGAGING TASKS AND REWARD PARTICIPANTS</p>
             </div>
           </div>
         </div>
