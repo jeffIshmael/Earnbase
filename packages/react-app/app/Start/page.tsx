@@ -219,7 +219,7 @@ const MobileEarnBaseHome = () => {
 
       <button
         onClick={handleConnect}
-        className="bg-celo-yellow hover:bg-black hover:text-celo-yellow text-black border-4 border-black font-inter font-heavy py-3 px-6 transition-all duration-200 flex items-center gap-2"
+        className="bg-celo-forest hover:bg-black hover:text-celo-forest text-white border-4 border-black font-inter font-heavy py-3 px-6 border-[3px] border-black rounded-2xl p-6 shadow-[4px_4px_0_0_rgba(55,65,81,1)] hover:shadow-[6px_6px_0_0_rgba(55,65,81,1)] transition-all duration-200 flex items-center gap-2"
       >
         <Wallet className="w-4 h-4" />
         <span>CONNECT WALLET</span>
@@ -232,7 +232,15 @@ const MobileEarnBaseHome = () => {
       <div className="mb-24">
         {/* Simple Header */}
         <div className="bg-celo-yellow border-b-4 border-black px-6 py-6 sticky top-0 z-20">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col items-center space-y-4">
+            {/* Connect Wallet Button - Top */}
+            {!isConnected && (
+              <div className="w-full flex justify-center">
+                <ConnectButton />
+              </div>
+            )}
+            
+            {/* Logo and Title */}
             <div className="flex items-center space-x-3">
               <div>
                 <Image
@@ -249,8 +257,6 @@ const MobileEarnBaseHome = () => {
                 </h1>
               </div>
             </div>
-
-            {!isConnected && <ConnectButton />}
           </div>
         </div>
         {/* Welcome Section */}

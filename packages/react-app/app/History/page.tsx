@@ -26,14 +26,13 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen bg-celo-lt-tan pb-24">
       {/* Header */}
-      <div className="bg-celo-yellow border-b-4 border-black p-4 sticky top-0 z-10">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-celo-orange border-2 border-black flex items-center justify-center">
-            <Clock className="w-6 h-6 text-black" />
-          </div>
-          <div>
-            <h1 className="text-h3 font-gt-alpina font-thin text-black">TASK HISTORY</h1>
-            <p className="text-body-s text-celo-body font-inter">YOUR PARTICIPATION JOURNEY</p>
+      <div className="bg-celo-yellow border-b-4 rounded-b-2xl border-black sticky top-0 z-50">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-h4 font-gt-alpina font-thin text-black">TASK HISTORY</h1>
+              <p className="text-body-s text-celo-body font-inter">YOUR PARTICIPATION JOURNEY</p>
+            </div>
           </div>
         </div>
       </div>
