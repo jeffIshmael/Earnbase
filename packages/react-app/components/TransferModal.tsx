@@ -104,7 +104,7 @@ const TransferModal = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6"
+        className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6 pb-20"
         onClick={onClose}
       >
         <motion.div 
