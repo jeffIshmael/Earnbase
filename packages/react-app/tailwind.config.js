@@ -11,6 +11,7 @@ module.exports = {
   		fontFamily: {
   			'gt-alpina': ['GT Alpina', 'serif'],
   			'inter': ['Inter', 'sans-serif'],
+  			'licorice': ['Licorice', 'cursive'],
   		},
   		fontSize: {
   			'h1': ['72px', { lineHeight: '84px', letterSpacing: '-0.01em' }],

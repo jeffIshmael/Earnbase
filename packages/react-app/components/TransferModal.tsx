@@ -179,7 +179,7 @@ const TransferModal = ({
             <div>
             {transferToken === 'cUSD' && (
             <div className="bg-celo-orange border-4 border-black text-black p-4 text-body-s font-inter">
-                <strong className="font-heavy">IMPORTANT:</strong> Ensure the recipient's wallet supports <strong className="font-heavy">CUSD ON CELO</strong>. 
+                <strong className="font-heavy">IMPORTANT:</strong> Ensure the recipient&apos;s wallet supports <strong className="font-heavy">CUSD ON CELO</strong>. 
                 Tokens sent to unsupported wallets are <strong className="font-heavy">NOT RECOVERABLE</strong>.
             </div>
             )}
