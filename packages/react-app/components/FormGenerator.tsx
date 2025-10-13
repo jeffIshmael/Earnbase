@@ -1032,7 +1032,7 @@ export default function FormGenerator({
                     setAiRating(null);
                     setPaymentDetails(null);
                     closeFormGenerator?.();
-                    router.refresh();
+                    router.push("/");
                   }}
                   className="flex-1 bg-celo-success text-white border-4 border-black rounded-xl py-3 font-semibold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-success transition-all"
                 >

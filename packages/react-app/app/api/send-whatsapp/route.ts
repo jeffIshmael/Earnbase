@@ -16,6 +16,11 @@ type WhatsAppParams = {
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate the request
+    if (request.headers.get("authorization") !== `Bearer ${process.env.EARNBASE_SECRET}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     if (!whatsappPhoneId || !whatsappToken) {
       return NextResponse.json(
         { error: 'WhatsApp credentials not configured' },

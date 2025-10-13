@@ -121,6 +121,8 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         require(_amount > 0, "Amount must be greater than 0");
         require(_taskId < tasks.length, "Task does not exist");
         require(cUSDToken.balanceOf(address(this)) >= _amount, "Insufficient funds in the contract");
+        // should check per task 
+        // should not allow them to participate again
         
         // Check if task has enough remaining funds
         Task storage task = tasks[_taskId];
@@ -461,3 +463,4 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
 
 
 //add the functions :- add funds, delete task( refunds the remaining to the creator wallet)
+// 

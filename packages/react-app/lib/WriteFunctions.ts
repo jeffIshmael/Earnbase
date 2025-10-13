@@ -100,8 +100,26 @@ export async function addFundsForTask(amount: string, taskId: number):Promise <s
     const hash = await smartAccountClient.writeContract({
         address: contractAddress,
         abi: contractAbi,
-        functionName: 'addFundsForTask',
+        functionName: 'depositForTask',
         args:[taskIdInBigInt, amountInWei],
+      })
+    return hash;
+    } catch (error) {
+        console.log('the error', error);
+        return null;        
+    }
+}
+
+// function to deposit cUSD to the contract
+export async function depositCUSD(amount: string):Promise <string | null>{
+    try {
+    const amountInWei = parseEther(amount);
+    const {account, smartAccountClient} = await getAgentSmartAccount();
+    const hash = await smartAccountClient.writeContract({
+        address: contractAddress,
+        abi: contractAbi,
+        functionName: 'depositCUSD',
+        args:[amountInWei],
       })
     return hash;
     } catch (error) {

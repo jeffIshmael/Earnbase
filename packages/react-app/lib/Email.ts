@@ -15,6 +15,7 @@ export async function sendEmailResponse(params: responseEmail) {
     const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${process.env.EARNBASE_SECRET}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(params),
