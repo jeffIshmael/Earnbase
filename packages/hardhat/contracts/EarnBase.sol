@@ -266,7 +266,6 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         );
    }
 
-
     // function to update the smartAddress
    function updateSmartWallet(address _smartWallet, address _normalAddress) external onlyAuthorised {
         require(_smartWallet != address(0), "Invalid smart wallet address");
@@ -459,3 +458,6 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         _;
     }
 }
+
+
+//add the functions :- add funds, delete task( refunds the remaining to the creator wallet)
