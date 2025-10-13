@@ -831,7 +831,7 @@ export default function FormGenerator({
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0_0_rgba(0,0,0,1)] w-[90%] sm:w-[420px] md:w-[460px] overflow-hidden"
+            className="bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-sm overflow-hidden"
           >
             {/* Header */}
             <div className="bg-celo-purple text-white text-center py-6 px-4">
@@ -916,10 +916,10 @@ export default function FormGenerator({
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.35 }}
-            className="bg-white border-4 border-black rounded-2xl shadow-[10px_10px_0_0_rgba(0,0,0,1)] w-[90%] sm:w-[480px] md:w-[520px] overflow-hidden"
+            className="bg-white border-4 border-black rounded-2xl shadow-[10px_10px_0_0_rgba(0,0,0,1)] max-w-sm overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-celo-success text-white text-center py-6 px-4 relative">
+            <div className="bg-celo-forest text-white text-center py-6 px-4 relative">
               <div className="w-20 h-20 bg-white/20 border-2 border-white rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
@@ -968,7 +968,7 @@ export default function FormGenerator({
                     <span className="font-bold">Quality Bonus</span>
                     <span>+{paymentDetails.bonusReward.toFixed(3)} cUSD</span>
                   </div>
-                  <div className="flex justify-between items-center bg-celo-success text-white px-3 py-3 border-2 border-black">
+                  <div className="flex justify-between items-center bg-celo-forest text-white px-3 py-3 border-2 border-black">
                     <span className="font-gt-alpina text-lg font-bold">
                       Total Paid
                     </span>
