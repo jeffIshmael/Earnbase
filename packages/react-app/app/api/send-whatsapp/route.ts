@@ -25,6 +25,16 @@ export async function POST(request: NextRequest) {
 
     const params: WhatsAppParams = await request.json();
 
+
+    // Sanitize response text for WhatsApp (remove newlines, tabs, and excessive spaces)
+    const sanitizeText = (text: string) => {
+      return text
+        .replace(/\n/g, ' ') // Replace newlines with spaces
+        .replace(/\t/g, ' ') // Replace tabs with spaces
+        .replace(/\s{2,}/g, ' ') // Replace multiple spaces with single space
+        .trim();
+    };
+
     // Build ordered parameters intended for the body
     const allParams = [
       { type: 'text', text: params.taskTitle },
@@ -34,9 +44,9 @@ export async function POST(request: NextRequest) {
       { type: 'text', text: params.TaskBalance },
       { 
         type: 'text', 
-        text: params.response.length > 500 
-          ? params.response.substring(0, 500) + '...'
-          : params.response
+        text: sanitizeText(params.response).length > 500 
+          ? sanitizeText(params.response).substring(0, 500) + '...'
+          : sanitizeText(params.response)
       }
     ];
 
@@ -78,8 +88,6 @@ export async function POST(request: NextRequest) {
       );
 
       const result = await response.json();
-      console.log('WhatsApp API Response Status:', response.status);
-      console.log('WhatsApp API Response:', JSON.stringify(result, null, 2));
 
       if (response.ok) {
         console.log('WhatsApp template message sent successfully:', result);
