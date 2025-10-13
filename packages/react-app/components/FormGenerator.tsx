@@ -40,6 +40,7 @@ import {
 import { sendWhatsappResponse } from "@/lib/Whatsapp";
 import { sendEmailResponse } from "@/lib/Email";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 interface FormGeneratorProps {
   task: TaskWithEligibility;
@@ -96,6 +97,7 @@ export default function FormGenerator({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const { isConnected } = useAccount();
+  const router = useRouter();
 
   // Initialize responses for all subtasks
   useEffect(() => {
@@ -210,17 +212,38 @@ export default function FormGenerator({
     setIsSubmitting(true);
 
     try {
-      const textFeedback = task.subtasks
-        .filter(
-          (subtask) => subtask.type === "TEXT_INPUT" && responses[subtask.id]
-        )
-        .map((subtask) => responses[subtask.id])
-        .join("\n");
 
-      console.log(textFeedback);
+      const feedbackToCreator = task.subtasks
+      .filter(
+        (subtask) => responses[subtask.id]
+      )
+      .map((subtask) => {
+        const response = responses[subtask.id];
+        let formattedResponse = "";
+        
+        // Format response based on type
+        if (Array.isArray(response)) {
+          // Multiple choice responses
+          formattedResponse = response.join(", ");
+        } else if (typeof response === "number") {
+          // Rating responses
+          formattedResponse = `${response}/10`;
+        } else if (typeof response === "string") {
+          // Text responses
+          formattedResponse = response;
+        } else {
+          formattedResponse = String(response);
+        }
+        
+        return `📝 ${subtask.title}\n💬 ${formattedResponse}`;
+      })
+      .join("\n\n");
+      
+
+      console.log(feedbackToCreator);
 
       // Get AI rating for feedback
-      const feedbackText = textFeedback.trim() || "No feedback provided";
+      const feedbackText = feedbackToCreator.trim() || "No feedback provided";
       const rating = await getAiRating(
         "user-" + Date.now(),
         feedbackText,
@@ -297,16 +320,7 @@ export default function FormGenerator({
         throw new Error("Failed to save submission to database");
       }
 
-      const feedbackToCreator = JSON.stringify(
-        task.subtasks
-          .filter(
-            (subtask) => responses[subtask.id]
-          )
-          .map((subtask) => ({
-            title: subtask.title,
-            feedback: responses[subtask.id]
-          }))
-      );
+    
 
       // Send notification to creator based on contact method
       const taskBalance = "0.00"; // Placeholder - implement based on your needs
@@ -1010,6 +1024,7 @@ export default function FormGenerator({
                     setAiRating(null);
                     setPaymentDetails(null);
                     closeFormGenerator?.();
+                    router.refresh();
                   }}
                   className="flex-1 bg-celo-success text-white border-4 border-black rounded-xl py-3 font-semibold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-success transition-all"
                 >
