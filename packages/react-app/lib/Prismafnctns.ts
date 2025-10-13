@@ -408,6 +408,20 @@ export async function getActiveTasks() {
   }
 }
 
+// function to update status of a task
+export async function updateTaskStatus(taskId: number, status: TaskStatus) {
+  try {
+    const task = await prisma.task.update({
+      where: { id: taskId },
+      data: { status },
+    });
+    return task;
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    throw error;
+  }
+}
+
 // New function to get tasks with restrictions applied
 export async function getTasksWithRestrictions(
   userAge?: number,
@@ -862,3 +876,15 @@ export async function getTaskSubmissionsForLeaderboard(taskId: number) {
   }
 }
 
+// function to delete task
+
+export async function dbDeleteTask(taskId: number) {
+  try {
+    await prisma.task.delete({
+      where: { id: taskId },
+    });
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    return false;
+  }
+}

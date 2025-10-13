@@ -1,30 +1,50 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 import { TaskWithEligibility } from "@/lib/taskService";
 import { getAiRating } from "@/lib/AiRating";
-import { 
-  FileText, CheckCircle, Target, Star, Users, 
-  Upload, AlertCircle, CheckCircle2, Loader2,
-  Send, Save, Eye, EyeOff, Zap, Trophy, Clock,
-  X, Sparkles, Coins, Gift,
+import {
+  FileText,
+  CheckCircle,
+  Target,
+  Star,
+  Users,
+  Upload,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Send,
+  Save,
+  Eye,
+  EyeOff,
+  Zap,
+  Trophy,
+  Clock,
+  X,
+  Sparkles,
+  Coins,
+  Gift,
   Receipt,
   User,
   Hash,
-  SquareArrowOutUpRight
-} from 'lucide-react';
-import { makePaymentToUser } from '@/lib/WriteFunctions';
-import { useAccount } from 'wagmi';
-import { toast } from 'sonner';
-import Confetti from 'react-confetti';
-import { createTaskSubmissionWithResponses, updateEarnings } from '@/lib/Prismafnctns';
-import { sendWhatsappResponse } from '@/lib/Whatsapp';
-import { sendEmailResponse } from '@/lib/Email';
+  SquareArrowOutUpRight,
+} from "lucide-react";
+import { makePaymentToUser } from "@/lib/WriteFunctions";
+import { useAccount } from "wagmi";
+import { toast } from "sonner";
+import Confetti from "react-confetti";
+import {
+  createTaskSubmissionWithResponses,
+  updateEarnings,
+} from "@/lib/Prismafnctns";
+import { sendWhatsappResponse } from "@/lib/Whatsapp";
+import { sendEmailResponse } from "@/lib/Email";
+import { motion } from "framer-motion";
 
 interface FormGeneratorProps {
-    task: TaskWithEligibility;
-    onTaskCompleted?: () => void;
-    closeFormGenerator?: () => void;
+  task: TaskWithEligibility;
+  onTaskCompleted?: () => void;
+  closeFormGenerator?: () => void;
   // onComplete?: (results: TaskSubmission) => void;
 }
 
@@ -42,20 +62,28 @@ interface SubtaskResponse {
   completed: boolean;
 }
 
-export default function FormGenerator({ task, onTaskCompleted , closeFormGenerator }: FormGeneratorProps) {
+export default function FormGenerator({
+  task,
+  onTaskCompleted,
+  closeFormGenerator,
+}: FormGeneratorProps) {
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const { address } = useAccount();
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState("");
   const [feedbackLength, setFeedbackLength] = useState(0);
   const MAX_FEEDBACK_LENGTH = 500;
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [aiRating, setAiRating] = useState<{ rating: number; explanation: string } | null>(null);
+  const [aiRating, setAiRating] = useState<{
+    rating: number;
+    explanation: string;
+  } | null>(null);
   const [showAiRatingModal, setShowAiRatingModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submissionResults, setSubmissionResults] = useState<TaskSubmission | null>(null);
+  const [submissionResults, setSubmissionResults] =
+    useState<TaskSubmission | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState<{
     baseReward: number;
@@ -69,45 +97,44 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
   const [showResultsModal, setShowResultsModal] = useState(false);
   const { isConnected } = useAccount();
 
-
   // Initialize responses for all subtasks
   useEffect(() => {
     const initialResponses: Record<string, any> = {};
-    task.subtasks.forEach(subtask => {
-      if (subtask.type === 'MULTIPLE_CHOICE') {
+    task.subtasks.forEach((subtask) => {
+      if (subtask.type === "MULTIPLE_CHOICE") {
         initialResponses[subtask.id] = [];
-      } else if (subtask.type === 'RATING') {
+      } else if (subtask.type === "RATING") {
         initialResponses[subtask.id] = null; // No default rating
       } else {
-        initialResponses[subtask.id] = '';
+        initialResponses[subtask.id] = "";
       }
     });
     setResponses(initialResponses);
   }, [task]);
 
   const handleInputChange = (subtaskId: number, value: any) => {
-    setResponses(prev => ({ ...prev, [subtaskId]: value }));
-    
+    setResponses((prev) => ({ ...prev, [subtaskId]: value }));
+
     // Clear error when user starts typing
     if (errors[subtaskId]) {
-      setErrors(prev => ({ ...prev, [subtaskId]: '' }));
+      setErrors((prev) => ({ ...prev, [subtaskId]: "" }));
     }
   };
 
   const handleFileUpload = (subtaskId: number, file: File | null) => {
-    setFiles(prev => ({ ...prev, [subtaskId]: file }));
-    
+    setFiles((prev) => ({ ...prev, [subtaskId]: file }));
+
     if (errors[subtaskId]) {
-      setErrors(prev => ({ ...prev, [subtaskId]: '' }));
+      setErrors((prev) => ({ ...prev, [subtaskId]: "" }));
     }
   };
 
   const handleRatingChange = (subtaskId: number, rating: number) => {
-    setRatings(prev => ({ ...prev, [subtaskId]: rating }));
-    setResponses(prev => ({ ...prev, [subtaskId]: rating }));
-    
+    setRatings((prev) => ({ ...prev, [subtaskId]: rating }));
+    setResponses((prev) => ({ ...prev, [subtaskId]: rating }));
+
     if (errors[subtaskId]) {
-      setErrors(prev => ({ ...prev, [subtaskId]: '' }));
+      setErrors((prev) => ({ ...prev, [subtaskId]: "" }));
     }
   };
 
@@ -120,32 +147,48 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
 
   const validateResponses = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
-    task.subtasks.forEach(subtask => {
+
+    task.subtasks.forEach((subtask) => {
       if (subtask.required) {
         const response = responses[subtask.id];
-        
-        if (subtask.type === 'FILE_UPLOAD') {
+
+        if (subtask.type === "FILE_UPLOAD") {
           if (!files[subtask.id]) {
-            newErrors[subtask.id] = 'Please upload a file';
+            newErrors[subtask.id] = "Please upload a file";
           }
-        } else if (subtask.type === 'MULTIPLE_CHOICE') {
+        } else if (subtask.type === "MULTIPLE_CHOICE") {
           if (!response || !Array.isArray(response) || response.length === 0) {
-            newErrors[subtask.id] = 'Please select at least one option';
+            newErrors[subtask.id] = "Please select at least one option";
           }
-        } else if (subtask.type === 'CHOICE_SELECTION') {
-          if (!response || typeof response !== 'string' || response.trim() === '') {
-            newErrors[subtask.id] = 'Please select an option';
+        } else if (subtask.type === "CHOICE_SELECTION") {
+          if (
+            !response ||
+            typeof response !== "string" ||
+            response.trim() === ""
+          ) {
+            newErrors[subtask.id] = "Please select an option";
           }
-        } else if (subtask.type === 'TEXT_INPUT' || subtask.type === 'SURVEY') {
-          if (!response || typeof response !== 'string' || response.trim() === '') {
-            newErrors[subtask.id] = 'This field is required';
+        } else if (subtask.type === "TEXT_INPUT" || subtask.type === "SURVEY") {
+          if (
+            !response ||
+            typeof response !== "string" ||
+            response.trim() === ""
+          ) {
+            newErrors[subtask.id] = "This field is required";
           } else if (subtask.maxLength && response.length > subtask.maxLength) {
-            newErrors[subtask.id] = `Maximum ${subtask.maxLength} characters allowed`;
+            newErrors[
+              subtask.id
+            ] = `Maximum ${subtask.maxLength} characters allowed`;
           }
-        } else if (subtask.type === 'RATING') {
-          if (response === null || response === undefined || typeof response !== 'number' || response < 1 || response > 10) {
-            newErrors[subtask.id] = 'Please provide a rating';
+        } else if (subtask.type === "RATING") {
+          if (
+            response === null ||
+            response === undefined ||
+            typeof response !== "number" ||
+            response < 1 ||
+            response > 10
+          ) {
+            newErrors[subtask.id] = "Please provide a rating";
           }
         }
       }
@@ -159,64 +202,73 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
     if (!validateResponses()) {
       return;
     }
-    if(!isConnected) {
-      toast.error('Please connect your wallet first');
+    if (!isConnected) {
+      toast.error("Please connect your wallet first");
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const textFeedback = task.subtasks
-        .filter(subtask => subtask.type === 'TEXT_INPUT' && responses[subtask.id])
-        .map(subtask => responses[subtask.id])
-        .join('\n');
-     
+        .filter(
+          (subtask) => subtask.type === "TEXT_INPUT" && responses[subtask.id]
+        )
+        .map((subtask) => responses[subtask.id])
+        .join("\n");
+
       console.log(textFeedback);
-      
+
       // Get AI rating for feedback
       const feedbackText = textFeedback.trim() || "No feedback provided";
-      const rating = await getAiRating('user-' + Date.now(), feedbackText, task.aiCriteria);
-      
+      const rating = await getAiRating(
+        "user-" + Date.now(),
+        feedbackText,
+        task.aiCriteria
+      );
+
       // Calculate rewards
       const baseReward = Number(task.baseReward) / Math.pow(10, 18);
       const maxBonusReward = Number(task.maxBonusReward) / Math.pow(10, 18);
       const bonusReward = ((rating?.rating || 1) * maxBonusReward) / 10;
       const totalReward = baseReward + bonusReward;
-  
+
       // Set payment details
       const newPaymentDetails = {
         baseReward: baseReward,
         bonusReward: bonusReward,
         totalReward: totalReward,
         aiRating: rating?.rating || 1,
-        explanation: rating?.explanation || 'No explanation provided'
+        explanation: rating?.explanation || "No explanation provided",
       };
-  
+
       setAiRating(rating);
       setPaymentDetails(newPaymentDetails);
       setShowAiRatingModal(true);
-  
+
       // Make payment to user
       const paymentHash = await makePaymentToUser(
-        totalReward.toString(), 
-        address as `0x${string}`, 
+        totalReward.toString(),
+        address as `0x${string}`,
         Number(task.blockChainId)
       );
-      
+
       if (!paymentHash) {
-        toast.error('Payment failed');
+        toast.error("Payment failed");
         setIsSubmitting(false);
         return;
       }
 
       // Update earnings
-      await updateEarnings(address as string, BigInt(totalReward * Math.pow(10, 18)));
+      await updateEarnings(
+        address as string,
+        BigInt(totalReward * Math.pow(10, 18))
+      );
 
       // Update payment details with transaction hash
       const updatedPaymentDetails = {
         ...newPaymentDetails,
-        transactionHash: paymentHash
+        transactionHash: paymentHash,
       };
       setPaymentDetails(updatedPaymentDetails);
 
@@ -225,10 +277,10 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
       setShowPaymentModal(true);
 
       // Prepare submission data for database
-      const subtaskResponses = task.subtasks.map(subtask => ({
+      const subtaskResponses = task.subtasks.map((subtask) => ({
         subtaskId: subtask.id,
         response: JSON.stringify(responses[subtask.id]),
-        fileUrl: files[subtask.id] ? files[subtask.id]?.name : undefined
+        fileUrl: files[subtask.id] ? files[subtask.id]?.name : undefined,
       }));
 
       // Save submission to database
@@ -237,62 +289,63 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
         address as string,
         subtaskResponses,
         rating?.rating || 1,
-        rating?.explanation || 'No explanation provided',
+        rating?.explanation || "No explanation provided",
         totalReward.toString()
       );
 
       if (!dbSubmission) {
-        throw new Error('Failed to save submission to database');
+        throw new Error("Failed to save submission to database");
       }
 
       // Send notification to creator based on contact method
       const taskBalance = "0.00"; // Placeholder - implement based on your needs
       const notificationData = {
         taskTitle: task.title,
-        participant: address?.slice(0, 6) + '...' + address?.slice(-4) || 'Unknown',
+        participant:
+          address?.slice(0, 6) + "..." + address?.slice(-4) || "Unknown",
         response: textFeedback,
         aiRating: (rating?.rating || 1).toString(),
         Reward: totalReward.toFixed(3).toString(),
-        TaskBalance: taskBalance
+        TaskBalance: taskBalance,
       };
 
-      if (task.contactMethod === 'WHATSAPP' && task.contactInfo) {
+      if (task.contactMethod === "WHATSAPP" && task.contactInfo) {
         try {
           await sendWhatsappResponse({
             ...notificationData,
-            creatorPhoneNo: task.contactInfo
+            creatorPhoneNo: task.contactInfo,
           });
-          
-          console.log('WhatsApp notification sent to creator');
+
+          console.log("WhatsApp notification sent to creator");
         } catch (whatsappError) {
-          console.error('Failed to send WhatsApp notification:', whatsappError);
+          console.error("Failed to send WhatsApp notification:", whatsappError);
           // toast.error('Task submitted but failed to notify creator via WhatsApp');
         }
-      } else if (task.contactMethod === 'EMAIL' && task.contactInfo) {
+      } else if (task.contactMethod === "EMAIL" && task.contactInfo) {
         try {
           await sendEmailResponse({
             ...notificationData,
-            creatorEmail: task.contactInfo
+            creatorEmail: task.contactInfo,
           });
-          
-          console.log('Email notification sent to creator');
+
+          console.log("Email notification sent to creator");
         } catch (emailError) {
-          console.error('Failed to send email notification:', emailError);
-          toast.error('Task submitted but failed to notify creator via email');
+          console.error("Failed to send email notification:", emailError);
+          toast.error("Task submitted but failed to notify creator via email");
         }
       }
 
       // Prepare submission data for UI
       const submission: TaskSubmission = {
         taskId: task.id,
-        subtaskResponses: task.subtasks.map(subtask => ({
+        subtaskResponses: task.subtasks.map((subtask) => ({
           subtaskId: subtask.id,
           response: responses[subtask.id],
-          completed: true
+          completed: true,
         })),
         totalScore: rating?.rating || 1,
         feedback: feedbackText,
-        submittedAt: new Date().toISOString()
+        submittedAt: new Date().toISOString(),
       };
 
       // Store submission results
@@ -302,38 +355,44 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
       if (onTaskCompleted) {
         onTaskCompleted();
       }
-
     } catch (error) {
-      console.error('Error submitting task:', error);
-      setErrors({ general: 'Failed to submit task. Please try again.' });
+      console.error("Error submitting task:", error);
+      setErrors({ general: "Failed to submit task. Please try again." });
       setIsSubmitting(false);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const renderSubtaskForm = (subtask: TaskWithEligibility['subtasks'][0]) => {
+  const renderSubtaskForm = (subtask: TaskWithEligibility["subtasks"][0]) => {
     const hasError = errors[subtask.id];
     const isRequired = subtask.required;
 
     switch (subtask.type) {
-      case 'TEXT_INPUT':
+      case "TEXT_INPUT":
         return (
           <div className="space-y-2">
             <textarea
-              value={responses[subtask.id] || ''}
+              value={responses[subtask.id] || ""}
               onChange={(e) => handleInputChange(subtask.id, e.target.value)}
-              placeholder={subtask.placeholder || 'Enter your response...'}
+              placeholder={subtask.placeholder || "Enter your response..."}
               maxLength={subtask.maxLength || undefined}
               rows={2}
               className={`w-full px-3 py-2 border-2 border-black focus:border-celo-yellow transition-all resize-none text-sm font-inter ${
-                hasError ? 'bg-celo-error text-white' : 'bg-white text-black'
+                hasError ? "bg-celo-error text-white" : "bg-white text-black"
               }`}
             />
             {subtask.maxLength && (
               <div className="text-xs">
-                <div className={`font-inter ${responses[subtask.id]?.length > (subtask.maxLength * 0.9) ? 'text-celo-orange' : 'text-celo-body'}`}>
-                  {responses[subtask.id]?.length || 0}/{subtask.maxLength} characters
+                <div
+                  className={`font-inter ${
+                    responses[subtask.id]?.length > subtask.maxLength * 0.9
+                      ? "text-celo-orange"
+                      : "text-celo-body"
+                  }`}
+                >
+                  {responses[subtask.id]?.length || 0}/{subtask.maxLength}{" "}
+                  characters
                 </div>
               </div>
             )}
@@ -346,38 +405,62 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
           </div>
         );
 
-      case 'MULTIPLE_CHOICE':
+      case "MULTIPLE_CHOICE":
         return (
           <div className="space-y-2">
             <div className="space-y-1">
-              {subtask.options ? JSON.parse(subtask.options).map((option: string, index: number) => {
-                const isSelected = responses[subtask.id]?.includes(option) || false;
-                return (
-                  <label key={index} className={`flex items-center space-x-2 p-2 border-2 border-black cursor-pointer transition-all ${
-                    isSelected ? 'bg-celo-forest text-white' : 'bg-white text-black hover:bg-celo-dk-tan'
-                  }`}>
-                    <div className={`w-4 h-4 border border-black flex items-center justify-center transition-all ${
-                      isSelected ? 'bg-black' : 'bg-white'
-                    }`}>
-                      {isSelected && <CheckCircle2 className="w-2 h-2 text-celo-yellow" />}
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={(e) => {
-                        const current = responses[subtask.id] || [];
-                        if (e.target.checked) {
-                          handleInputChange(subtask.id, [...current, option]);
-                        } else {
-                          handleInputChange(subtask.id, current.filter((item: string) => item !== option));
-                        }
-                      }}
-                      className="sr-only"
-                    />
-                    <span className="text-xs font-inter flex-1">{option}</span>
-                  </label>
-                );
-              }) : null}
+              {subtask.options
+                ? JSON.parse(subtask.options).map(
+                    (option: string, index: number) => {
+                      const isSelected =
+                        responses[subtask.id]?.includes(option) || false;
+                      return (
+                        <label
+                          key={index}
+                          className={`flex items-center space-x-2 p-2 border-2 border-black cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-celo-forest text-white"
+                              : "bg-white text-black hover:bg-celo-dk-tan"
+                          }`}
+                        >
+                          <div
+                            className={`w-4 h-4 border border-black flex items-center justify-center transition-all ${
+                              isSelected ? "bg-black" : "bg-white"
+                            }`}
+                          >
+                            {isSelected && (
+                              <CheckCircle2 className="w-2 h-2 text-celo-yellow" />
+                            )}
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              const current = responses[subtask.id] || [];
+                              if (e.target.checked) {
+                                handleInputChange(subtask.id, [
+                                  ...current,
+                                  option,
+                                ]);
+                              } else {
+                                handleInputChange(
+                                  subtask.id,
+                                  current.filter(
+                                    (item: string) => item !== option
+                                  )
+                                );
+                              }
+                            }}
+                            className="sr-only"
+                          />
+                          <span className="text-xs font-inter flex-1">
+                            {option}
+                          </span>
+                        </label>
+                      );
+                    }
+                  )
+                : null}
             </div>
             {hasError && (
               <div className="flex items-center space-x-2 text-white text-xs bg-celo-error p-2 border border-black">
@@ -388,24 +471,34 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
           </div>
         );
 
-      case 'FILE_UPLOAD':
+      case "FILE_UPLOAD":
         return (
           <div className="space-y-2">
-            <div className={`border-2 border-black p-3 text-center transition-all ${
-              files[subtask.id] ? 'bg-celo-success text-white' : hasError ? 'bg-celo-error text-white' : 'bg-white text-black hover:bg-celo-dk-tan'
-            }`}>
+            <div
+              className={`border-2 border-black p-3 text-center transition-all ${
+                files[subtask.id]
+                  ? "bg-celo-success text-white"
+                  : hasError
+                  ? "bg-celo-error text-white"
+                  : "bg-white text-black hover:bg-celo-dk-tan"
+              }`}
+            >
               <div className="space-y-1">
                 {files[subtask.id] ? (
                   <div className="space-y-1">
                     <CheckCircle2 className="w-6 h-6 text-white mx-auto" />
-                    <p className="text-xs font-inter font-heavy">{files[subtask.id]?.name}</p>
+                    <p className="text-xs font-inter font-heavy">
+                      {files[subtask.id]?.name}
+                    </p>
                     <p className="text-xs font-inter">FILE UPLOADED!</p>
                   </div>
                 ) : (
                   <div className="space-y-1">
                     <Upload className="w-6 h-6 text-black mx-auto" />
                     <p className="text-xs font-inter">
-                      <span className="font-heavy text-celo-purple">TAP TO UPLOAD</span>
+                      <span className="font-heavy text-celo-purple">
+                        TAP TO UPLOAD
+                      </span>
                     </p>
                   </div>
                 )}
@@ -413,7 +506,9 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
               <input
                 type="file"
                 accept="*/*"
-                onChange={(e) => handleFileUpload(subtask.id, e.target.files?.[0] || null)}
+                onChange={(e) =>
+                  handleFileUpload(subtask.id, e.target.files?.[0] || null)
+                }
                 className="hidden"
                 id={`file-${subtask.id}`}
               />
@@ -421,7 +516,7 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
                 htmlFor={`file-${subtask.id}`}
                 className="mt-2 inline-flex items-center px-3 py-1 text-xs font-inter font-heavy border-2 border-black bg-celo-purple hover:bg-black hover:text-celo-purple transition-all cursor-pointer"
               >
-                {files[subtask.id] ? 'CHANGE FILE' : 'CHOOSE FILE'}
+                {files[subtask.id] ? "CHANGE FILE" : "CHOOSE FILE"}
               </label>
             </div>
             {hasError && (
@@ -433,7 +528,7 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
           </div>
         );
 
-      case 'RATING':
+      case "RATING":
         return (
           <div className="space-y-2">
             <div className="grid grid-cols-5 gap-1">
@@ -444,8 +539,8 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
                   onClick={() => handleRatingChange(subtask.id, rating)}
                   className={`h-8 border-2 border-black flex items-center justify-center text-xs font-inter font-heavy transition-all active:scale-95 ${
                     responses[subtask.id] === rating
-                      ? 'bg-celo-forest text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]'
-                      : 'bg-white text-black hover:bg-celo-dk-tan'
+                      ? "bg-celo-forest text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+                      : "bg-white text-black hover:bg-celo-dk-tan"
                   }`}
                 >
                   {rating}
@@ -455,9 +550,11 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
             <div className="text-center">
               <div className="text-xs font-inter">
                 {responses[subtask.id] ? (
-                  <span className="font-heavy text-celo-purple">RATING: {responses[subtask.id]}/10</span>
+                  <span className="font-heavy text-celo-purple">
+                    RATING: {responses[subtask.id]}/10
+                  </span>
                 ) : (
-                  'TAP A NUMBER TO RATE'
+                  "TAP A NUMBER TO RATE"
                 )}
               </div>
             </div>
@@ -470,16 +567,16 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
           </div>
         );
 
-      case 'SURVEY':
+      case "SURVEY":
         return (
           <div className="space-y-2">
             <textarea
-              value={responses[subtask.id] || ''}
+              value={responses[subtask.id] || ""}
               onChange={(e) => handleInputChange(subtask.id, e.target.value)}
               placeholder="Share your detailed thoughts..."
               rows={3}
               className={`w-full px-3 py-2 border-2 border-black focus:border-celo-yellow transition-all resize-none text-sm font-inter ${
-                hasError ? 'bg-celo-error text-white' : 'bg-white text-black'
+                hasError ? "bg-celo-error text-white" : "bg-white text-black"
               }`}
             />
             {hasError && (
@@ -491,32 +588,49 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
           </div>
         );
 
-      case 'CHOICE_SELECTION':
+      case "CHOICE_SELECTION":
         return (
           <div className="space-y-2">
             <div className="space-y-1">
-              {subtask.options ? JSON.parse(subtask.options).map((option: string, index: number) => {
-                const isSelected = responses[subtask.id] === option;
-                return (
-                  <label key={index} className={`flex items-center space-x-2 p-2 border-2 border-black cursor-pointer transition-all ${
-                    isSelected ? 'bg-celo-forest text-white' : 'bg-white text-black hover:bg-celo-dk-tan'
-                  }`}>
-                    <div className={`w-4 h-4 border border-black flex items-center justify-center transition-all ${
-                      isSelected ? 'bg-black' : 'bg-white'
-                    }`}>
-                      {isSelected && <CheckCircle2 className="w-2 h-2 text-celo-yellow" />}
-                    </div>
-                    <input
-                      type="radio"
-                      name={`choice-${subtask.id}`}
-                      checked={isSelected}
-                      onChange={() => handleInputChange(subtask.id, option)}
-                      className="sr-only"
-                    />
-                    <span className="text-xs font-inter flex-1">{option}</span>
-                  </label>
-                );
-              }) : null}
+              {subtask.options
+                ? JSON.parse(subtask.options).map(
+                    (option: string, index: number) => {
+                      const isSelected = responses[subtask.id] === option;
+                      return (
+                        <label
+                          key={index}
+                          className={`flex items-center space-x-2 p-2 border-2 border-black cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-celo-forest text-white"
+                              : "bg-white text-black hover:bg-celo-dk-tan"
+                          }`}
+                        >
+                          <div
+                            className={`w-4 h-4 border border-black flex items-center justify-center transition-all ${
+                              isSelected ? "bg-black" : "bg-white"
+                            }`}
+                          >
+                            {isSelected && (
+                              <CheckCircle2 className="w-2 h-2 text-celo-yellow" />
+                            )}
+                          </div>
+                          <input
+                            type="radio"
+                            name={`choice-${subtask.id}`}
+                            checked={isSelected}
+                            onChange={() =>
+                              handleInputChange(subtask.id, option)
+                            }
+                            className="sr-only"
+                          />
+                          <span className="text-xs font-inter flex-1">
+                            {option}
+                          </span>
+                        </label>
+                      );
+                    }
+                  )
+                : null}
             </div>
             {hasError && (
               <div className="flex items-center space-x-2 text-white text-xs bg-celo-error p-2 border border-black">
@@ -534,43 +648,62 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
-      case 'easy': return 'text-green-600 bg-green-100';
-      case 'medium': return 'text-yellow-600 bg-yellow-100';
-      case 'hard': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case "easy":
+        return "text-green-600 bg-green-100";
+      case "medium":
+        return "text-yellow-600 bg-yellow-100";
+      case "hard":
+        return "text-red-600 bg-red-100";
+      default:
+        return "text-gray-600 bg-gray-100";
     }
   };
-
 
   // Memoize validation result to prevent infinite re-renders
   const isValid = useMemo(() => {
     const newErrors: Record<string, string> = {};
-    
-    task.subtasks.forEach(subtask => {
+
+    task.subtasks.forEach((subtask) => {
       if (subtask.required) {
         const response = responses[subtask.id];
-        
-        if (subtask.type === 'FILE_UPLOAD') {
+
+        if (subtask.type === "FILE_UPLOAD") {
           if (!files[subtask.id]) {
-            newErrors[subtask.id] = 'Please upload a file';
+            newErrors[subtask.id] = "Please upload a file";
           }
-        } else if (subtask.type === 'MULTIPLE_CHOICE') {
+        } else if (subtask.type === "MULTIPLE_CHOICE") {
           if (!response || !Array.isArray(response) || response.length === 0) {
-            newErrors[subtask.id] = 'Please select at least one option';
+            newErrors[subtask.id] = "Please select at least one option";
           }
-        } else if (subtask.type === 'CHOICE_SELECTION') {
-          if (!response || typeof response !== 'string' || response.trim() === '') {
-            newErrors[subtask.id] = 'Please select an option';
+        } else if (subtask.type === "CHOICE_SELECTION") {
+          if (
+            !response ||
+            typeof response !== "string" ||
+            response.trim() === ""
+          ) {
+            newErrors[subtask.id] = "Please select an option";
           }
-        } else if (subtask.type === 'TEXT_INPUT' || subtask.type === 'SURVEY') {
-          if (!response || typeof response !== 'string' || response.trim() === '') {
-            newErrors[subtask.id] = 'This field is required';
+        } else if (subtask.type === "TEXT_INPUT" || subtask.type === "SURVEY") {
+          if (
+            !response ||
+            typeof response !== "string" ||
+            response.trim() === ""
+          ) {
+            newErrors[subtask.id] = "This field is required";
           } else if (subtask.maxLength && response.length > subtask.maxLength) {
-            newErrors[subtask.id] = `Maximum ${subtask.maxLength} characters allowed`;
+            newErrors[
+              subtask.id
+            ] = `Maximum ${subtask.maxLength} characters allowed`;
           }
-        } else if (subtask.type === 'RATING') {
-          if (response === null || response === undefined || typeof response !== 'number' || response < 1 || response > 10) {
-            newErrors[subtask.id] = 'Please provide a rating';
+        } else if (subtask.type === "RATING") {
+          if (
+            response === null ||
+            response === undefined ||
+            typeof response !== "number" ||
+            response < 1 ||
+            response > 10
+          ) {
+            newErrors[subtask.id] = "Please provide a rating";
           }
         }
       }
@@ -585,7 +718,9 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
         {/* Task Header */}
         <div className="bg-white border-4 border-black rounded-xl p-4 shadow-lg">
           <div className="space-y-3">
-            <h1 className="text-xl font-gt-alpina font-bold text-black leading-tight">{task.title}</h1>
+            <h1 className="text-xl font-gt-alpina font-bold text-black leading-tight">
+              {task.title}
+            </h1>
             <p className="text-gray-600 text-sm">{task.description}</p>
 
             <div className="flex justify-center">
@@ -599,7 +734,6 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
             </div>
           </div>
         </div>
-
         {/* Subtasks Section */}
         <div className="space-y-3">
           {task.subtasks.map((subtask, index) => {
@@ -610,14 +744,14 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
               >
                 <div className="p-3 space-y-3">
                   <div className="flex items-start gap-2">
-                    <div
-                      className="w-6 h-6 flex items-center justify-center rounded-full border-2 border-black text-xs font-bold bg-celo-forest text-white"
-                    >
+                    <div className="w-6 h-6 flex items-center justify-center rounded-full border-2 border-black text-xs font-bold bg-celo-forest text-white">
                       {index + 1}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-black text-sm">{subtask.title}</h3>
+                        <h3 className="font-semibold text-black text-sm">
+                          {subtask.title}
+                        </h3>
                         {subtask.required && (
                           <Star className="w-4 h-4 text-celo-orange bg-white" />
                         )}
@@ -633,7 +767,6 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
             );
           })}
         </div>
-
         {/* Submit Button */}
         <div className="pt-2">
           <button
@@ -655,7 +788,7 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
               </>
             )}
           </button>
-          
+
           {/* Validation Status */}
           {!isValid && (
             <div className="mt-2 text-center">
@@ -665,8 +798,219 @@ export default function FormGenerator({ task, onTaskCompleted , closeFormGenerat
             </div>
           )}
         </div>
+        {/* Success Message */}{" "}
+        {submissionResults && (
+          <div className="bg-celo-success border-4 border-black p-4 mb-4">
+            {" "}
+            <div className="flex items-center space-x-2 text-white">
+              {" "}
+              <CheckCircle2 className="w-5 h-5" />{" "}
+              <span className="font-inter font-heavy">
+                TASK SUBMITTED SUCCESSFULLY! CHECK YOUR WALLET FOR THE REWARD.
+              </span>{" "}
+            </div>{" "}
+          </div>
+        )}{" "}
+        {/* General Error Display */}{" "}
+        {errors.general && (
+          <div className="bg-celo-error border-4 border-black p-4">
+            {" "}
+            <div className="flex items-center space-x-2 text-white">
+              {" "}
+              <AlertCircle className="w-5 h-5" />{" "}
+              <span className="font-inter font-heavy">{errors.general}</span>{" "}
+            </div>{" "}
+          </div>
+        )}
       </div>
-    </div>
 
+      {/* AI Rating Modal */}
+      {showAiRatingModal && aiRating && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-sm p-4">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-sm overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-celo-purple text-white text-center py-6 px-4">
+              <div className="w-16 h-16 bg-white/20 border-2 border-white rounded-full flex items-center justify-center mx-auto mb-3">
+                <Sparkles className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-gt-alpina font-bold tracking-wide">
+                AI ANALYSIS COMPLETE
+              </h3>
+              <p className="text-white/90 text-sm mt-1 font-inter">
+                Processing your reward...
+              </p>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-5">
+              {/* Rating Display */}
+              <div className="text-center">
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="w-20 h-20 mx-auto border-4 border-black bg-celo-yellow flex items-center justify-center mb-3 shadow-[5px_5px_0_0_rgba(0,0,0,1)] rounded-full"
+                >
+                  <span className="text-2xl font-gt-alpina font-bold text-black">
+                    {aiRating.rating}/10
+                  </span>
+                </motion.div>
+                <p className="text-gray-700 text-sm">{aiRating.explanation}</p>
+              </div>
+
+              {/* Payment Summary */}
+              <div className="bg-celo-lt-tan border-4 border-black rounded-xl p-4 space-y-2 font-inter">
+                <div className="flex justify-between">
+                  <span className="font-bold text-black">Base Reward</span>
+                  <span>
+                    {Number(paymentDetails?.baseReward).toFixed(3)} cUSD
+                  </span>
+                </div>
+                <div className="flex justify-between text-celo-purple">
+                  <span className="font-bold">
+                    Bonus ({aiRating.rating}/10)
+                  </span>
+                  <span>
+                    +
+                    {(
+                      (aiRating.rating *
+                        Number(paymentDetails?.bonusReward || 0)) /
+                      10
+                    ).toFixed(3)}{" "}
+                    cUSD
+                  </span>
+                </div>
+                <div className="border-t-2 border-black pt-2 flex justify-between text-celo-success">
+                  <span className="font-bold">Total</span>
+                  <span className="font-bold">
+                    {paymentDetails?.totalReward.toFixed(3)} cUSD
+                  </span>
+                </div>
+              </div>
+
+              {/* Processing */}
+              <div className="text-center pt-2">
+                <div className="flex justify-center items-center gap-2 text-celo-purple font-bold">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Processing payment...</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Please wait while we finalize your transaction
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showPaymentModal && paymentDetails && paymentDetails.transactionHash && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-black/70 to-black/50 backdrop-blur-md p-4">
+          <Confetti width={1000} height={1000} recycle={false} />
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.35 }}
+            className="bg-white border-4 border-black rounded-2xl shadow-[10px_10px_0_0_rgba(0,0,0,1)] max-w-sm overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-celo-forest text-white text-center py-6 px-4 relative">
+              <div className="w-20 h-20 bg-white/20 border-2 border-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="w-10 h-10" />
+              </div>
+              <h3 className="text-2xl font-gt-alpina font-bold mb-1">
+                Payment Successful! 🎉
+              </h3>
+              <p className="text-white/90 font-inter">
+                Your reward has been credited
+              </p>
+            </div>
+
+            {/* Receipt */}
+            <div className="p-6 space-y-6">
+              <div className="bg-celo-lt-tan border-4 border-black rounded-xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-gt-alpina font-bold text-lg flex items-center">
+                    <Receipt className="w-5 h-5 mr-2" /> Transaction Receipt
+                  </h4>
+                  <span className="text-xs bg-white border-2 border-black px-2 py-1 font-inter">
+                    {new Date().toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-sm font-inter">
+                  <div className="flex justify-between border-b-2 border-black pb-2">
+                    <span className="font-bold flex items-center">
+                      <User className="w-4 h-4 mr-2" /> Recipient
+                    </span>
+                    <span className="font-mono bg-celo-blue text-white border-2 border-black px-2 py-1 rounded">
+                      {address?.slice(0, 6)}...{address?.slice(-4)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-b-2 border-black pb-2">
+                    <span className="font-bold flex items-center">
+                      <Hash className="w-4 h-4 mr-2" /> Transaction
+                    </span>
+                    <span className="font-mono bg-celo-success text-white border-2 border-black px-2 py-1 rounded">
+                      {paymentDetails.transactionHash?.slice(0, 8)}...
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-b-2 border-black pb-2">
+                    <span className="font-bold text-gray-700">Base Reward</span>
+                    <span>{paymentDetails.baseReward.toFixed(3)} cUSD</span>
+                  </div>
+                  <div className="flex justify-between border-b-2 border-black pb-2 text-celo-purple">
+                    <span className="font-bold">Quality Bonus</span>
+                    <span>+{paymentDetails.bonusReward.toFixed(3)} cUSD</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-celo-forest text-white px-3 py-3 border-2 border-black">
+                    <span className="font-gt-alpina text-lg font-bold">
+                      Total Paid
+                    </span>
+                    <span className="text-xl font-gt-alpina font-bold">
+                      {paymentDetails.totalReward.toFixed(3)} cUSD
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() =>
+                    window.open(
+                      `https://celoscan.io/tx/${paymentDetails.transactionHash}`,
+                      "_blank"
+                    )
+                  }
+                  className="flex-1 bg-celo-blue text-white border-4 border-black rounded-xl py-3 font-semibold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-blue transition-all"
+                >
+                  View on Chain
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPaymentModal(false);
+                    setResponses({});
+                    setAiRating(null);
+                    setPaymentDetails(null);
+                    closeFormGenerator?.();
+                  }}
+                  className="flex-1 bg-celo-success text-white border-4 border-black rounded-xl py-3 font-semibold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-success transition-all"
+                >
+                  Complete
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </div>
   );
 }
+
+// {/* Success Message */} {submissionResults && ( <div className="bg-celo-success border-4 border-black p-4 mb-4"> <div className="flex items-center space-x-2 text-white"> <CheckCircle2 className="w-5 h-5" /> <span className="font-inter font-heavy">TASK SUBMITTED SUCCESSFULLY! CHECK YOUR WALLET FOR THE REWARD.</span> </div> </div> )} {/* General Error Display */} {errors.general && ( <div className="bg-celo-error border-4 border-black p-4"> <div className="flex items-center space-x-2 text-white"> <AlertCircle className="w-5 h-5" /> <span className="font-inter font-heavy">{errors.general}</span> </div> </div> )} </div> {/* AI Rating Modal */} {showAiRatingModal && aiRating && ( <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"> <div className="bg-white border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] w-80 max-w-sm"> {/* Header */} <div className="bg-celo-purple p-4 text-white text-center"> <div className="w-12 h-12 bg-white/20 border-2 border-white flex items-center justify-center mx-auto mb-3"> <Sparkles className="w-6 h-6" /> </div> <h3 className="text-h5 font-gt-alpina font-bold mb-1">AI ANALYSIS COMPLETE</h3> <p className="text-white/90 text-body-s font-inter">PROCESSING YOUR REWARD...</p> </div> <div className="p-4 space-y-4"> {/* AI Rating Display */} <div className="text-center"> <div className="w-16 h-16 mx-auto border-4 border-black bg-celo-yellow flex items-center justify-center mb-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"> <span className="text-h4 font-gt-alpina font-bold text-black">{aiRating.rating}/10</span> </div> <p className="text-celo-body text-body-s font-inter">{aiRating.explanation}</p> </div> {/* Payment Info */} <div className="bg-celo-dk-tan border-4 border-black p-3 space-y-2"> <div className="flex justify-between text-body-s"> <span className="text-celo-body font-inter font-heavy">BASE REWARD</span> <span className="font-inter font-heavy">{Number(paymentDetails?.baseReward).toFixed(3)} cUSD</span> </div> <div className="flex justify-between text-body-s"> <span className="text-celo-purple font-inter font-heavy">BONUS ({aiRating.rating}/10)</span> <span className="font-inter font-heavy text-celo-purple">+{Number(paymentDetails?.baseReward || 0 + (aiRating.rating * Number(paymentDetails?.bonusReward))/10).toFixed(3)} cUSD</span> </div> <div className="border-t-2 border-black pt-2 flex justify-between"> <span className="font-inter font-heavy text-black">TOTAL</span> <span className="font-inter font-heavy text-celo-success">{paymentDetails?.totalReward.toFixed(3)} cUSD</span> </div> </div> {/* Processing Payment */} <div className="text-center"> <div className="flex items-center justify-center space-x-2 text-celo-purple mb-2"> <Loader2 className="w-5 h-5 animate-spin" /> <span className="font-inter font-heavy">PROCESSING PAYMENT...</span> </div> <p className="text-celo-body text-eyebrow font-inter">PLEASE WAIT WHILE WE PROCESS YOUR REWARD</p> </div> </div> </div> </div> )} {/* Success Modal */} {showPaymentModal && paymentDetails && paymentDetails.transactionHash && ( <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"> <Confetti width={1000} height={1000} recycle={false} /> <div className="bg-white border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-sm"> {/* Header */} <div className="bg-celo-success p-4 text-white text-center relative"> <div className="w-20 h-20 bg-white/20 border-2 border-white flex items-center justify-center mx-auto mb-4"> <CheckCircle2 className="w-10 h-10" /> </div> <h3 className="text-h3 font-gt-alpina font-bold mb-2">PAYMENT SUCCESSFUL! 🎉</h3> <p className="text-white/90 font-inter">YOUR REWARD HAS BEEN PROCESSED</p> </div> {/* Transaction Receipt */} <div className="p-6 space-y-6"> <div className="bg-celo-dk-tan border-4 border-black p-5"> <div className="flex items-center justify-between mb-4"> <h4 className="text-h5 font-gt-alpina font-bold text-black flex items-center"> <Receipt className="w-5 h-5 mr-2 text-black" /> TRANSACTION RECEIPT </h4> <div className="text-eyebrow text-celo-body bg-white px-2 py-1 border-2 border-black font-inter font-heavy"> {new Date().toLocaleString()} </div> </div> <div className="space-y-3 text-body-s"> <div className="flex justify-between items-center py-2 border-b-2 border-black"> <span className="text-celo-body flex items-center font-inter font-heavy"> <User className="w-4 h-4 mr-2" /> RECIPIENT </span> <span className="font-mono text-eyebrow bg-celo-blue px-2 py-1 border-2 border-black font-inter"> {address?.slice(0, 6)}...{address?.slice(-4)} </span> </div> <div className="flex justify-between items-center py-2 border-b-2 border-black"> <span className="text-celo-body flex items-center font-inter font-heavy"> <Hash className="w-4 h-4 mr-2" /> TRANSACTION HASH </span> <span className="font-mono text-eyebrow bg-celo-success px-2 py-1 border-2 border-black font-inter"> {paymentDetails.transactionHash?.slice(0, 8)}... </span> </div> <div className="flex justify-between items-center py-2 border-b-2 border-black"> <span className="text-celo-body font-inter font-heavy">BASE REWARD</span> <span className="font-inter font-heavy">{paymentDetails.baseReward.toFixed(3)} cUSD</span> </div> <div className="flex justify-between items-center py-2 border-b-2 border-black"> <span className="text-celo-purple font-inter font-heavy">QUALITY BONUS</span> <span className="font-inter font-heavy text-celo-purple">+{paymentDetails.bonusReward.toFixed(3)} cUSD</span> </div> <div className="flex justify-between items-center py-3 bg-celo-success px-3 border-2 border-black"> <span className="text-h5 font-gt-alpina font-bold text-white">TOTAL PAID</span> <span className="text-h4 font-gt-alpina font-bold text-white">{paymentDetails.totalReward.toFixed(3)} cUSD</span> </div> </div> </div> {/* Action Buttons */} <div className="flex space-x-3"> <button onClick={() => { // Open block explorer with transaction hash window.open(https://celoscan.io/tx/${paymentDetails.transactionHash}, '_blank'); }} className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-celo-blue text-white border-4 border-black font-inter font-heavy hover:bg-black hover:text-celo-blue transition-all" > <SquareArrowOutUpRight className="w-4 h-4" /> <span>VIEW ON CHAIN</span> </button> <button onClick={() => { setShowPaymentModal(false); // Reset form state setResponses({}); setCompletedTasks(new Set()); setAiRating(null); setPaymentDetails(null); closeFormGenerator?.(); }} className="flex-1 px-4 py-3 bg-celo-success text-white border-4 border-black font-inter font-heavy hover:bg-black hover:text-celo-success transition-all shadow-[4px_4px_0_0_rgba(0,0,0,1)]" > COMPLETE </button> </div> </div> </div> </div> )}
