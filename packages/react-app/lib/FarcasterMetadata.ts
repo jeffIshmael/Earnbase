@@ -1,6 +1,6 @@
 export const fcEmbed = {
     version: "next",
-    imageUrl: "https://earnbase.vercel.app/bg_image.png",
+    imageUrl: "https://earnbase.vercel.app/bg_image_latest.png",
     button: {
       title: "🧠Submit feedback get Rewards",
       action: {
