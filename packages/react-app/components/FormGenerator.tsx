@@ -41,6 +41,7 @@ import { sendWhatsappResponse } from "@/lib/Whatsapp";
 import { sendEmailResponse } from "@/lib/Email";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { getTask } from "@/lib/ReadFunctions";
 
 interface FormGeneratorProps {
   task: TaskWithEligibility;
@@ -96,6 +97,7 @@ export default function FormGenerator({
   } | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
+  const [taskBalance, setTaskBalance] = useState(0);
   const { isConnected } = useAccount();
   const router = useRouter();
 
@@ -113,6 +115,12 @@ export default function FormGenerator({
     });
     setResponses(initialResponses);
   }, [task]);
+
+  // getting task balance
+  const getTaskBalance = async () => {
+    const taskBalance = await getTask(BigInt(task.blockChainId));
+    setTaskBalance(Number(taskBalance.totalAmount - taskBalance.paidAmount) / Math.pow(10, 18));
+  };
 
   const handleInputChange = (subtaskId: number, value: any) => {
     setResponses((prev) => ({ ...prev, [subtaskId]: value }));
@@ -320,10 +328,10 @@ export default function FormGenerator({
         throw new Error("Failed to save submission to database");
       }
 
-    
+      // get task balance
+      await getTaskBalance();
 
       // Send notification to creator based on contact method
-      const taskBalance = "0.00"; // Placeholder - implement based on your needs
       const notificationData = {
         taskTitle: task.title,
         participant:
@@ -331,7 +339,7 @@ export default function FormGenerator({
         response: feedbackToCreator,
         aiRating: (rating?.rating || 1).toString(),
         Reward: totalReward.toFixed(3).toString(),
-        TaskBalance: taskBalance,
+        TaskBalance: taskBalance.toFixed(3),
       };
 
       if (task.contactMethod === "WHATSAPP" && task.contactInfo) {
