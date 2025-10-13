@@ -337,6 +337,8 @@ const MyTaskDetailPage = () => {
         setIsDeleting(false);
     }
   };
+
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-celo-lt-tan">
