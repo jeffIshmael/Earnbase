@@ -91,6 +91,44 @@ export async function addTester( address: `0x${string}`[]):Promise <string | nul
     }
 }
 
+// function to add funds for a task
+export async function addFundsForTask(amount: string, taskId: number):Promise <string | null>{
+    try {
+    const amountInWei = parseEther(amount);
+    const taskIdInBigInt = BigInt(taskId);
+    const {account, smartAccountClient} = await getAgentSmartAccount();
+    const hash = await smartAccountClient.writeContract({
+        address: contractAddress,
+        abi: contractAbi,
+        functionName: 'addFundsForTask',
+        args:[taskIdInBigInt, amountInWei],
+      })
+    return hash;
+    } catch (error) {
+        console.log('the error', error);
+        return null;        
+    }
+}
+
+// function to delete a task
+
+export async function deleteTask(taskId: number):Promise <string | null>{
+    try {
+    const taskIdInBigInt = BigInt(taskId);
+    const {account, smartAccountClient} = await getAgentSmartAccount();
+    const hash = await smartAccountClient.writeContract({
+        address: contractAddress,
+        abi: contractAbi,
+        functionName: 'deleteTask',
+        args:[taskIdInBigInt],
+      })
+    return hash;
+    } catch (error) {
+        console.log('the error', error);
+        return null;        
+    }
+}
+
 
 // function to send funds to all testers
 export async function sendFundsToTesters( amount: string):Promise <string | null>{

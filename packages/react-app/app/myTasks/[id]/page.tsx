@@ -41,9 +41,26 @@ import {
   Download,
   Eye as EyeIcon,
 } from "lucide-react";
-import { getTaskDetails } from "@/lib/Prismafnctns";
+import {
+  dbDeleteTask,
+  getTaskDetails,
+  updateTaskStatus,
+} from "@/lib/Prismafnctns";
 import { getTask } from "@/lib/ReadFunctions";
 import BottomNavigation from "@/components/BottomNavigation";
+import { toast } from "sonner";
+import { useAccount, useWriteContract } from "wagmi";
+import {
+  contractAbi,
+  contractAddress,
+  cUSDAddress,
+} from "@/contexts/constants";
+import { erc20Abi, parseEther } from "viem";
+import { readContract, waitForTransactionReceipt } from "@wagmi/core";
+import { celo } from "wagmi/chains";
+import { config } from "@/providers/AppProvider";
+import { TaskStatus } from "@prisma/client";
+import { getBalances } from "@/lib/Balance";
 
 interface TaskResponse {
   id: number;
@@ -61,6 +78,7 @@ interface TaskResponse {
 interface TaskWithBlockchainData {
   id: number;
   title: string;
+  blockChainId: string;
   description: string;
   status: string;
   totalAmount: bigint;
@@ -85,13 +103,17 @@ const MyTaskDetailPage = () => {
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [addFundsAmount, setAddFundsAmount] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isDepositing, setIsDepositing] = useState(false);
+  const [isPausing, setIsPausing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const taskId = params.id as string;
-
+  const { isConnected, address } = useAccount();
+  const { writeContractAsync } = useWriteContract();
   // Responses will be loaded from database
   const [responses, setResponses] = useState<TaskResponse[]>([]);
   const [expandedResponses, setExpandedResponses] = useState<number[]>([]);
+  const [balances, setBalances] = useState<{ cUSDBalance: string, USDCBalance: string, celoBalance: string } | null>(null);
 
   useEffect(() => {
     const loadTask = async () => {
@@ -109,6 +131,7 @@ const MyTaskDetailPage = () => {
             id: taskData.id,
             title: taskData.title,
             description: taskData.description,
+            blockChainId: taskData.blockChainId,
             status: taskData.status,
             totalAmount: blockchainTask.totalAmount,
             paidAmount: blockchainTask.paidAmount,
@@ -158,14 +181,77 @@ const MyTaskDetailPage = () => {
     }
   }, [taskId]);
 
+  useEffect(() => {
+    const fetchBalances = async () => {
+    if (isConnected && address) {
+      const balances = await getBalances(address as `0x${string}`);
+      setBalances({
+        cUSDBalance: (Number(balances.cUSDBalance) / 1e18).toFixed(3),
+        USDCBalance: (Number(balances.USDCBalance) / 1e18).toFixed(3),
+        celoBalance: (Number(balances.celoBalance) / 1e18).toFixed(3),
+      });
+    }
+  };
+    fetchBalances();
+  }, [isConnected, address]);
+
   const handleAddFunds = async () => {
     if (!addFundsAmount || parseFloat(addFundsAmount) <= 0) return;
+    if (!isConnected || !address) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
 
-    setIsProcessing(true);
+    setIsDepositing(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // approve function
+      const amountInWei = parseEther(addFundsAmount);
+      const taskIdInBigInt = BigInt(task?.blockChainId || 0);
+      // 1. Approve allowance
+      const approveTx = await writeContractAsync({
+        address: cUSDAddress,
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [contractAddress, amountInWei],
+      });
 
+      // Wait for confirmation
+      await waitForTransactionReceipt(config, {
+        chainId: celo.id,
+        hash: approveTx,
+        pollingInterval: 3000, // 3s
+      });
+
+      let allowance = 0n;
+      for (let i = 0; i < 5; i++) {
+        allowance = await readContract(config, {
+          address: cUSDAddress,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [address, contractAddress],
+        });
+        if (allowance >= amountInWei) break;
+        await new Promise((res) => setTimeout(res, 2000)); // wait 2s
+      }
+
+      console.log("allowance", allowance);
+
+      if (allowance < amountInWei) {
+        throw new Error("Allowance not set correctly");
+      }
+
+      // 2. Call addFundsForTask
+      const addFundsTx = await writeContractAsync({
+        address: contractAddress,
+        abi: contractAbi,
+        functionName: "depositForTask",
+        args: [taskIdInBigInt, amountInWei],
+      });
+      if (!addFundsTx) {
+        toast.error("Failed to add funds");
+        return;
+      }
+      toast.success(`${addFundsAmount} cUSD added to the task`);
       // Update task budget (in real app, this would update blockchain)
       if (task) {
         setTask({
@@ -184,63 +270,73 @@ const MyTaskDetailPage = () => {
     } catch (error) {
       console.error("Error adding funds:", error);
     } finally {
-      setIsProcessing(false);
+      setIsDepositing(false);
     }
   };
 
-  const handleDeactivateTask = async () => {
+  const handleDeactivateTask = async (taskStatus: TaskStatus) => {
     if (!task) return;
 
-    setIsProcessing(true);
+    setIsPausing(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Update task status
-      setTask({
-        ...task,
-        status: task.status === "ACTIVE" ? "PAUSED" : "ACTIVE",
-      });
+      await updateTaskStatus(task.id, taskStatus);
+      // Reflect status locally
+      setTask((prev) => (prev ? { ...prev, status: taskStatus } : prev));
+      if (taskStatus === "PAUSED") {
+        toast.success(
+          "Task paused successfully. It will not be shown to users."
+        );
+      } else {
+        toast.success(
+          "Task activated successfully. It will be shown to users."
+        );
+      }
     } catch (error) {
       console.error("Error updating task status:", error);
     } finally {
-      setIsProcessing(false);
+      setIsPausing(false);
     }
   };
 
   const handleDeleteTask = async () => {
     if (!task) return;
+    if (!isConnected || !address) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
 
-    setIsProcessing(true);
+    setIsDeleting(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // delete task from blockchain
+      const deleteTx = await writeContractAsync({
+        address: contractAddress,
+        abi: contractAbi,
+        functionName: "closeTask",
+        args: [BigInt(task.blockChainId)],
+      });
+      if (!deleteTx) {
+        toast.error("Failed to delete task");
+        return;
+      }
+
+      // delete task from database
+      const deleted = await dbDeleteTask(task.id);
+      if (!deleted) {
+        toast.error("Failed to delete task from database");
+        return;
+      }
+
+      toast.success(`Task deleted successfully. Remaining balance: ${Number(task.currentAmount) / 1e18} cUSD has been returned to your wallet.`);
 
       // Navigate back to myTasks
       router.push("/myTasks");
     } catch (error) {
       console.error("Error deleting task:", error);
-    } finally {
-      setIsProcessing(false);
+      toast.error("Failed to delete task");
+      } finally {
+        setIsDeleting(false);
     }
   };
-
-  const handleApproveResponse = (responseId: number) => {
-    setResponses((prev) =>
-      prev.map((r) =>
-        r.id === responseId ? { ...r, status: "APPROVED" as const } : r
-      )
-    );
-  };
-
-  const handleRejectResponse = (responseId: number) => {
-    setResponses((prev) =>
-      prev.map((r) =>
-        r.id === responseId ? { ...r, status: "REJECTED" as const } : r
-      )
-    );
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-celo-lt-tan">
@@ -460,6 +556,19 @@ const MyTaskDetailPage = () => {
       </header>
 
       <main className="relative px-6 py-8 pb-24 space-y-8">
+        {/* Paused Warning */}
+        {task.status === "PAUSED" && (
+          <div className="bg-celo-orange border-2 border-black p-4 rounded-xl shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-black mt-0.5" />
+              <div>
+                <p className="text-body-m font-inter font-heavy text-black uppercase">Task is Paused</p>
+                <p className="text-body-s text-black/80 font-inter">While paused, this task will not appear to users.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-4 justify-center">
           <button
@@ -471,15 +580,15 @@ const MyTaskDetailPage = () => {
           </button>
 
           <button
-            onClick={handleDeactivateTask}
-            disabled={isProcessing}
+            onClick={() => handleDeactivateTask(task.status === "ACTIVE" ? "PAUSED" : "ACTIVE")}
+            disabled={isPausing}
             className={`flex items-center gap-3 px-6 py-4 border-4 border-black rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-all duration-300 active:scale-95 font-heavy ${
               task.status === "ACTIVE"
                 ? "bg-celo-orange text-black hover:bg-black hover:text-celo-orange"
                 : "bg-celo-success text-white hover:bg-black hover:text-celo-success"
             }`}
           >
-            {isProcessing ? (
+            {isPausing ? (
               <div className="w-5 h-5 border-2 border-current border-t-transparent animate-spin"></div>
             ) : task.status === "ACTIVE" ? (
               <Pause className="w-5 h-5" />
@@ -596,7 +705,7 @@ const MyTaskDetailPage = () => {
             </div>
             {/* Delete Button */}
             <button
-              onClick={handleDeleteTask}
+              onClick={() => setShowDeleteModal(true)}
               className="flex items-center gap-3 px-6 py-4 bg-celo-error text-white border-4 border-black rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-error transition-all duration-300 active:scale-95 font-heavy"
             >
               <Trash2 className="w-5 h-5" />
@@ -642,7 +751,8 @@ const MyTaskDetailPage = () => {
                           {response.userName}
                         </h4>
                         <p className="text-body-s text-celo-body font-mono">
-                          {response.walletAddress.slice(0, 6)}...{response.walletAddress.slice(-4)}
+                          {response.walletAddress.slice(0, 6)}...
+                          {response.walletAddress.slice(-4)}
                         </p>
                         <p className="text-eyebrow text-celo-body font-heavy">
                           SUBMITTED:{" "}
@@ -687,7 +797,6 @@ const MyTaskDetailPage = () => {
                             </p>
                           </div>
                         ))}
-                  
                       </div>
                     </div>
                   )}
@@ -697,6 +806,69 @@ const MyTaskDetailPage = () => {
           </section>
         )}
       </main>
+
+      {/* Add Funds Modal */}
+      {showAddFundsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white border-4 border-black w-[92%] max-w-sm p-5 rounded-xl shadow-[8px_8px_0_0_rgba(0,0,0,1)]">
+            <h3 className="text-h5 font-gt-alpina font-bold text-black mb-3">ADD FUNDS</h3>
+            <p className="text-body-s font-inter text-black/80 mb-4">Enter the cUSD amount to add to this task.</p>
+            <input
+              type="number"
+              value={addFundsAmount}
+              onChange={(e) => setAddFundsAmount(e.target.value)}
+              min="0"
+              placeholder="0.00"
+              className="w-full px-4 py-2 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow text-body-m font-inter mb-4"
+            />
+            <p className="text-body-s font-inter text-black/80 mb-4">Wallet balance: <span className="font-heavy text-celo-forest">{balances?.cUSDBalance} cUSD</span></p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowAddFundsModal(false)}
+                className="px-4 py-2 bg-white text-black border-2 border-black hover:bg-celo-dk-tan transition font-inter font-heavy"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={handleAddFunds}
+                disabled={isDepositing || !addFundsAmount || Number(addFundsAmount) <= 0}
+                className="px-4 py-2 bg-celo-forest text-white border-2 border-black hover:bg-black hover:text-celo-forest transition font-inter font-heavy disabled:opacity-50"
+              >
+                {isDepositing ? "ADDING..." : "ADD FUNDS"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-celo-dk-tan border-2 border-black w-[92%] max-w-sm p-5 rounded-xl shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+            <h3 className="text-h5 font-gt-alpina font-bold text-black mb-3">DELETE TASK?</h3>
+            <div className="space-y-2 text-body-s font-inter text-black/90">
+              <p>Deleting this task is permanent. You will not see it again, even on your dashboard.</p>
+              <p className="font-heavy">Consider pausing instead if you want to hide it from users.</p>
+              <p>Your remaining balance of <span className="font-heavy text-celo-forest">{Number(task.currentAmount) / 1e18} cUSD</span> will be refunded to your wallet.</p>
+            </div>
+            <div className="flex items-center justify-end gap-3 mt-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 bg-white text-black border-2 border-black hover:bg-celo-dk-tan transition font-inter font-heavy"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={handleDeleteTask}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-celo-error text-white border-2 border-black hover:bg-black hover:text-celo-error transition font-inter font-heavy disabled:opacity-50"
+              >
+                {isDeleting ? "DELETING..." : "DELETE"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

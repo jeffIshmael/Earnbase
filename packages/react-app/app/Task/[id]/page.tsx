@@ -744,7 +744,7 @@ const TaskDetailPage = () => {
                 }`}
               >
                     {/* <tab.icon className="w-4 h-4" /> */}
-                <span >{tab.label}</span>
+                <span className="inline">{tab.label}</span>
               </button>
             ))}
           </div>
