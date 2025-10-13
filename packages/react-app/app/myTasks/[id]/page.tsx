@@ -103,7 +103,7 @@ const MyTaskDetailPage = () => {
         const taskData = await getTaskDetails(parseInt(taskId));
         if (taskData) {
           // Get blockchain data
-          const blockchainTask = await getTask(BigInt(taskId));
+          const blockchainTask = await getTask(BigInt(taskData.blockChainId));
 
           const taskWithBlockchain: TaskWithBlockchainData = {
             id: taskData.id,
@@ -122,6 +122,8 @@ const MyTaskDetailPage = () => {
           };
 
           setTask(taskWithBlockchain);
+
+          console.log(taskWithBlockchain);
 
           // Load responses from database
           if (taskData.submissions && taskData.submissions.length > 0) {

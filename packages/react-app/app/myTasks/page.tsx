@@ -39,11 +39,11 @@ const MyTasksPage = () => {
           allTasks.map(async (task) => {
             try {
               // Get blockchain data for this task
-              const blockchainTask = await getTask(BigInt(task.id));
+              const blockchainTask = await getTask(BigInt(task.blockChainId));
               
               return {
                 ...task,
-                responses: 0, // Will be updated with Prisma data
+                responses: task._count.submissions, // Will be updated with Prisma data
                 totalAmount: blockchainTask.totalAmount,
                 paidAmount: blockchainTask.paidAmount,
                 balance: blockchainTask.totalAmount - blockchainTask.paidAmount,
@@ -53,7 +53,7 @@ const MyTasksPage = () => {
               // Fallback with default values
               return {
                 ...task,
-                responses: 0,
+                responses: task._count.submissions,
                 totalAmount: BigInt(0),
                 paidAmount: BigInt(0),
                 balance: BigInt(0),
@@ -260,7 +260,7 @@ const MyTasksPage = () => {
           className="bg-gradient-to-br from-white via-celo-lt-tan/10 to-white border-[3px] border-black rounded-2xl p-4 shadow-[4px_4px_0_0_rgba(55,65,81,1)] hover:shadow-[6px_6px_0_0_rgba(55,65,81,1)] transition-all duration-200 cursor-pointer group w-full"
         >
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3">
+          <div className="flex flex-col mb-4 gap-3">
             <div className="min-w-0 flex-1">
               <h3 className="font-inter font-extrabold text-black text-lg tracking-wide group-hover:text-celo-purple truncate transition">
                 {task.title.toUpperCase()}
