@@ -123,8 +123,6 @@ const MyTaskDetailPage = () => {
 
           setTask(taskWithBlockchain);
 
-          console.log(taskWithBlockchain);
-
           // Load responses from database
           if (taskData.submissions && taskData.submissions.length > 0) {
             const dbResponses: TaskResponse[] = taskData.submissions.map(
