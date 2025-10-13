@@ -3,6 +3,11 @@ import { pinata } from "@/utils/config"
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate the request
+    if (request.headers.get("authorization") !== `Bearer ${process.env.EARNBASE_SECRET}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const data = await request.formData();
     const file: File | null = (data as any).get("file") as unknown as File;
     const { cid } = await pinata.upload.public.file(file)

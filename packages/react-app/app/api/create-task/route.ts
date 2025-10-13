@@ -4,6 +4,11 @@ import { ContactMethod, SubtaskType } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate the request
+    if (request.headers.get("authorization") !== `Bearer ${process.env.CHAMAPAY_SECRET}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
       creatorAddress,
