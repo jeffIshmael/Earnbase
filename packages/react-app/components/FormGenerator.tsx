@@ -40,6 +40,7 @@ import {
 import { sendWhatsappResponse } from "@/lib/Whatsapp";
 import { sendEmailResponse } from "@/lib/Email";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 interface FormGeneratorProps {
   task: TaskWithEligibility;
@@ -96,6 +97,7 @@ export default function FormGenerator({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const { isConnected } = useAccount();
+  const router = useRouter();
 
   // Initialize responses for all subtasks
   useEffect(() => {
@@ -210,17 +212,38 @@ export default function FormGenerator({
     setIsSubmitting(true);
 
     try {
-      const textFeedback = task.subtasks
-        .filter(
-          (subtask) => subtask.type === "TEXT_INPUT" && responses[subtask.id]
-        )
-        .map((subtask) => responses[subtask.id])
-        .join("\n");
 
-      console.log(textFeedback);
+      const feedbackToCreator = task.subtasks
+      .filter(
+        (subtask) => responses[subtask.id]
+      )
+      .map((subtask) => {
+        const response = responses[subtask.id];
+        let formattedResponse = "";
+        
+        // Format response based on type
+        if (Array.isArray(response)) {
+          // Multiple choice responses
+          formattedResponse = response.join(", ");
+        } else if (typeof response === "number") {
+          // Rating responses
+          formattedResponse = `${response}/10`;
+        } else if (typeof response === "string") {
+          // Text responses
+          formattedResponse = response;
+        } else {
+          formattedResponse = String(response);
+        }
+        
+        return `📝 ${subtask.title}\n💬 ${formattedResponse}`;
+      })
+      .join("\n\n");
+      
+
+      console.log(feedbackToCreator);
 
       // Get AI rating for feedback
-      const feedbackText = textFeedback.trim() || "No feedback provided";
+      const feedbackText = feedbackToCreator.trim() || "No feedback provided";
       const rating = await getAiRating(
         "user-" + Date.now(),
         feedbackText,
@@ -297,13 +320,15 @@ export default function FormGenerator({
         throw new Error("Failed to save submission to database");
       }
 
+    
+
       // Send notification to creator based on contact method
       const taskBalance = "0.00"; // Placeholder - implement based on your needs
       const notificationData = {
         taskTitle: task.title,
         participant:
           address?.slice(0, 6) + "..." + address?.slice(-4) || "Unknown",
-        response: textFeedback,
+        response: feedbackToCreator,
         aiRating: (rating?.rating || 1).toString(),
         Reward: totalReward.toFixed(3).toString(),
         TaskBalance: taskBalance,
@@ -999,6 +1024,7 @@ export default function FormGenerator({
                     setAiRating(null);
                     setPaymentDetails(null);
                     closeFormGenerator?.();
+                    router.refresh();
                   }}
                   className="flex-1 bg-celo-success text-white border-4 border-black rounded-xl py-3 font-semibold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-success transition-all"
                 >
@@ -1013,4 +1039,3 @@ export default function FormGenerator({
   );
 }
 
-// {/* Success Message */} {submissionResults && ( <div className="bg-celo-success border-4 border-black p-4 mb-4"> <div className="flex items-center space-x-2 text-white"> <CheckCircle2 className="w-5 h-5" /> <span className="font-inter font-heavy">TASK SUBMITTED SUCCESSFULLY! CHECK YOUR WALLET FOR THE REWARD.</span> </div> </div> )} {/* General Error Display */} {errors.general && ( <div className="bg-celo-error border-4 border-black p-4"> <div className="flex items-center space-x-2 text-white"> <AlertCircle className="w-5 h-5" /> <span className="font-inter font-heavy">{errors.general}</span> </div> </div> )} </div> {/* AI Rating Modal */} {showAiRatingModal && aiRating && ( <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"> <div className="bg-white border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] w-80 max-w-sm"> {/* Header */} <div className="bg-celo-purple p-4 text-white text-center"> <div className="w-12 h-12 bg-white/20 border-2 border-white flex items-center justify-center mx-auto mb-3"> <Sparkles className="w-6 h-6" /> </div> <h3 className="text-h5 font-gt-alpina font-bold mb-1">AI ANALYSIS COMPLETE</h3> <p className="text-white/90 text-body-s font-inter">PROCESSING YOUR REWARD...</p> </div> <div className="p-4 space-y-4"> {/* AI Rating Display */} <div className="text-center"> <div className="w-16 h-16 mx-auto border-4 border-black bg-celo-yellow flex items-center justify-center mb-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"> <span className="text-h4 font-gt-alpina font-bold text-black">{aiRating.rating}/10</span> </div> <p className="text-celo-body text-body-s font-inter">{aiRating.explanation}</p> </div> {/* Payment Info */} <div className="bg-celo-dk-tan border-4 border-black p-3 space-y-2"> <div className="flex justify-between text-body-s"> <span className="text-celo-body font-inter font-heavy">BASE REWARD</span> <span className="font-inter font-heavy">{Number(paymentDetails?.baseReward).toFixed(3)} cUSD</span> </div> <div className="flex justify-between text-body-s"> <span className="text-celo-purple font-inter font-heavy">BONUS ({aiRating.rating}/10)</span> <span className="font-inter font-heavy text-celo-purple">+{Number(paymentDetails?.baseReward || 0 + (aiRating.rating * Number(paymentDetails?.bonusReward))/10).toFixed(3)} cUSD</span> </div> <div className="border-t-2 border-black pt-2 flex justify-between"> <span className="font-inter font-heavy text-black">TOTAL</span> <span className="font-inter font-heavy text-celo-success">{paymentDetails?.totalReward.toFixed(3)} cUSD</span> </div> </div> {/* Processing Payment */} <div className="text-center"> <div className="flex items-center justify-center space-x-2 text-celo-purple mb-2"> <Loader2 className="w-5 h-5 animate-spin" /> <span className="font-inter font-heavy">PROCESSING PAYMENT...</span> </div> <p className="text-celo-body text-eyebrow font-inter">PLEASE WAIT WHILE WE PROCESS YOUR REWARD</p> </div> </div> </div> </div> )} {/* Success Modal */} {showPaymentModal && paymentDetails && paymentDetails.transactionHash && ( <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"> <Confetti width={1000} height={1000} recycle={false} /> <div className="bg-white border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-sm"> {/* Header */} <div className="bg-celo-success p-4 text-white text-center relative"> <div className="w-20 h-20 bg-white/20 border-2 border-white flex items-center justify-center mx-auto mb-4"> <CheckCircle2 className="w-10 h-10" /> </div> <h3 className="text-h3 font-gt-alpina font-bold mb-2">PAYMENT SUCCESSFUL! 🎉</h3> <p className="text-white/90 font-inter">YOUR REWARD HAS BEEN PROCESSED</p> </div> {/* Transaction Receipt */} <div className="p-6 space-y-6"> <div className="bg-celo-dk-tan border-4 border-black p-5"> <div className="flex items-center justify-between mb-4"> <h4 className="text-h5 font-gt-alpina font-bold text-black flex items-center"> <Receipt className="w-5 h-5 mr-2 text-black" /> TRANSACTION RECEIPT </h4> <div className="text-eyebrow text-celo-body bg-white px-2 py-1 border-2 border-black font-inter font-heavy"> {new Date().toLocaleString()} </div> </div> <div className="space-y-3 text-body-s"> <div className="flex justify-between items-center py-2 border-b-2 border-black"> <span className="text-celo-body flex items-center font-inter font-heavy"> <User className="w-4 h-4 mr-2" /> RECIPIENT </span> <span className="font-mono text-eyebrow bg-celo-blue px-2 py-1 border-2 border-black font-inter"> {address?.slice(0, 6)}...{address?.slice(-4)} </span> </div> <div className="flex justify-between items-center py-2 border-b-2 border-black"> <span className="text-celo-body flex items-center font-inter font-heavy"> <Hash className="w-4 h-4 mr-2" /> TRANSACTION HASH </span> <span className="font-mono text-eyebrow bg-celo-success px-2 py-1 border-2 border-black font-inter"> {paymentDetails.transactionHash?.slice(0, 8)}... </span> </div> <div className="flex justify-between items-center py-2 border-b-2 border-black"> <span className="text-celo-body font-inter font-heavy">BASE REWARD</span> <span className="font-inter font-heavy">{paymentDetails.baseReward.toFixed(3)} cUSD</span> </div> <div className="flex justify-between items-center py-2 border-b-2 border-black"> <span className="text-celo-purple font-inter font-heavy">QUALITY BONUS</span> <span className="font-inter font-heavy text-celo-purple">+{paymentDetails.bonusReward.toFixed(3)} cUSD</span> </div> <div className="flex justify-between items-center py-3 bg-celo-success px-3 border-2 border-black"> <span className="text-h5 font-gt-alpina font-bold text-white">TOTAL PAID</span> <span className="text-h4 font-gt-alpina font-bold text-white">{paymentDetails.totalReward.toFixed(3)} cUSD</span> </div> </div> </div> {/* Action Buttons */} <div className="flex space-x-3"> <button onClick={() => { // Open block explorer with transaction hash window.open(https://celoscan.io/tx/${paymentDetails.transactionHash}, '_blank'); }} className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-celo-blue text-white border-4 border-black font-inter font-heavy hover:bg-black hover:text-celo-blue transition-all" > <SquareArrowOutUpRight className="w-4 h-4" /> <span>VIEW ON CHAIN</span> </button> <button onClick={() => { setShowPaymentModal(false); // Reset form state setResponses({}); setCompletedTasks(new Set()); setAiRating(null); setPaymentDetails(null); closeFormGenerator?.(); }} className="flex-1 px-4 py-3 bg-celo-success text-white border-4 border-black font-inter font-heavy hover:bg-black hover:text-celo-success transition-all shadow-[4px_4px_0_0_rgba(0,0,0,1)]" > COMPLETE </button> </div> </div> </div> </div> )}
