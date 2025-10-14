@@ -119,7 +119,10 @@ export default function FormGenerator({
   // getting task balance
   const getTaskBalance = async () => {
     const taskBalance = await getTask(BigInt(task.blockChainId));
-    setTaskBalance(Number(taskBalance.totalAmount - taskBalance.paidAmount) / Math.pow(10, 18));
+    setTaskBalance(
+      Number(taskBalance.totalAmount - taskBalance.paidAmount) /
+        Math.pow(10, 18)
+    );
   };
 
   const handleInputChange = (subtaskId: number, value: any) => {
@@ -220,33 +223,29 @@ export default function FormGenerator({
     setIsSubmitting(true);
 
     try {
-
       const feedbackToCreator = task.subtasks
-      .filter(
-        (subtask) => responses[subtask.id]
-      )
-      .map((subtask) => {
-        const response = responses[subtask.id];
-        let formattedResponse = "";
-        
-        // Format response based on type
-        if (Array.isArray(response)) {
-          // Multiple choice responses
-          formattedResponse = response.join(", ");
-        } else if (typeof response === "number") {
-          // Rating responses
-          formattedResponse = `${response}/10`;
-        } else if (typeof response === "string") {
-          // Text responses
-          formattedResponse = response;
-        } else {
-          formattedResponse = String(response);
-        }
-        
-        return `📝 ${subtask.title}\n💬 ${formattedResponse}`;
-      })
-      .join("\n\n");
-      
+        .filter((subtask) => responses[subtask.id])
+        .map((subtask) => {
+          const response = responses[subtask.id];
+          let formattedResponse = "";
+
+          // Format response based on type
+          if (Array.isArray(response)) {
+            // Multiple choice responses
+            formattedResponse = response.join(", ");
+          } else if (typeof response === "number") {
+            // Rating responses
+            formattedResponse = `${response}/10`;
+          } else if (typeof response === "string") {
+            // Text responses
+            formattedResponse = response;
+          } else {
+            formattedResponse = String(response);
+          }
+
+          return `📝 ${subtask.title}\n💬 ${formattedResponse}`;
+        })
+        .join("\n\n");
 
       console.log(feedbackToCreator);
 
@@ -1032,7 +1031,7 @@ export default function FormGenerator({
                     setAiRating(null);
                     setPaymentDetails(null);
                     closeFormGenerator?.();
-                    router.push("/");
+                    router.push("/Start");
                   }}
                   className="flex-1 bg-celo-success text-white border-4 border-black rounded-xl py-3 font-semibold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-success transition-all"
                 >
@@ -1046,4 +1045,3 @@ export default function FormGenerator({
     </div>
   );
 }
-
