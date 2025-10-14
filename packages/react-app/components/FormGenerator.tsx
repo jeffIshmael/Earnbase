@@ -36,6 +36,7 @@ import Confetti from "react-confetti";
 import {
   createTaskSubmissionWithResponses,
   updateEarnings,
+  hasUserSubmittedToTask,
 } from "@/lib/Prismafnctns";
 import { sendWhatsappResponse } from "@/lib/Whatsapp";
 import { sendEmailResponse } from "@/lib/Email";
@@ -219,6 +220,15 @@ export default function FormGenerator({
       toast.error("Please connect your wallet first");
       return;
     }
+    // check whether the user has already submitted the task
+    const userSubmission = await hasUserSubmittedToTask(
+      address as string,
+      task.id
+    );
+    if (userSubmission) {
+      toast.error("You have already submitted for this task");
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -246,8 +256,6 @@ export default function FormGenerator({
           return `📝 ${subtask.title}\n💬 ${formattedResponse}`;
         })
         .join("\n\n");
-
-      console.log(feedbackToCreator);
 
       // Get AI rating for feedback
       const feedbackText = feedbackToCreator.trim() || "No feedback provided";

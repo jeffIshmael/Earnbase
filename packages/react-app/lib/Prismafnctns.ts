@@ -877,7 +877,6 @@ export async function getTaskSubmissionsForLeaderboard(taskId: number) {
 }
 
 // function to delete task
-
 export async function dbDeleteTask(taskId: number) {
   try {
     await prisma.task.delete({
