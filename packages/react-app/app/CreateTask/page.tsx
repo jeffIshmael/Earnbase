@@ -498,7 +498,7 @@ const TaskCreationForm = () => {
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-m font-inter"
+                    className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-m font-inter"
                     placeholder="Enter an engaging title..."
                   />
                 </div>
@@ -516,20 +516,20 @@ const TaskCreationForm = () => {
                         setMaxParticipants(parseInt(e.target.value))
                       }
                       min="1"
-                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-m font-inter"
+                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-m font-inter"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-body-s font-inter font-heavy text-black">
+                  <label className="block text-body-s font-inter font-heavy text-gray-800">
                     TASK DESCRIPTION *
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={5}
-                    className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter"
+                    className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
                     placeholder="Describe what participants need to do in detail. Be specific about requirements and expectations..."
                   />
                   <div className="flex justify-between items-center mt-2 text-eyebrow">
@@ -588,7 +588,7 @@ const TaskCreationForm = () => {
                     </div>
                   </div>
                   <div className="relative">
-                    <span className="absolute left-4 top-3 text-black font-heavy text-body-s font-inter">
+                    <span className="absolute left-4 top-5 text-black/70  text-body-s font-inter">
                       $
                     </span>
                     <input
@@ -597,7 +597,7 @@ const TaskCreationForm = () => {
                       onChange={(e) => setBaseReward(e.target.value)}
                       step="0.01"
                       min="0"
-                      className="w-full pl-8 pr-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-m font-inter"
+                      className="w-full pl-8 pr-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-m font-inter"
                       placeholder="0.00"
                     />
                   </div>
@@ -605,7 +605,7 @@ const TaskCreationForm = () => {
 
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
-                    <label className="block text-body-s font-inter font-heavy text-black">
+                    <label className="block text-body-s font-inter font-heavy text-gray-800">
                       MAX BONUS (cUSD) *
                     </label>
                     <div className="group relative">
@@ -616,7 +616,7 @@ const TaskCreationForm = () => {
                     </div>
                   </div>
                   <div className="relative">
-                    <span className="absolute left-4 top-3 text-black font-heavy text-body-s font-inter">
+                    <span className="absolute left-4 top-5 text-black/70  text-body-s font-inter">
                       $
                     </span>
                     <input
@@ -625,7 +625,7 @@ const TaskCreationForm = () => {
                       onChange={(e) => setMaxBonusReward(e.target.value)}
                       step="0.01"
                       min="0"
-                      className="w-full pl-8 pr-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-m font-inter"
+                      className="w-full pl-8 pr-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-m font-inter"
                       placeholder="0.00"
                     />
                   </div>
@@ -721,11 +721,10 @@ const TaskCreationForm = () => {
                         type="button"
                         onClick={handleImproveCriteria}
                         disabled={isImprovingCriteria}
-                        className="flex items-center gap-2 text-celo-purple hover:text-white hover:bg-celo-purple disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border-2 border-celo-purple px-2 py-1"
+                        className="flex items-center gap-2 text-celo-forest hover:text-white hover:bg-celo-forest disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 px-2 py-1"
                       >
                         {isImprovingCriteria ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-celo-purple border-t-transparent animate-spin"></div>
                             <span className="text-eyebrow font-inter font-heavy">IMPROVING...</span>
                           </>
                         ) : (
@@ -743,18 +742,18 @@ const TaskCreationForm = () => {
                       onChange={(e) => setAiCriteria(e.target.value)}
                       rows={6}
                       disabled={isImprovingCriteria}
-                      className={`w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter ${
+                      className={`w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter ${
                         isImprovingCriteria
-                          ? 'border-celo-purple bg-celo-purple/10 cursor-not-allowed opacity-75'
+                          ? 'border-celo-forest  cursor-not-allowed '
                           : ''
                       }`}
                       placeholder="Example: Look for detailed feedback, specific suggestions, constructive criticism, and actionable insights. Higher ratings for comprehensive responses that show understanding of the task."
                     />
                     {isImprovingCriteria && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-celo-purple/20 border-4 border-celo-purple">
-                        <div className="flex items-center space-x-2 text-celo-purple">
-                          <div className="w-4 h-4 border-2 border-celo-purple border-t-transparent animate-spin"></div>
-                          <span className="text-body-s font-inter font-heavy">AI IS IMPROVING YOUR CRITERIA...</span>
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-200 border-4 border-gray-300">
+                        <div className="flex items-center space-x-2 text-celo-forest">
+                          <div className="w-4 h-4 border-2 border-celo-forest border-t-transparent animate-spin"></div>
+                          <span className="text-body-s font-inter font-heavy">ENHANCING YOUR CRITERIA...</span>
                         </div>
                       </div>
                     )}
@@ -838,15 +837,20 @@ const TaskCreationForm = () => {
                       Turn on to filter participants
                     </p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <div className="flex items-center space-x-3">
+                    <span className={`px-2 py-1 border-2  text-[11px] font-inter font-heavy ${restrictionsEnabled ? 'bg-celo-forest border-celo-forest text-white' : 'bg-white text-black border-black'}`}>
+                      {restrictionsEnabled ? 'ON' : 'OFF'}
+                    </span>
+                    <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={restrictionsEnabled}
                       onChange={(e) => setRestrictionsEnabled(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-5 after:w-5 after:transition-all peer-checked:bg-celo-purple"></div>
-                  </label>
+                      <div className="w-11 h-6 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-5 after:w-5 after:transition-all peer-checked:bg-celo-purple"></div>
+                    </label>
+                  </div>
                 </div>
 
                 {restrictionsEnabled && (
@@ -857,7 +861,11 @@ const TaskCreationForm = () => {
                         <h4 className="font-inter font-heavy text-black text-body-s">
                           AGE RESTRICTION
                         </h4>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <div className="flex items-center space-x-3">
+                          <span className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${ageRestriction ? 'bg-celo-forest text-white' : 'bg-white text-black'}`}>
+                            {ageRestriction ? 'ON' : 'OFF'}
+                          </span>
+                          <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
                             checked={ageRestriction}
@@ -868,6 +876,7 @@ const TaskCreationForm = () => {
                           />
                           <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
                         </label>
+                        </div>
                       </div>
 
                       {ageRestriction && (
@@ -914,7 +923,11 @@ const TaskCreationForm = () => {
                         <h4 className="font-inter font-heavy text-black text-body-s">
                           GENDER RESTRICTION
                         </h4>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <div className="flex items-center space-x-3">
+                          <span className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${genderRestriction ? 'bg-celo-forest text-white' : 'bg-white text-black'}`}>
+                            {genderRestriction ? 'ON' : 'OFF'}
+                          </span>
+                          <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
                             checked={genderRestriction}
@@ -925,6 +938,7 @@ const TaskCreationForm = () => {
                           />
                           <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
                         </label>
+                        </div>
                       </div>
 
                       {genderRestriction && (
@@ -1005,7 +1019,7 @@ const TaskCreationForm = () => {
                     <select
                       value={contactMethod}
                       onChange={(e) => setContactMethod(e.target.value)}
-                      className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 appearance-none text-body-m font-inter"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 appearance-none text-body-m font-inter"
                     >
                       <option value="EMAIL">📧 Email</option>
                       <option value="WHATSAPP">📱 WhatsApp</option>
@@ -1024,7 +1038,7 @@ const TaskCreationForm = () => {
                         <select
                           value={countryCode}
                           onChange={(e) => setCountryCode(e.target.value)}
-                          className="w-full px-3 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter appearance-none"
+                          className="w-full px-3 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter appearance-none"
                         >
                           {countryCodes.map((country) => (
                             <option key={country.code} value={country.code}>
@@ -1039,7 +1053,7 @@ const TaskCreationForm = () => {
                           type="tel"
                           value={contactInfo}
                           onChange={(e) => setContactInfo(e.target.value)}
-                          className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
                           placeholder="1234567890"
                         />
                       </div>
@@ -1049,7 +1063,7 @@ const TaskCreationForm = () => {
                       type="email"
                       value={contactInfo}
                       onChange={(e) => setContactInfo(e.target.value)}
-                      className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
                       placeholder="your@email.com"
                     />
                   )}
@@ -1070,7 +1084,7 @@ const TaskCreationForm = () => {
                       type="datetime-local"
                       value={expiresAt}
                       onChange={(e) => setExpiresAt(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
+                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
                     />
                   </div>
                   <p className="text-body-s font-inter text-black/70 mt-2">
@@ -1136,7 +1150,7 @@ const TaskCreationForm = () => {
                           onChange={(e) =>
                             updateSubtask(subtask.id, "title", e.target.value)
                           }
-                          className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
                           placeholder="Enter subtask title"
                         />
                       </div>
@@ -1151,7 +1165,7 @@ const TaskCreationForm = () => {
                             onChange={(e) =>
                               updateSubtask(subtask.id, "type", e.target.value)
                             }
-                            className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 appearance-none text-body-s font-inter"
+                            className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 appearance-none text-body-s font-inter"
                           >
                             {availableSubtaskTypes.map((type) => (
                               <option key={type.value} value={type.value}>
@@ -1178,7 +1192,7 @@ const TaskCreationForm = () => {
                           )
                         }
                         rows={2}
-                        className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter"
+                        className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
                         placeholder="Additional details about this subtask..."
                       />
                     </div>
@@ -1194,7 +1208,7 @@ const TaskCreationForm = () => {
                             updateSubtask(subtask.id, "options", e.target.value)
                           }
                           rows={3}
-                          className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
                           placeholder="Option 1, Option 2, Option 3&#10;Or use new lines"
                         />
                       </div>
@@ -1211,7 +1225,7 @@ const TaskCreationForm = () => {
                             updateSubtask(subtask.id, "options", e.target.value)
                           }
                           rows={3}
-                          className="w-full px-4 py-3 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 resize-none text-body-s font-inter"
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
                           placeholder="Option 1, Option 2, Option 3&#10;Or use new lines"
                         />
                       </div>
@@ -1229,7 +1243,7 @@ const TaskCreationForm = () => {
                               e.target.checked
                             )
                           }
-                          className="h-5 w-5 text-celo-purple focus:ring-celo-purple border-black border-2 transition-all duration-200"
+                          className="h-5 w-5 text-celo-forest focus:ring-celo-forest border-black border-2 transition-all duration-200"
                         />
                         <span className="text-body-s font-inter font-heavy text-black">
                           REQUIRED FIELD
