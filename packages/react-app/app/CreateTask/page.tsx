@@ -23,7 +23,7 @@ import {
   Calendar,
   Mail,
 } from "lucide-react";
-import { createCompleteTask } from "@/lib/Prismafnctns";
+import { createCompleteTask, getAllFarcasterUsers } from "@/lib/Prismafnctns";
 import { ContactMethod, SubtaskType } from "@prisma/client";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useAccount, useWriteContract } from "wagmi";
@@ -39,6 +39,7 @@ import { config } from "@/providers/AppProvider";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { improveCriteria } from "@/lib/AiRating";
+import { sendFarcasterNotification } from "@/lib/FarcasterNotify";
 
 const TaskCreationForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -252,7 +253,10 @@ const TaskCreationForm = () => {
         maxBonusReward,
         aiCriteria,
         contactMethod: contactMethod as ContactMethod,
-        contactInfo: contactMethod === "WHATSAPP" ? `${countryCode}${contactInfo}` : contactInfo,
+        contactInfo:
+          contactMethod === "WHATSAPP"
+            ? `${countryCode}${contactInfo}`
+            : contactInfo,
         expiresAt: expiresAt ? new Date(expiresAt) : undefined,
         restrictionsEnabled,
         ageRestriction,
@@ -283,7 +287,8 @@ const TaskCreationForm = () => {
                   ?.split(/[,\n]/)
                   .map((opt) => opt.trim())
                   .filter((opt) => opt.length > 0) || []
-              ) : subtask.options || undefined,
+              )
+            : subtask.options || undefined,
       }));
 
       // Blockchain logic
@@ -345,6 +350,19 @@ const TaskCreationForm = () => {
       if (createdTask) {
         toast("Task created successfully!");
         resetForm();
+        // Notify all users about a newly created task
+        const users = await getAllFarcasterUsers();
+        const userFids = users
+          .map((user) => user.fid)
+          .filter((fid) => fid !== null);
+
+        if (userFids.length > 0) {
+          await sendFarcasterNotification(
+            userFids,
+            "🆕 New Task Alert!",
+            `A fresh task just dropped: “${title}” 💼\nHead over to Earnbase to submit your feedback and earn rewards!`
+          );
+        }
         router.push("/Start");
       } else {
         throw new Error("Failed to create task in DB");
@@ -462,8 +480,12 @@ const TaskCreationForm = () => {
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-h4 font-gt-alpina font-thin text-black">CREATE TASK</h1>
-              <p className="text-body-s text-celo-body font-thin">BUILD ENGAGING TASKS AND REWARD PARTICIPANTS</p>
+              <h1 className="text-h4 font-gt-alpina font-thin text-black">
+                CREATE TASK
+              </h1>
+              <p className="text-body-s text-celo-body font-thin">
+                BUILD ENGAGING TASKS AND REWARD PARTICIPANTS
+              </p>
             </div>
           </div>
         </div>
@@ -471,7 +493,6 @@ const TaskCreationForm = () => {
 
       <div className="relative max-w-sm mx-auto px-3 py-4 pb-32">
         <form onSubmit={handleSubmit}>
-
           {/* Step Content */}
           {currentStep === 1 && (
             <div className="bg-white border-2 border-black p-4">
@@ -725,12 +746,16 @@ const TaskCreationForm = () => {
                       >
                         {isImprovingCriteria ? (
                           <>
-                            <span className="text-eyebrow font-inter font-heavy">IMPROVING...</span>
+                            <span className="text-eyebrow font-inter font-heavy">
+                              IMPROVING...
+                            </span>
                           </>
                         ) : (
                           <>
                             <Sparkles className="w-4 h-4" />
-                            <span className="text-eyebrow font-inter font-heavy">IMPROVE WITH AI</span>
+                            <span className="text-eyebrow font-inter font-heavy">
+                              IMPROVE WITH AI
+                            </span>
                           </>
                         )}
                       </button>
@@ -744,8 +769,8 @@ const TaskCreationForm = () => {
                       disabled={isImprovingCriteria}
                       className={`w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter ${
                         isImprovingCriteria
-                          ? 'border-celo-forest  cursor-not-allowed '
-                          : ''
+                          ? "border-celo-forest  cursor-not-allowed "
+                          : ""
                       }`}
                       placeholder="Example: Look for detailed feedback, specific suggestions, constructive criticism, and actionable insights. Higher ratings for comprehensive responses that show understanding of the task."
                     />
@@ -753,7 +778,9 @@ const TaskCreationForm = () => {
                       <div className="absolute inset-0 flex items-center justify-center bg-gray-200 border-4 border-gray-300">
                         <div className="flex items-center space-x-2 text-celo-forest">
                           <div className="w-4 h-4 border-2 border-celo-forest border-t-transparent animate-spin"></div>
-                          <span className="text-body-s font-inter font-heavy">ENHANCING YOUR CRITERIA...</span>
+                          <span className="text-body-s font-inter font-heavy">
+                            ENHANCING YOUR CRITERIA...
+                          </span>
                         </div>
                       </div>
                     )}
@@ -770,7 +797,9 @@ const TaskCreationForm = () => {
                     >
                       {aiCriteria.length} CHARACTERS
                     </p>
-                    <p className="text-black/50 font-inter">Be specific and detailed</p>
+                    <p className="text-black/50 font-inter">
+                      Be specific and detailed
+                    </p>
                   </div>
                   {aiCriteria.length > 0 && aiCriteria.length < 10 && (
                     <p className="text-eyebrow text-red-500 mt-1 font-inter font-heavy">
@@ -778,7 +807,6 @@ const TaskCreationForm = () => {
                       instructions.
                     </p>
                   )}
-
                 </div>
 
                 <div className="bg-celo-purple border-2 border-black p-4">
@@ -794,15 +822,21 @@ const TaskCreationForm = () => {
                     </li>
                     <li className="flex items-start space-x-2">
                       <Star className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
-                      <span className="font-inter">Include examples of good vs poor responses</span>
+                      <span className="font-inter">
+                        Include examples of good vs poor responses
+                      </span>
                     </li>
                     <li className="flex items-start space-x-2">
                       <Star className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
-                      <span className="font-inter">Mention required elements or structure</span>
+                      <span className="font-inter">
+                        Mention required elements or structure
+                      </span>
                     </li>
                     <li className="flex items-start space-x-2">
                       <Star className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
-                      <span className="font-inter">Specify length or depth requirements</span>
+                      <span className="font-inter">
+                        Specify length or depth requirements
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -838,16 +872,24 @@ const TaskCreationForm = () => {
                     </p>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <span className={`px-2 py-1 border-2  text-[11px] font-inter font-heavy ${restrictionsEnabled ? 'bg-celo-forest border-celo-forest text-white' : 'bg-white text-black border-black'}`}>
-                      {restrictionsEnabled ? 'ON' : 'OFF'}
+                    <span
+                      className={`px-2 py-1 border-2  text-[11px] font-inter font-heavy ${
+                        restrictionsEnabled
+                          ? "bg-celo-forest border-celo-forest text-white"
+                          : "bg-white text-black border-black"
+                      }`}
+                    >
+                      {restrictionsEnabled ? "ON" : "OFF"}
                     </span>
                     <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={restrictionsEnabled}
-                      onChange={(e) => setRestrictionsEnabled(e.target.checked)}
-                      className="sr-only peer"
-                    />
+                      <input
+                        type="checkbox"
+                        checked={restrictionsEnabled}
+                        onChange={(e) =>
+                          setRestrictionsEnabled(e.target.checked)
+                        }
+                        className="sr-only peer"
+                      />
                       <div className="w-11 h-6 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-5 after:w-5 after:transition-all peer-checked:bg-celo-purple"></div>
                     </label>
                   </div>
@@ -862,20 +904,26 @@ const TaskCreationForm = () => {
                           AGE RESTRICTION
                         </h4>
                         <div className="flex items-center space-x-3">
-                          <span className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${ageRestriction ? 'bg-celo-forest text-white' : 'bg-white text-black'}`}>
-                            {ageRestriction ? 'ON' : 'OFF'}
+                          <span
+                            className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${
+                              ageRestriction
+                                ? "bg-celo-forest text-white"
+                                : "bg-white text-black"
+                            }`}
+                          >
+                            {ageRestriction ? "ON" : "OFF"}
                           </span>
                           <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={ageRestriction}
-                            onChange={(e) =>
-                              setAgeRestriction(e.target.checked)
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
-                        </label>
+                            <input
+                              type="checkbox"
+                              checked={ageRestriction}
+                              onChange={(e) =>
+                                setAgeRestriction(e.target.checked)
+                              }
+                              className="sr-only peer"
+                            />
+                            <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
+                          </label>
                         </div>
                       </div>
 
@@ -924,20 +972,26 @@ const TaskCreationForm = () => {
                           GENDER RESTRICTION
                         </h4>
                         <div className="flex items-center space-x-3">
-                          <span className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${genderRestriction ? 'bg-celo-forest text-white' : 'bg-white text-black'}`}>
-                            {genderRestriction ? 'ON' : 'OFF'}
+                          <span
+                            className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${
+                              genderRestriction
+                                ? "bg-celo-forest text-white"
+                                : "bg-white text-black"
+                            }`}
+                          >
+                            {genderRestriction ? "ON" : "OFF"}
                           </span>
                           <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={genderRestriction}
-                            onChange={(e) =>
-                              setGenderRestriction(e.target.checked)
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
-                        </label>
+                            <input
+                              type="checkbox"
+                              checked={genderRestriction}
+                              onChange={(e) =>
+                                setGenderRestriction(e.target.checked)
+                              }
+                              className="sr-only peer"
+                            />
+                            <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
+                          </label>
                         </div>
                       </div>
 
@@ -952,7 +1006,9 @@ const TaskCreationForm = () => {
                               onChange={(e) => setGender(e.target.value)}
                               className="mr-2 text-celo-purple focus:ring-celo-purple"
                             />
-                            <span className="text-body-s font-inter text-black">Male</span>
+                            <span className="text-body-s font-inter text-black">
+                              Male
+                            </span>
                           </label>
                           <label className="flex items-center">
                             <input
@@ -1069,7 +1125,8 @@ const TaskCreationForm = () => {
                   )}
                   {contactMethod === "WHATSAPP" && (
                     <p className="text-body-s font-inter text-black/70">
-                      Full number will be: {countryCode}{contactInfo || "1234567890"}
+                      Full number will be: {countryCode}
+                      {contactInfo || "1234567890"}
                     </p>
                   )}
                 </div>
@@ -1100,10 +1157,10 @@ const TaskCreationForm = () => {
           {currentStep === 6 && (
             <div className="bg-white border-2 border-black p-4">
               <div className="flex flex-col items-center justify-between mb-6 space-y-3">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="p-3 bg-celo-orange w-fit border-2 border-black">
-                      <FileText className="w-6 h-6 text-white" />
-                    </div>
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="p-3 bg-celo-orange w-fit border-2 border-black">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
                   <div className="min-w-0 flex-1 text-center">
                     <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
                       SUBTASKS
@@ -1344,7 +1401,9 @@ const TaskCreationForm = () => {
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="bg-white border-2 border-black p-3 text-center">
                   <Target className="w-4 h-6 text-celo-purple mx-auto mb-1" />
-                  <div className="text-eyebrow text-black/70 font-inter">TASK TYPE</div>
+                  <div className="text-eyebrow text-black/70 font-inter">
+                    TASK TYPE
+                  </div>
                   <div className="font-inter font-heavy text-black text-eyebrow">
                     {subtasks.length} SUBTASKS
                   </div>
@@ -1352,7 +1411,9 @@ const TaskCreationForm = () => {
 
                 <div className="bg-white border-2 border-black p-3 text-center">
                   <Users className="w-4 h-6 text-celo-purple mx-auto mb-1" />
-                  <div className="text-eyebrow text-black/70 font-inter">MAX PARTICIPANTS</div>
+                  <div className="text-eyebrow text-black/70 font-inter">
+                    MAX PARTICIPANTS
+                  </div>
                   <div className="font-inter font-heavy text-black text-eyebrow">
                     {maxParticipants}
                   </div>
@@ -1360,7 +1421,9 @@ const TaskCreationForm = () => {
 
                 <div className="bg-white border-2 border-black p-3 text-center">
                   <DollarSign className="w-4 h-6 text-celo-forest mx-auto mb-1" />
-                  <div className="text-eyebrow text-black/70 font-inter">TOTAL BUDGET</div>
+                  <div className="text-eyebrow text-black/70 font-inter">
+                    TOTAL BUDGET
+                  </div>
                   <div className="font-inter font-heavy text-black text-eyebrow">
                     ${calculateTotalRequired().toFixed(2)}
                   </div>
@@ -1368,7 +1431,9 @@ const TaskCreationForm = () => {
 
                 <div className="bg-white border-2 border-black p-3 text-center">
                   <Clock className="w-4 h-6 text-celo-purple mx-auto mb-1" />
-                  <div className="text-eyebrow text-black/70 font-inter">DEADLINE</div>
+                  <div className="text-eyebrow text-black/70 font-inter">
+                    DEADLINE
+                  </div>
                   <div className="font-inter font-heavy text-black text-eyebrow">
                     {expiresAt ? "SET" : "OPEN"}
                   </div>
@@ -1401,7 +1466,9 @@ const TaskCreationForm = () => {
                     {countryRestriction && countries.length > 0 && (
                       <div className="flex items-center space-x-2">
                         <span>•</span>
-                        <span className="font-inter">Countries: {countries.length} selected</span>
+                        <span className="font-inter">
+                          Countries: {countries.length} selected
+                        </span>
                       </div>
                     )}
                   </div>
@@ -1466,10 +1533,10 @@ const TaskCreationForm = () => {
                     key={step.id}
                     className={`w-2.5 h-2.5 border-2 border-black transition-all duration-300 ${
                       index + 1 === currentStep
-                        ? 'bg-celo-purple'
+                        ? "bg-celo-purple"
                         : index + 1 < currentStep
-                        ? 'bg-celo-forest'
-                        : 'bg-white'
+                        ? "bg-celo-forest"
+                        : "bg-white"
                     }`}
                   />
                 ))}
@@ -1490,7 +1557,9 @@ const TaskCreationForm = () => {
                 <button
                   type="button"
                   onClick={nextStep}
-                  disabled={currentStep === 6 || !getStepValidation(currentStep)}
+                  disabled={
+                    currentStep === 6 || !getStepValidation(currentStep)
+                  }
                   className="flex items-center space-x-1 px-3 py-1.5 bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs font-inter font-heavy border-2 border-black"
                 >
                   <span>NEXT</span>
