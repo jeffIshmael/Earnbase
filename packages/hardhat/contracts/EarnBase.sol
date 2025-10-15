@@ -114,20 +114,39 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
             tester.totalEarned += _amount;
         }
    }
-   
+
+    // Function to check whether a user has done (participated in) a specific task
+    function userHasDoneTask(address _testerAddress, uint256 _taskId) internal view returns (bool) {
+        require(_taskId < tasks.length, "Task does not exist");
+
+        Task storage task = tasks[_taskId];
+
+        // If participantEarnings for this tester > 0, it means they participated
+        if (task.participantEarnings[_testerAddress] > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
    // function to award the tester( sends cUSD to the tester's wallet)
    function makePayment(address _testerAddress, uint256 _amount, uint256 _taskId) external whenNotPaused onlyAuthorised {
         require(_testerAddress != address(0), "Invalid tester address");
         require(_amount > 0, "Amount must be greater than 0");
         require(_taskId < tasks.length, "Task does not exist");
         require(cUSDToken.balanceOf(address(this)) >= _amount, "Insufficient funds in the contract");
-        // should check per task 
-        // should not allow them to participate again
-        
+
         // Check if task has enough remaining funds
         Task storage task = tasks[_taskId];
-        require(task.paidAmount + _amount <= task.totalAmount, "Exceeds task budget");
-        
+        // check the task balance
+        uint256 remainingBalance = task.totalAmount - task.paidAmount;
+        require(remainingBalance >= _amount,"Insufficient funds for the task.");
+        require(task.paidAmount + _amount <= task.totalAmount, "Exceeds task budget.");
+
+        // ensure user does not participate again
+        bool hasParticipated = userHasDoneTask(_testerAddress, _taskId);
+        require(!hasParticipated, "User has already done the task.");
+
         // Transfer cUSD to tester
         bool sent = cUSDToken.transfer(_testerAddress, _amount);
         require(sent, "Payment transfer failed");
@@ -461,6 +480,3 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
     }
 }
 
-
-//add the functions :- add funds, delete task( refunds the remaining to the creator wallet)
-// 

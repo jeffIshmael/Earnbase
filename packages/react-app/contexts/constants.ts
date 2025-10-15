@@ -1,16 +1,17 @@
-export const contractAddress = "0xFfcC76948C60606e7F71500AD569bE0977edC85E";
+export const contractAddress = "0x7AD81c90CDABB456bca68ACFF003191a8A854F24";
 // 0x162Cda2faF1EE18492eC3362C6E78982673FA6Fc - latest''
 // 0xF871324471df19D9da84dA5067b1085155Dd1036 - latest'
 // 0x2F19FdB8E80224abE0bEC83b289a726bF3280460 - latest
 // 0x30B1898Eeb4D4E35364EA65C79A807998A70f07c 
 // 0xFfcC76948C60606e7F71500AD569bE0977edC85E - after public
+// 0x7AD81c90CDABB456bca68ACFF003191a8A854F24 - after bug changes
 export const cUSDAddress = "0x765DE816845861e75A25fCA122bb6898B8B1282a";
 export const celoAddress = "0x471EcE3750Da237f93B8E339c536989b8978a438";
 // 0xcebA9300f2b948710d2653dD7B07f33A8B32118C
 // export const USDCAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // base network
 export const USDCAddress = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"; // celo network
 export const url = "https://earnbase.vercel.app";
-export const contractAbi = [
+export const contractAbi =[
   {
     "inputs": [],
     "stateMutability": "nonpayable",
