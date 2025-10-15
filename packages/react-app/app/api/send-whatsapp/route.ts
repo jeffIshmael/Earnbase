@@ -16,9 +16,10 @@ type WhatsAppParams = {
 
 export async function POST(request: NextRequest) {
   try {
-    // Authenticate the request
-    if (request.headers.get("authorization") !== `Bearer ${process.env.EARNBASE_SECRET}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Authenticate: require same-origin requests (prevents cross-site requests)
+    const origin = request.headers.get('origin');
+    if (!origin || origin !== request.nextUrl.origin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     if (!whatsappPhoneId || !whatsappToken) {

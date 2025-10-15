@@ -277,7 +277,13 @@ const TaskCreationForm = () => {
                   .map((opt) => opt.trim())
                   .filter((opt) => opt.length > 0) || []
               )
-            : subtask.options || undefined,
+            : subtask.type === "CHOICE_SELECTION"
+            ? JSON.stringify(
+                subtask.options
+                  ?.split(/[,\n]/)
+                  .map((opt) => opt.trim())
+                  .filter((opt) => opt.length > 0) || []
+              ) : subtask.options || undefined,
       }));
 
       // Blockchain logic
