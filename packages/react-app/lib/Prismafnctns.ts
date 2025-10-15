@@ -887,3 +887,21 @@ export async function dbDeleteTask(taskId: number) {
     return false;
   }
 }
+
+
+// function to get all users
+export async function getAllFarcasterUsers() {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        fid: {
+          not: null,
+        },
+      },
+    });
+    return users;
+  } catch (error) {
+    console.error("Error getting all users:", error);
+    throw error;
+  }
+}

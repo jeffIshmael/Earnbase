@@ -37,12 +37,14 @@ import {
   createTaskSubmissionWithResponses,
   updateEarnings,
   hasUserSubmittedToTask,
+  getUser,
 } from "@/lib/Prismafnctns";
 import { sendWhatsappResponse } from "@/lib/Whatsapp";
 import { sendEmailResponse } from "@/lib/Email";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { getTask } from "@/lib/ReadFunctions";
+import { sendFarcasterNotification } from "@/lib/FarcasterNotify";
 
 interface FormGeneratorProps {
   task: TaskWithEligibility;
@@ -119,10 +121,14 @@ export default function FormGenerator({
 
   // getting task balance
   const getTaskBalance = async () => {
-    const taskBalance = await getTask(BigInt(task.blockChainId));
+    const thisTaskBalance = await getTask(BigInt(task.blockChainId));
     setTaskBalance(
-      Number(taskBalance.totalAmount - taskBalance.paidAmount) /
+      Number(thisTaskBalance.totalAmount - thisTaskBalance.paidAmount) /
         Math.pow(10, 18)
+    );
+    return (
+      Number(thisTaskBalance.totalAmount - thisTaskBalance.paidAmount) /
+      Math.pow(10, 18)
     );
   };
 
@@ -336,7 +342,7 @@ export default function FormGenerator({
       }
 
       // get task balance
-      await getTaskBalance();
+      const finalTaskBalance = await getTaskBalance();
 
       // Send notification to creator based on contact method
       const notificationData = {
@@ -346,7 +352,7 @@ export default function FormGenerator({
         response: feedbackToCreator,
         aiRating: (rating?.rating || 1).toString(),
         Reward: totalReward.toFixed(3).toString(),
-        TaskBalance: taskBalance.toFixed(3),
+        TaskBalance: finalTaskBalance.toFixed(3),
       };
 
       if (task.contactMethod === "WHATSAPP" && task.contactInfo) {
@@ -390,6 +396,25 @@ export default function FormGenerator({
 
       // Store submission results
       setSubmissionResults(submission);
+
+      // Fetch user details to send a Farcaster notification
+      const userDetails = await getUser(address as string);
+
+      if (userDetails?.fid) {
+        try {
+          await sendFarcasterNotification(
+            [userDetails.fid],
+            "💵 Reward Received!",
+            `You’ve just earned ${totalReward.toFixed(
+              3
+            )} cUSD for completing “${
+              task.title
+            }” on Earnbase. Keep sharing valuable feedback and earn more!`
+          );
+        } catch (error) {
+          console.error("Failed to send Farcaster notification:", error);
+        }
+      }
 
       // Notify parent component that task was completed
       if (onTaskCompleted) {

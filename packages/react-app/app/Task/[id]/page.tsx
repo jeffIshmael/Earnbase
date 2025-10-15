@@ -367,18 +367,6 @@ const TaskDetailPage = () => {
     );
   }
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "Easy":
-        return "bg-emerald-100 text-emerald-700 border-emerald-200";
-      case "Medium":
-        return "bg-amber-100 text-amber-700 border-amber-200";
-      case "Hard":
-        return "bg-rose-100 text-rose-700 border-rose-200";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -393,16 +381,7 @@ const TaskDetailPage = () => {
     }
   };
 
-  const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="w-6 h-6 text-yellow-500" />;
-    if (rank === 2) return <Medal className="w-6 h-6 text-gray-400" />;
-    if (rank === 3) return <Award className="w-6 h-6 text-amber-600" />;
-    return (
-      <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-xs font-bold">
-        {rank}
-      </div>
-    );
-  };
+
 
   const getSubtaskTypeIcon = (type: string) => {
     switch (type) {
@@ -431,9 +410,6 @@ const TaskDetailPage = () => {
     });
   };
 
-  const getProgressPercentage = () => {
-    return (task.currentParticipants / task.maxParticipants) * 100;
-  };
 
   const handleVerificationSuccess = () => {
     setIsVerified(true);
