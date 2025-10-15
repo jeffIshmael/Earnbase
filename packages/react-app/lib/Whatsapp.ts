@@ -15,7 +15,6 @@ export async function sendWhatsappResponse(params: responseWhatsapp) {
     const response = await fetch('/api/send-whatsapp', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.EARNBASE_SECRET}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(params),
@@ -33,7 +32,6 @@ export async function sendWhatsappResponse(params: responseWhatsapp) {
     }
 
     const result = await response.json();
-    console.log('WhatsApp message sent successfully:', result);
     return result;
   } catch (error) {
     console.error('Error sending WhatsApp message:', error);
