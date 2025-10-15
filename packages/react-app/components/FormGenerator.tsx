@@ -226,7 +226,7 @@ export default function FormGenerator({
       task.id
     );
     if (userSubmission) {
-      toast.error("You have already submitted for this task");
+      toast.error("You have already submitted for this task.");
       return;
     }
 
