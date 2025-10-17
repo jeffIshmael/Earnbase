@@ -104,7 +104,7 @@ const TransferModal = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6 pb-20"
+        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-6 pb-32 sm:pb-20"
         onClick={onClose}
       >
         <motion.div 
@@ -112,7 +112,7 @@ const TransferModal = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 30, opacity: 0 }}
           transition={{ type: "spring", damping: 20 }}
-          className="bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0_0_rgba(0,0,0,1)] w-full max-w-sm relative overflow-hidden"
+          className="bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0_0_rgba(0,0,0,1)] w-full max-w-sm relative overflow-hidden max-h-[85vh] sm:max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -167,7 +167,7 @@ const TransferModal = ({
   
             {/* Token Warning */}
             {transferToken && (
-              <div className="bg-celo-orange border-4 border-black text-black p-4 rounded-xl text-body-s font-inter leading-relaxed shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+              <div className="bg-celo-orange/60 border-2 border-gray-700 text-gray-700 p-2 rounded-xl text-body-s font-inter leading-relaxed ">
                 {transferToken === 'cUSD' ? (
                   <>
                     <strong className="font-heavy">IMPORTANT:</strong> Ensure the recipient wallet supports <strong>CUSD ON CELO</strong>. 
