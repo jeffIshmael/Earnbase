@@ -42,9 +42,9 @@
 
 - `packages/hardhat`: Solidity contracts and deployment (Celo)
 - `packages/react-app`: Next.js app, API routes, Prisma, and UI
-  - `app/api/*`: serverless endpoints for rewards, notifications, etc.
-  - `lib/*`: blockchain, AI, email/WhatsApp utilities
-  - `components/*`: UI components (Tailwind + shadcn)
+- `app/api/*`: serverless endpoints for rewards, notifications, etc.
+- `lib/*`: blockchain, AI, email/WhatsApp utilities
+- `components/*`: UI components (Tailwind + shadcn)
 
 Smart contract: `EarnBase.sol` — manages task registration and reward accounting.
 
