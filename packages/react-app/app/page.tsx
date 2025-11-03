@@ -7,10 +7,13 @@ import { sdk } from "@farcaster/miniapp-sdk";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+const HAS_SEEN_WELCOME_KEY = "earnbase_has_seen_welcome";
+
 export default function LandingPage() {
   const [isInterfaceReady, setIsInterfaceReady] = useState(false);
   const [step, setStep] = useState(0);
   const [botThinking, setBotThinking] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const router = useRouter();
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -39,10 +42,26 @@ export default function LandingPage() {
   
   
 
+  // Check if user has seen welcome screen before
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hasSeenWelcome = localStorage.getItem(HAS_SEEN_WELCOME_KEY);
+      if (hasSeenWelcome === "true") {
+        // User has seen welcome screen before, redirect to Start
+        router.push("/Start");
+        return;
+      }
+      setIsChecking(false);
+      setIsInterfaceReady(true);
+    }
+  }, [router]);
+
   // Initialize Farcaster
   useEffect(() => {
-    setIsInterfaceReady(true);
-  }, []);
+    if (!isChecking) {
+      setIsInterfaceReady(true);
+    }
+  }, [isChecking]);
 
   useEffect(() => {
     const setReady = async () => {
@@ -97,6 +116,11 @@ export default function LandingPage() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [step, botThinking]);
+
+  // Don't render anything while checking localStorage (to avoid flash)
+  if (isChecking) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-celo-lt-tan flex flex-col items-center justify-center relative overflow-hidden">
@@ -176,7 +200,13 @@ export default function LandingPage() {
         {/* CTA Button */}
         {step >= chatMessages.length - 1 && !botThinking && (
           <motion.button
-            onClick={() => router.push("/Start")}
+            onClick={() => {
+              // Mark user as having seen the welcome screen
+              if (typeof window !== "undefined") {
+                localStorage.setItem(HAS_SEEN_WELCOME_KEY, "true");
+              }
+              router.push("/Start");
+            }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
