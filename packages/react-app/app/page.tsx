@@ -14,6 +14,7 @@ export default function LandingPage() {
   const [step, setStep] = useState(0);
   const [botThinking, setBotThinking] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  const [isFarcaster, setIsFarcaster] = useState<boolean | null>(null);
   const router = useRouter();
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -42,40 +43,74 @@ export default function LandingPage() {
   
   
 
-  // Check if user has seen welcome screen before
-  useEffect(() => {
+// Detect Farcaster context early
+useEffect(() => {
+  let cancelled = false;
+  (async () => {
+    try {
+      const context = await sdk.context;
+      if (!cancelled && context?.user) {
+        setIsFarcaster(true);
+      } else if (!cancelled) {
+        setIsFarcaster(false);
+      }
+    } catch {
+      if (!cancelled) setIsFarcaster(false);
+    }
+  })();
+  return () => { cancelled = true; };
+}, []);
+
+// First-time logic with Farcaster-safe flow
+useEffect(() => {
+  if (isFarcaster === null) return; // wait until we know
+
+  const proceed = async () => {
+    // Always initialize frame in Farcaster BEFORE any navigation
+    if (isFarcaster) {
+      try {
+        await sdk.actions.ready();
+        await sdk.actions.addFrame();
+      } catch (err) {
+        // Non-farcaster or error – continue
+      }
+    }
+
     if (typeof window !== "undefined") {
       const hasSeenWelcome = localStorage.getItem(HAS_SEEN_WELCOME_KEY);
       if (hasSeenWelcome === "true") {
-        // User has seen welcome screen before, redirect to Start
-        router.push("/Start");
+        router.replace("/Start");
         return;
       }
       setIsChecking(false);
       setIsInterfaceReady(true);
     }
-  }, [router]);
+  };
+
+  proceed();
+}, [isFarcaster, router]);
 
   // Initialize Farcaster
-  useEffect(() => {
-    if (!isChecking) {
-      setIsInterfaceReady(true);
-    }
-  }, [isChecking]);
+useEffect(() => {
+  if (!isChecking) {
+    setIsInterfaceReady(true);
+  }
+}, [isChecking]);
 
-  useEffect(() => {
-    const setReady = async () => {
-      if (isInterfaceReady) {
-        try {
-          await sdk.actions.ready();
-          await sdk.actions.addFrame();
-        } catch (err) {
-          console.warn("Not in Farcaster:", err);
-        }
+useEffect(() => {
+  const init = async () => {
+    if (isInterfaceReady && !isFarcaster) {
+      // Only try to init frame for browsers if desired; safe noop otherwise
+      try {
+        await sdk.actions.ready();
+        await sdk.actions.addFrame();
+      } catch {
+        // ignore outside Farcaster
       }
-    };
-    setReady();
-  }, [isInterfaceReady]);
+    }
+  };
+  init();
+}, [isInterfaceReady, isFarcaster]);
 
   // Chat sequence
   useEffect(() => {
