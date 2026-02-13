@@ -1,169 +1,169 @@
 "use server"
 // this file contains prisma functions
 import { PrismaClient, TaskStatus, ContactMethod, SubtaskType, SubmissionStatus } from "@prisma/client";
-import { parseEther } from 'viem';
+import { parseUnits } from "viem";
 
 const prisma = new PrismaClient();
 
 // function to check if the user is registered
-export async function getUser(address: string){
-    const user = await prisma.user.findUnique({
-        where:{
-            walletAddress: address,
-        },
-        include:{
-            tasks: true,
-            createdTasks: true,
-            submissions: true,
-        }
-    })
-    if (!user) return null;
-    return user;
+export async function getUser(address: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      walletAddress: address,
+    },
+    include: {
+      tasks: true,
+      createdTasks: true,
+      submissions: true,
+    }
+  })
+  if (!user) return null;
+  return user;
 }
 
 // function to register a user
-export async function registerUser(userName:string,fid:number|null,address:string, smartAddress: string | null){
-    try {
-        const user = await prisma.user.create({
-            data:{
-                walletAddress: address,
-                userName: userName,
-                fid: fid,
-                smartAddress: smartAddress?? smartAddress,
-            }
-        })
-        const allUser = await prisma.user.findUnique({
-            where:{
-                id: user.id,
-            },
-            include:{
-                tasks: true,
-                createdTasks: true,
-                submissions: true,
-            }
-        })
-        return allUser;       
-    } catch (error) {
-        return null;
-    }  
+export async function registerUser(userName: string, fid: number | null, address: string, smartAddress: string | null) {
+  try {
+    const user = await prisma.user.create({
+      data: {
+        walletAddress: address,
+        userName: userName,
+        fid: fid,
+        smartAddress: smartAddress ?? smartAddress,
+      }
+    })
+    const allUser = await prisma.user.findUnique({
+      where: {
+        id: user.id,
+      },
+      include: {
+        tasks: true,
+        createdTasks: true,
+        submissions: true,
+      }
+    })
+    return allUser;
+  } catch (error) {
+    return null;
+  }
 }
 
 
 // function to check if the smart account addresss has been set
-export async function checkIfSmartAccount(address: string){
-        const user = await prisma.user.findUnique({
-            where:{
-                walletAddress: address,
-            }
-        })
-        if (!user?.smartAddress) return false;
-        return true;
+export async function checkIfSmartAccount(address: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      walletAddress: address,
+    }
+  })
+  if (!user?.smartAddress) return false;
+  return true;
 }
 
 
 // function to set smart account address
-export async function setSmartAccount(address: string, smartAddress:string){
-    if(await checkIfSmartAccount(address)) return;
-    try {
-        // update the smart address
-        const user = await prisma.user.update({
-            where:{
-                walletAddress: address,
-            },
-            data:{
-                smartAddress: smartAddress,
-            }
-        })
-        return user;
-    } catch (error) {
-        console.error("Error updating smart account:", error);
-        return null;
-    }
+export async function setSmartAccount(address: string, smartAddress: string) {
+  if (await checkIfSmartAccount(address)) return;
+  try {
+    // update the smart address
+    const user = await prisma.user.update({
+      where: {
+        walletAddress: address,
+      },
+      data: {
+        smartAddress: smartAddress,
+      }
+    })
+    return user;
+  } catch (error) {
+    console.error("Error updating smart account:", error);
+    return null;
+  }
 }
 
 // function to record a task (legacy function - use new marketplace functions instead)
-export async function recordTask(subTaskId: number, completed: boolean, reward: string, ipfsHash: string | null, feedback: string | null, address: string){
-    try {
-        const user = await getUser(address);
-        if (!user) return null;
+export async function recordTask(subTaskId: number, completed: boolean, reward: string, ipfsHash: string | null, feedback: string | null, address: string) {
+  try {
+    const user = await getUser(address);
+    if (!user) return null;
 
-        // Create a legacy task with required new fields
-        const task = await prisma.task.create({
-            data: {
-                title: `Legacy Task ${subTaskId}`,
-                description: `Legacy task completion`,
-                maxParticipants: 1,
-                currentParticipants: 1,
-                baseReward: parseEther(reward).toString(),
-                maxBonusReward: '0',
-                totalDeposited: parseEther(reward).toString(),
-                status: TaskStatus.ACTIVE,
-                aiCriteria: "Legacy task",
-                contactMethod: ContactMethod.EMAIL,
-                contactInfo: "legacy@earnbase.com",
-                creatorId: user.id,
-                // Legacy fields
-                subTaskId: subTaskId,
-                completed: completed,
-                reward: parseEther(reward).toString(),
-                ipfsHash: ipfsHash,
-                feedback: feedback,
-                userId: user.id,
-            }
-        });
-        return task;
-    } catch (error) {
-        console.error("Error recording task:", error);
-        return null;
-    }
+    // Create a legacy task with required new fields
+    const task = await prisma.task.create({
+      data: {
+        title: `Legacy Task ${subTaskId}`,
+        description: `Legacy task completion`,
+        maxParticipants: 1,
+        currentParticipants: 1,
+        baseReward: parseUnits(reward, 6).toString(),
+        maxBonusReward: '0',
+        totalDeposited: parseUnits(reward, 6).toString(),
+        status: TaskStatus.ACTIVE,
+        aiCriteria: "Legacy task",
+        contactMethod: ContactMethod.EMAIL,
+        contactInfo: "legacy@earnbase.com",
+        creatorId: user.id,
+        // Legacy fields
+        subTaskId: subTaskId,
+        completed: completed,
+        reward: parseUnits(reward, 6).toString(),
+        ipfsHash: ipfsHash,
+        feedback: feedback,
+        userId: user.id,
+      }
+    });
+    return task;
+  } catch (error) {
+    console.error("Error recording task:", error);
+    return null;
+  }
 }
 
 // function to update the earned
 export async function updateEarnings(address: string, amount: bigint) {
   try {
-      // Get user
-      const user = await getUser(address);
-      if (!user) {
-          throw new Error("User not found");
+    // Get user
+    const user = await getUser(address);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Update both totalEarned (increment) and claimable (decrement)
+    await prisma.user.update({
+      where: {
+        walletAddress: address,
+      },
+      data: {
+        totalEarned: {
+          increment: amount,
+        }
       }
+    });
 
-      // Update both totalEarned (increment) and claimable (decrement)
-      await prisma.user.update({
-          where: {
-              walletAddress: address,
-          },
-          data: {
-              totalEarned:{
-                increment: amount,
-              }
-          }
-      });
-
-      return true;
+    return true;
   } catch (error) {
-      console.error("Error updating unclaimed amounts:", error);
-      throw error;
+    console.error("Error updating unclaimed amounts:", error);
+    throw error;
   }
 }
 
 
 
-  
+
 // function to get the user's feedback from a task
-export async function getUserFeedback(address:string, taskId:number){
+export async function getUserFeedback(address: string, taskId: number) {
   try {
     // check if is a 
-  const task = await prisma.task.findMany({
-    where:{
-      user:{
-        walletAddress: address,
-      },
-      subTaskId: taskId,
-    }
-  })
-  if(!task) return null;
-  return task;
-    
+    const task = await prisma.task.findMany({
+      where: {
+        user: {
+          walletAddress: address,
+        },
+        subTaskId: taskId,
+      }
+    })
+    if (!task) return null;
+    return task;
+
   } catch (error) {
     return null;
   }
@@ -206,8 +206,8 @@ export async function createTask(
         title,
         description,
         maxParticipants,
-        baseReward: parseEther(baseReward).toString(),
-        maxBonusReward: parseEther(maxBonusReward).toString(),
+        baseReward: parseUnits(baseReward, 6).toString(),
+        maxBonusReward: parseUnits(maxBonusReward, 6).toString(),
         totalDeposited: '0', // Will be updated when funds are deposited
         aiCriteria,
         contactMethod,
@@ -318,8 +318,8 @@ export async function createCompleteTask(
           description: taskData.description,
           blockChainId: taskData.blockChainId,
           maxParticipants: taskData.maxParticipants,
-          baseReward: parseEther(taskData.baseReward).toString(),
-          maxBonusReward: parseEther(taskData.maxBonusReward).toString(),
+          baseReward: parseUnits(taskData.baseReward, 6).toString(),
+          maxBonusReward: parseUnits(taskData.maxBonusReward, 6).toString(),
           totalDeposited: "0",
           aiCriteria: taskData.aiCriteria,
           contactMethod: taskData.contactMethod,

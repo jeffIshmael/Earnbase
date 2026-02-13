@@ -1,0 +1,19 @@
+{
+  "requestId": "agent_req_001",
+  "status": "completed",
+  "summary": {
+    "participants": 50,
+    "completionRate": 100,
+    "averageLatencySeconds": 42
+  },
+  "results": {
+    "Response A": 32,
+    "Response B": 14,
+    "Both are equal": 4
+  },
+  "proofs": {
+    "payoutTx": "0xPaymentTxHash",
+    "merkleRoot": "0xFeedbackMerkleRoot",
+    "erc8004ReputationUpdate": true
+  }
+}
