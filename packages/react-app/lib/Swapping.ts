@@ -10,22 +10,21 @@ import { cUSDAddress, USDCAddress, celoAddress } from "@/contexts/constants";
 import { parseInputExchangeAmount, calcExchangeRate, invertExchangeRate } from "@/utils/SwapUtils";
 import { fromWei } from "@/utils/amount";
 import { parseUnits } from "ethers/lib/utils";
-import { getEthersSigner } from "./WagmiEthers";
-import { config } from "@/providers/AppProvider";
+import { wagmiConfig } from "@/providers/AppProvider";
 import { getWalletClient } from '@wagmi/core';
 
 
 const provider = new providers.JsonRpcProvider("https://forno.celo.org");
 
 // function tio get the trading pairs
-export async function theTradingPairs(){
+export async function theTradingPairs() {
   try {
     const mento = await Mento.create(provider);
     const thePairs = await mento.getTradablePairs();
     return thePairs;
   } catch (error) {
     console.log("the errors", error);
-    return null; 
+    return null;
   }
 }
 
@@ -35,8 +34,8 @@ export async function getTheQuote(amount: string, swapIn: Boolean) {
     const mento = await Mento.create(provider);
     const fromTokenAddr = swapIn ? cUSDAddress : USDCAddress;
     const toTokenAddr = swapIn ? USDCAddress : cUSDAddress;
-    const amountWei = swapIn ? parseInputExchangeAmount(amount, 18): parseUnits(amount || "0", 6).toString();
-    
+    const amountWei = swapIn ? parseInputExchangeAmount(amount, 18) : parseUnits(amount || "0", 6).toString();
+
     if (!amountWei || isNaN(Number(amountWei))) {
       throw new Error("Invalid amount input");
     }
@@ -59,7 +58,7 @@ export async function getTheQuote(amount: string, swapIn: Boolean) {
     const quoteWei = (
       await mento.getAmountOut(fromTokenAddr, toTokenAddr, amountWeiBN, tradablePair)
     ).toString();
-    
+
 
     if (!quoteWei) {
       throw new Error("Failed to get quote amount");
@@ -88,15 +87,15 @@ export async function getCeloCusdQuote(amount: string, swapIn: Boolean) {
     const mento = await Mento.create(provider);
     const fromTokenAddr = swapIn ? celoAddress : cUSDAddress;
     const toTokenAddr = swapIn ? cUSDAddress : celoAddress;
-    const amountWei =  parseInputExchangeAmount(amount, 18);
-    
+    const amountWei = parseInputExchangeAmount(amount, 18);
+
     if (!amountWei || isNaN(Number(amountWei))) {
       throw new Error("Invalid amount input");
     }
 
     const amountWeiBN = ethers.BigNumber.from(amountWei);
-    const amountDecimals =  18;
-    const quoteDecimals =  18;
+    const amountDecimals = 18;
+    const quoteDecimals = 18;
 
     console.log("amount", amount);
     console.log("amountWei", amountWei);
@@ -112,7 +111,7 @@ export async function getCeloCusdQuote(amount: string, swapIn: Boolean) {
     const quoteWei = (
       await mento.getAmountOut(fromTokenAddr, toTokenAddr, amountWeiBN, tradablePair)
     ).toString();
-    
+
 
     if (!quoteWei) {
       throw new Error("Failed to get quote amount");
@@ -139,7 +138,7 @@ export async function getCeloCusdQuote(amount: string, swapIn: Boolean) {
 export async function approveSwap(fromTokenAddr: string, amountWei: string) {
   try {
     const mento = await Mento.create(provider);
-    const client = await getWalletClient(config);
+    const client = await getWalletClient(wagmiConfig);
 
     const allowanceTxObj = await mento.increaseTradingAllowance(fromTokenAddr, amountWei);
     const hash = await client.sendTransaction({
@@ -169,9 +168,9 @@ export async function executeSwap(
 ) {
   try {
     const mento = await Mento.create(provider);
-    const client = await getWalletClient(config);
+    const client = await getWalletClient(wagmiConfig);
 
-    const swapFn =  mento.swapIn.bind(mento);
+    const swapFn = mento.swapIn.bind(mento);
 
     const txRequest = await swapFn(fromTokenAddr, toTokenAddr, amountWei, quoteWei, tradablePair);
     const hash = await client.sendTransaction({

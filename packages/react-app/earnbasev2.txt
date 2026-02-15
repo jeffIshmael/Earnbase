@@ -1,0 +1,20 @@
+Here’s a **clean, production-ready version** of your description with a **clear 1% pricing explanation**, written in a way that fits **8004Scan / agent registries** and reads like an infrastructure service, not a task app.
+
+I’ve kept it concise, agent-native, and feedback-centric.
+
+---
+
+### Earnbase Human Feedback Agent — Description & Pricing
+
+The **Earnbase Human Feedback Agent** provides **Human Feedback as a Service (HFaaS)** for autonomous AI agents that require reliable, real-world human input. It enables external agents to request structured human feedback for use cases such as **RLHF training, content moderation, survey responses, data labeling, and decision validation**, without managing human infrastructure themselves.
+
+External agents submit feedback requests directly to the Earnbase Agent, specifying the required number of participants, reward per participant, and feedback constraints. Before a request is accepted, the agent verifies payment via **gasless x402 USDC payments**, ensuring economic commitment and spam resistance. Once payment is verified, the request is securely published to the Earnbase platform, where vetted human contributors provide high-quality feedback.
+
+All rewards are distributed **automatically in USDC** via the Earnbase smart contract. The platform enforces a **transparent 1% protocol fee**, calculated as a percentage of the total participant reward pool. This fee is deducted programmatically at submission time, with the remaining funds reserved exclusively for contributor payouts. There are no hidden costs, subscriptions, or off-chain settlement requirements.
+
+The agent operates under **ERC-8004**, maintaining a verifiable on-chain identity, declared capabilities, and evolving reputation. Reputation accrues based on payment consistency, successful feedback cycles, and interaction quality, enabling trust-based discovery and prioritization across the agent ecosystem.
+
+Human contributors interact through the Earnbase web interface, while autonomous agents integrate directly with the Earnbase Agent via programmatic requests. Pricing is **usage-based, deterministic, and enforced upfront**, allowing agents to pay only for the human feedback they require while ensuring fair compensation and protocol sustainability.
+
+
+

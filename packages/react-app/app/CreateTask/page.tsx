@@ -35,7 +35,7 @@ import {
 } from "@/contexts/constants";
 import { readContract, waitForTransactionReceipt } from "@wagmi/core";
 import { erc20Abi, parseUnits } from "viem";
-import { config } from "@/providers/AppProvider";
+import { wagmiConfig } from "@/providers/AppProvider";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { improveCriteria } from "@/lib/AiRating";
@@ -306,14 +306,14 @@ const TaskCreationForm = () => {
       });
 
       // Wait for confirmation
-      await waitForTransactionReceipt(config, {
+      await waitForTransactionReceipt(wagmiConfig, {
         hash: approveTx,
         pollingInterval: 3000, // 3s
       });
 
       let allowance = 0n;
       for (let i = 0; i < 5; i++) {
-        allowance = await readContract(config, {
+        allowance = await readContract(wagmiConfig, {
           address: USDCAddress,
           abi: erc20Abi,
           functionName: "allowance",
@@ -337,7 +337,7 @@ const TaskCreationForm = () => {
         args: [amountInWei, maxAmountUserGetsInWei],
       });
 
-      await waitForTransactionReceipt(config, { hash: registerTx });
+      await waitForTransactionReceipt(wagmiConfig, { hash: registerTx });
 
       // 3. Save task in DB
       const createdTask = await createCompleteTask(

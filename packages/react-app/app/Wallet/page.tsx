@@ -34,7 +34,7 @@ import {
   getCeloCusdQuote,
 } from "@/lib/Swapping";
 import { waitForTransactionReceipt } from "@wagmi/core";
-import { config } from "@/providers/AppProvider";
+import { wagmiConfig } from "@/providers/AppProvider";
 import { cn } from "@/lib/utils";
 import { cUSDAddress, USDCAddress, celoAddress } from "@/contexts/constants";
 
@@ -130,9 +130,8 @@ export default function WalletPage() {
         : await getTheQuote(amount, fromcUSD);
       console.log(quote);
       setQuoteInterface(quote);
-      const rate = `1 ${fromcUSD ? "cUSD" : isCelo ? "cUSD" : "USDC"} = ${
-        quote?.rate
-      } ${fromcUSD ? "USDC" : isCelo ? "CELO" : "cUSD"}`;
+      const rate = `1 ${fromcUSD ? "cUSD" : isCelo ? "cUSD" : "USDC"} = ${quote?.rate
+        } ${fromcUSD ? "USDC" : isCelo ? "CELO" : "cUSD"}`;
       setExchangeRate(rate);
       setAmountTo(quote?.quote ?? "");
       setIsFetchingQuote(false);
@@ -169,13 +168,13 @@ export default function WalletPage() {
     const fromTokenAddress = fromcUSD
       ? cUSDAddress
       : isCelo
-      ? celoAddress
-      : USDCAddress;
+        ? celoAddress
+        : USDCAddress;
     const toTokenAddress = fromcUSD
       ? USDCAddress
       : isCelo
-      ? cUSDAddress
-      : cUSDAddress;
+        ? cUSDAddress
+        : cUSDAddress;
 
     try {
       setIsApproving(true);
@@ -214,7 +213,7 @@ export default function WalletPage() {
         return;
       }
 
-      const transactionReceipt = await waitForTransactionReceipt(config, {
+      const transactionReceipt = await waitForTransactionReceipt(wagmiConfig, {
         chainId: celo.id,
         hash: swapTx,
       });
@@ -448,8 +447,8 @@ export default function WalletPage() {
                         currencyFrom === "cUSD"
                           ? "/static/cusdLogo.jpg"
                           : currencyFrom === "USDC"
-                          ? "/static/usdclogo.png"
-                          : "/static/celoLogo.png"
+                            ? "/static/usdclogo.png"
+                            : "/static/celoLogo.png"
                       }
                       alt={currencyFrom || "Token"}
                       width={28}
@@ -506,8 +505,8 @@ export default function WalletPage() {
                     currencyFrom === "cUSD"
                       ? "USDC"
                       : currencyFrom === "USDC"
-                      ? "CELO"
-                      : "cUSD";
+                        ? "CELO"
+                        : "cUSD";
                   setCurrencyFrom(newCurrencyFrom);
                   if (amountFrom) {
                     await getQuoteWithAmount(
@@ -536,8 +535,8 @@ export default function WalletPage() {
                         currencyFrom === "cUSD"
                           ? "/static/usdclogo.png"
                           : currencyFrom === "USDC"
-                          ? "/static/cusdLogo.jpg"
-                          : "/static/cusdLogo.jpg"
+                            ? "/static/cusdLogo.jpg"
+                            : "/static/cusdLogo.jpg"
                       }
                       alt="toToken"
                       width={28}
@@ -548,8 +547,8 @@ export default function WalletPage() {
                       {currencyFrom === "cUSD"
                         ? "USDC"
                         : currencyFrom === "USDC"
-                        ? "cUSD"
-                        : "cUSD"}
+                          ? "cUSD"
+                          : "cUSD"}
                     </span>
                   </div>
                   {isFetchingQuote ? (
@@ -610,7 +609,7 @@ export default function WalletPage() {
                   !amountFrom ||
                   !currencyFrom ||
                   isFetchingQuote) &&
-                  "opacity-50 cursor-not-allowed",
+                "opacity-50 cursor-not-allowed",
                 (isApproving || isSwapping) && "opacity-70 cursor-not-allowed"
               )}
             >
