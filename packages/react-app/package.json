@@ -50,7 +50,7 @@
     "next": "^15.0.2",
     "nodemailer": "^7.0.5",
     "openai": "^5.8.2",
-    "permissionless": "^0.2.50",
+    "permissionless": "0.2.53",
     "pinata": "^2.4.9",
     "pino-pretty": "^11.3.0",
     "react": "^18.3.1",
@@ -63,7 +63,7 @@
     "tailwindcss-animate": "^1.0.7",
     "thirdweb": "^5.118.1",
     "toformat": "^2.0.0",
-    "viem": "^2.32.1",
+    "viem": "2.46.0",
     "wagmi": "2.12.25"
   },
   "devDependencies": {
