@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
             {
                 success: true,
-                taskId: task.id,
+                taskId: task?.id,
                 paymentReceipt: settlement.txHash,
             },
             {

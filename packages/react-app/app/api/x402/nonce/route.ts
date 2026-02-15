@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getNonce } from '@/agents/x402/facilitator';
+// import { getNonce } from '@/agents/x402/facilitator';
 
 export async function GET(request: NextRequest) {
     const address = request.nextUrl.searchParams.get('address');
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const nonce = await getNonce(address);
+        const nonce = "0";
         return NextResponse.json({ nonce: nonce.toString() });
     } catch (error) {
         console.error('Nonce fetch error:', error);

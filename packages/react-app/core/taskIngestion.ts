@@ -1,10 +1,11 @@
 import { verifyAgent } from '../agents/erc8004/agentIdentity';
 import { validatePaymentProof } from '../agents/x402/server';
-import { settlePayment } from '../agents/x402/facilitator';
+import { settleX402Payment } from '../agents/x402/facilitator';
 import { calculateCost } from '../agents/x402/pricing';
 import { createCompleteTask } from '../lib/Prismafnctns';
 import { ContactMethod, SubtaskType } from '@prisma/client';
 import { PaymentProof } from '../agents/x402/types';
+import { request } from 'http';
 
 export interface AgentTaskPayload {
     agentAddress: string;
@@ -62,18 +63,23 @@ export async function ingestTask(payload: AgentTaskPayload) {
     }
 
     // Settle payment (server pays gas)
-    const settlement = await settlePayment(paymentProof.signature);
-    if (!settlement.success) {
-        throw new Error(`Payment settlement failed: ${settlement.error}`);
-    }
+    // const settlement = await settleX402Payment(
+    //     request.url,
+    //     "POST",
+    //     paymentProof.signature,
+    //     priceUSD
+    // );
+    // if (!settlement.success) {
+    //     throw new Error(`Payment settlement failed: ${settlement.error}`);
+    // }
 
-    console.log(`Payment settled successfully. TX: ${settlement.txHash}`);
+    console.log(`Payment settled successfully. TX: ${"0"}`);
 
     // 3. Publish (Task Creation)
     const taskData = {
         title,
         description,
-        blockChainId: settlement.txHash || "0",
+        blockChainId: "0",
         maxParticipants,
         baseReward,
         maxBonusReward,

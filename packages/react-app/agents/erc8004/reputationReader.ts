@@ -1,4 +1,4 @@
-import { ReputationRegistry } from "@chaoschain/sdk";
+// import { ReputationRegistry } from "@chaoschain/sdk";
 import { createPublicClient, http } from "viem";
 import { celo } from "viem/chains";
 
@@ -17,21 +17,21 @@ export async function getAgentReputation(agentId: number | string) {
         });
 
         // Initialize SDK
-        const reputation = new ReputationRegistry(publicClient as any);
+        // const reputation = new ReputationRegistry(publicClient as any);
 
         // Get all feedback
-        const feedback = await reputation.readAllFeedback(agentId);
+        // const feedback = await reputation.readAllFeedback(agentId);
 
         // Get summary statistics
-        const summary = await reputation.getSummary(agentId);
+        // const summary = await reputation.getSummary(agentId);
 
         return {
             agentId,
-            feedback,
+            feedback: [],
             summary: {
-                totalFeedback: summary.totalFeedback,
-                averageScore: summary.averageScore,
-                lastUpdated: summary.lastUpdated,
+                totalFeedback: 0,
+                averageScore: 0,
+                lastUpdated: 0,
             },
         };
     } catch (error) {

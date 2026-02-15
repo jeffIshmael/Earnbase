@@ -9,16 +9,36 @@ import { createThirdwebClient } from "thirdweb";
 import { facilitator, settlePayment } from "thirdweb/x402";
 import { celo } from "thirdweb/chains";
 
-// Initialize thirdweb client
-const client = createThirdwebClient({
-    secretKey: process.env.THIRDWEB_SECRET_KEY || "",
-});
+// Lazy initialization to avoid build-time errors
+let client: ReturnType<typeof createThirdwebClient> | null = null;
+let thirdwebFacilitator: ReturnType<typeof facilitator> | null = null;
 
-// Create facilitator for payment settlement
-const thirdwebFacilitator = facilitator({
-    client,
-    serverWalletAddress: process.env.SERVER_WALLET_ADDRESS || "",
-});
+function getClient() {
+    if (!client) {
+        if (!process.env.THIRDWEB_SECRET_KEY && !process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID) {
+            throw new Error("Neither THIRDWEB_SECRET_KEY nor NEXT_PUBLIC_THIRDWEB_CLIENT_ID is set. Cannot initialize thirdweb client.");
+        }
+
+        client = process.env.THIRDWEB_SECRET_KEY
+            ? createThirdwebClient({
+                secretKey: process.env.THIRDWEB_SECRET_KEY,
+            })
+            : createThirdwebClient({
+                clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID || "",
+            });
+    }
+    return client;
+}
+
+function getFacilitator() {
+    if (!thirdwebFacilitator) {
+        thirdwebFacilitator = facilitator({
+            client: getClient(),
+            serverWalletAddress: process.env.SERVER_WALLET_ADDRESS || "",
+        });
+    }
+    return thirdwebFacilitator;
+}
 
 /**
  * Settle a payment using thirdweb x402
@@ -43,7 +63,7 @@ export async function settleX402Payment(
             payTo: process.env.NEXT_PUBLIC_EARNBASE_AGENT_WALLET || "",
             network: celo,
             price,
-            facilitator: thirdwebFacilitator,
+            facilitator: getFacilitator(),
             routeConfig: {
                 description: "Earnbase task submission payment",
                 mimeType: "application/json",
@@ -105,4 +125,4 @@ export function create402Response(resourceUrl: string, price: string) {
     };
 }
 
-export { thirdwebFacilitator };
+export { getFacilitator };
