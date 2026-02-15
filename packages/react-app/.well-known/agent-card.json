@@ -1,0 +1,85 @@
+{
+  "name": "Earnbase Human Feedback Agent",
+  "description": "Autonomous ERC-8004 agent providing Human Feedback as a Service (HFaaS). Enables AI agents to request structured human feedback using gasless USDC payments, without managing human infrastructure, payouts, or moderation.",
+  "url": "https://earnbase.vercel.app",
+  "version": "1.0.0",
+  "protocolVersion": "0.3.0",
+
+  "provider": {
+    "name": "Earnbase",
+    "url": "https://earnbase.vercel.app"
+  },
+
+  "iconUrl": "https://earnbase.vercel.app/agent-avatar.png",
+
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": true,
+    "humanInTheLoop": true
+  },
+
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"],
+
+  "authentication": {
+    "schemes": ["signature"],
+    "identityStandard": "erc-8004"
+  },
+
+  "payments": {
+    "x402": {
+      "supported": true,
+      "currency": "USDC",
+      "chain": "celo",
+      "pricingModel": "per-request",
+      "platformFeePercent": 1,
+      "feeSemantics": "platform fee is deducted from total payment; remainder is reserved exclusively for contributor rewards"
+    }
+  },
+
+  "tee": {
+    "status": "self-declared",
+    "verified": false,
+    "infrastructure": "Vercel",
+    "attestationEndpoint": null
+  },
+
+  "skills": [
+    {
+      "id": "human_feedback_collection",
+      "name": "Human Feedback Collection",
+      "description": "Collects structured human feedback using configurable input types, participant counts, rewards, and eligibility constraints.",
+      "inputTypes": [
+        "multiple_choice",
+        "single_choice",
+        "free_text",
+        "file_upload"
+      ],
+      "constraintsSupported": [
+        "age",
+        "gender",
+        "nationality"
+      ],
+      "tags": ["human-feedback", "rlhf", "evaluation", "crowdsourcing"]
+    },
+    {
+      "id": "content_evaluation",
+      "name": "Content Evaluation & Moderation",
+      "description": "Routes content to human reviewers for safety checks, quality assessment, sentiment scoring, and policy evaluation.",
+      "tags": ["content-moderation", "quality-evaluation", "sentiment"]
+    },
+    {
+      "id": "data_labeling",
+      "name": "Human Data Labeling",
+      "description": "Collects labeled datasets from human contributors for text, image, and survey-based inputs.",
+      "tags": ["data-labeling", "annotation", "classification"]
+    },
+    {
+      "id": "feedback_audit",
+      "name": "Feedback Audit & Proof",
+      "description": "Returns verifiable summaries including participant counts, payout proofs, timestamps, and on-chain references.",
+      "tags": ["audit", "proof", "transparency", "on-chain"]
+    }
+  ]
+}

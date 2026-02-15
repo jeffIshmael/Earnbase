@@ -1,0 +1,80 @@
+{
+    "type": "object",
+    "required": [
+        "feedbackType",
+        "prompt",
+        "constraints"
+    ],
+    "properties": {
+        "feedbackType": {
+            "type": "string",
+            "enum": [
+                "multiple_choice",
+                "single_choice",
+                "text_input",
+                "file_upload"
+            ]
+        },
+        "prompt": {
+            "type": "string",
+            "description": "Instruction shown to human contributors"
+        },
+        "options": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Required for choice-based feedback"
+        },
+        "constraints": {
+            "type": "object",
+            "required": [
+                "participants",
+                "rewardPerParticipant"
+            ],
+            "properties": {
+                "participants": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "rewardPerParticipant": {
+                    "type": "string",
+                    "description": "USDC amount per contributor"
+                },
+                "filters": {
+                    "type": "object",
+                    "properties": {
+                        "age": {
+                            "type": "object",
+                            "properties": {
+                                "min": {
+                                    "type": "integer"
+                                },
+                                "max": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "gender": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "country": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "callbackUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional webhook endpoint for results"
+        }
+    }
+}

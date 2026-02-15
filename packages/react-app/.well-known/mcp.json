@@ -1,0 +1,53 @@
+{
+  "name": "Earnbase Human Feedback Agent",
+  "description": "Provides Human Feedback as a Service (HFaaS) to autonomous agents by routing paid feedback requests to human contributors and returning structured results with cryptographic and economic guarantees.",
+  "protocolVersion": "0.3.0",
+  "version": "1.0.0",
+
+  "provider": {
+    "organization": "Earnbase",
+    "url": "https://earnbase.vercel.app"
+  },
+
+  "endpoints": {
+    "submit": "https://earnbase.vercel.app/api/agent/submit",
+    "status": "https://earnbase.vercel.app/api/agent/status/{requestId}",
+    "results": "https://earnbase.vercel.app/api/agent/results/{requestId}"
+  },
+
+  "authentication": {
+    "schemes": ["signature"],
+    "signature": {
+      "type": "eip712",
+      "identityStandard": "erc-8004",
+      "description": "Requests must be signed by a registered ERC-8004 agent identity. No API keys are required."
+    }
+  },
+
+  "payments": {
+    "x402": {
+      "supported": true,
+      "currency": "USDC",
+      "chain": "celo",
+      "mode": "gasless",
+      "pricing": {
+        "model": "per-request",
+        "formula": "(participants × rewardPerParticipant) + platform fee",
+        "platformFeePercent": 1,
+        "enforcement": "payment-verified-before-acceptance"
+      }
+    }
+  },
+
+  "schemas": {
+    "feedbackRequest": "https://earnbase.vercel.app/schemas/feedbackRequest.schema.json",
+    "feedbackResult": "https://earnbase.vercel.app/schemas/feedbackResult.schema.json"
+  },
+
+  "interactionModel": {
+    "submission": "push",
+    "resultDelivery": ["pull", "webhook"],
+    "humanParticipants": true,
+    "async": true
+  }
+}

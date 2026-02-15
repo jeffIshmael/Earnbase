@@ -1,5 +1,5 @@
 /**
- * @title EarnBase - chamapay's beta stage rewards management smart contract
+ * @title EarnBase - task-reward management smart contract
  * @author Jeff Muchiri
  */
 
@@ -7,21 +7,35 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract EarnBase is Ownable, ReentrancyGuard, Pausable {
-    IERC20 public cUSDToken;
+contract EarnBase is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, UUPSUpgradeable {
+    IERC20 public USDCToken;
     address public agent;
     uint256 public totalTesters;
     uint256 public totalTasks;
 
-    constructor() Ownable(msg.sender) {
-        cUSDToken = IERC20(0x765DE816845861e75A25fCA122bb6898B8B1282a); // Mainnet
-        agent = 0x1C059486B99d6A2D9372827b70084fbfD014E978;
-        // For Alfajores, 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1
+     /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
     }
+
+    function initialize() external initializer {
+        __Ownable_init(msg.sender);
+        __ReentrancyGuard_init();
+        __Pausable_init();
+        __UUPSUpgradeable_init();
+        
+        agent = 0x1C059486B99d6A2D9372827b70084fbfD014E978;
+        USDCToken = IERC20(0xcebA9300f2b948710d2653dD7B07f33A8B32118C); // USDC Mainnet
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     struct Tester {
         uint256 id;
@@ -129,12 +143,12 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         return false;
     }
 
-   // function to award the tester( sends cUSD to the tester's wallet)
+   // function to award the tester( sends USDC to the tester's wallet)
    function makePayment(address _testerAddress, uint256 _amount, uint256 _taskId) external whenNotPaused onlyAuthorised {
         require(_testerAddress != address(0), "Invalid tester address");
         require(_amount > 0, "Amount must be greater than 0");
         require(_taskId < tasks.length, "Task does not exist");
-        require(cUSDToken.balanceOf(address(this)) >= _amount, "Insufficient funds in the contract");
+        require(USDCToken.balanceOf(address(this)) >= _amount, "Insufficient funds in the contract");
 
         // Check if task has enough remaining funds
         Task storage task = tasks[_taskId];
@@ -147,8 +161,8 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         bool hasParticipated = userHasDoneTask(_testerAddress, _taskId);
         require(!hasParticipated, "User has already done the task.");
 
-        // Transfer cUSD to tester
-        bool sent = cUSDToken.transfer(_testerAddress, _amount);
+        // Transfer USDC to tester
+        bool sent = USDCToken.transfer(_testerAddress, _amount);
         require(sent, "Payment transfer failed");
         
         // Record the payment
@@ -163,7 +177,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         require(_maxReward > 0, "Max reward must be greater than 0");
         require(_maxReward <= _totalAmount, "Max reward cannot exceed total amount");
 
-        bool success = cUSDToken.transferFrom(msg.sender, address(this), _totalAmount);
+        bool success = USDCToken.transferFrom(msg.sender, address(this), _totalAmount);
         require(success, "Transfer failed");
         
         uint256 taskId = tasks.length;
@@ -301,9 +315,9 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
 
 
 
-    function depositCUSD(uint256 amount) external whenNotPaused {
+    function depositUSDC(uint256 amount) external whenNotPaused {
         require(amount > 0, "Amount must be > 0");
-        bool success = cUSDToken.transferFrom(msg.sender, address(this), amount);
+        bool success = USDCToken.transferFrom(msg.sender, address(this), amount);
         require(success, "Transfer failed.");
         emit Deposited(msg.sender, amount);
     }
@@ -316,7 +330,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         Task storage task = tasks[_taskId];
         require(msg.sender == task.creator, "Only task creator can deposit");
         
-        bool success = cUSDToken.transferFrom(msg.sender, address(this), amount);
+        bool success = USDCToken.transferFrom(msg.sender, address(this), amount);
         require(success, "Transfer failed");
         
         task.totalAmount += amount;
@@ -337,7 +351,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
         
         // Refund remaining balance to creator if there's any
         if (remainingBalance > 0) {
-            bool success = cUSDToken.transfer(task.creator, remainingBalance);
+            bool success = USDCToken.transfer(task.creator, remainingBalance);
             require(success, "Refund transfer failed");
         }
 
@@ -348,7 +362,7 @@ contract EarnBase is Ownable, ReentrancyGuard, Pausable {
 
     function emergencyWithdraw(address to, uint256 amount) external onlyOwner {
         require(to != address(0), "Invalid address");
-        require(cUSDToken.transfer(to, amount), "Withdraw failed.");
+        require(USDCToken.transfer(to, amount), "Withdraw failed.");
         emit AmountWithdrawn(to, amount);
     }
 

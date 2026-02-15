@@ -8,10 +8,10 @@ export const contractAddress = "0x7AD81c90CDABB456bca68ACFF003191a8A854F24";
 export const cUSDAddress = "0x765DE816845861e75A25fCA122bb6898B8B1282a";
 export const celoAddress = "0x471EcE3750Da237f93B8E339c536989b8978a438";
 // 0xcebA9300f2b948710d2653dD7B07f33A8B32118C
-// export const USDCAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // base network
-export const USDCAddress = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"; // celo network
+// export const USDCAddress = "0x2F25deCCDDdF8012D17696F65Ff55B55E57F90E8"; // Celo Alfajores USDC (Circle)
+export const USDCAddress = "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"; // Celo Mainnet USDC (Circle)
 export const url = "https://earnbase.vercel.app";
-export const contractAbi =[
+export const contractAbi = [
   {
     "inputs": [],
     "stateMutability": "nonpayable",

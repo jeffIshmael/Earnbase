@@ -31,10 +31,10 @@ import { getTotalTasks } from "@/lib/ReadFunctions";
 import {
   contractAbi,
   contractAddress,
-  cUSDAddress,
+  USDCAddress,
 } from "@/contexts/constants";
 import { readContract, waitForTransactionReceipt } from "@wagmi/core";
-import { erc20Abi, parseEther } from "viem";
+import { erc20Abi, parseUnits } from "viem";
 import { config } from "@/providers/AppProvider";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -213,8 +213,7 @@ const TaskCreationForm = () => {
     } catch (error) {
       console.error("Error improving criteria:", error);
       toast.error(
-        `Failed to improve criteria: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Failed to improve criteria: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
     } finally {
@@ -276,31 +275,31 @@ const TaskCreationForm = () => {
         options:
           subtask.type === "MULTIPLE_CHOICE"
             ? JSON.stringify(
-                subtask.options
-                  ?.split(/[,\n]/)
-                  .map((opt) => opt.trim())
-                  .filter((opt) => opt.length > 0) || []
-              )
+              subtask.options
+                ?.split(/[,\n]/)
+                .map((opt) => opt.trim())
+                .filter((opt) => opt.length > 0) || []
+            )
             : subtask.type === "CHOICE_SELECTION"
-            ? JSON.stringify(
+              ? JSON.stringify(
                 subtask.options
                   ?.split(/[,\n]/)
                   .map((opt) => opt.trim())
                   .filter((opt) => opt.length > 0) || []
               )
-            : subtask.options || undefined,
+              : subtask.options || undefined,
       }));
 
       // Blockchain logic
       const totalAmount = calculateTotalRequired();
-      const amountInWei = parseEther(totalAmount.toString());
+      const amountInWei = parseUnits(totalAmount.toString(), 6);
 
       const maxAmountUserGets = Number(maxBonusReward) + Number(baseReward);
-      const maxAmountUserGetsInWei = parseEther(maxAmountUserGets.toString());
+      const maxAmountUserGetsInWei = parseUnits(maxAmountUserGets.toString(), 6);
 
       // 1. Approve allowance
       const approveTx = await writeContractAsync({
-        address: cUSDAddress,
+        address: USDCAddress,
         abi: erc20Abi,
         functionName: "approve",
         args: [contractAddress, amountInWei],
@@ -315,7 +314,7 @@ const TaskCreationForm = () => {
       let allowance = 0n;
       for (let i = 0; i < 5; i++) {
         allowance = await readContract(config, {
-          address: cUSDAddress,
+          address: USDCAddress,
           abi: erc20Abi,
           functionName: "allowance",
           args: [address, contractAddress],
@@ -370,8 +369,7 @@ const TaskCreationForm = () => {
     } catch (error) {
       console.error("Error creating task:", error);
       alert(
-        `Error creating task: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Error creating task: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
     } finally {
@@ -555,13 +553,12 @@ const TaskCreationForm = () => {
                   />
                   <div className="flex justify-between items-center mt-2 text-eyebrow">
                     <p
-                      className={`font-inter font-heavy ${
-                        description.length < 200
-                          ? "text-red-500"
-                          : description.length > 500
+                      className={`font-inter font-heavy ${description.length < 200
+                        ? "text-red-500"
+                        : description.length > 500
                           ? "text-celo-orange"
                           : "text-celo-forest"
-                      }`}
+                        }`}
                     >
                       {description.length} CHARACTERS
                     </p>
@@ -599,7 +596,7 @@ const TaskCreationForm = () => {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <label className="block text-body-s font-inter font-heavy text-black">
-                      BASE REWARD (cUSD) *
+                      BASE REWARD (USDC) *
                     </label>
                     <div className="group relative">
                       <Info className="w-4 h-4 text-black/50" />
@@ -627,7 +624,7 @@ const TaskCreationForm = () => {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <label className="block text-body-s font-inter font-heavy text-gray-800">
-                      MAX BONUS (cUSD) *
+                      MAX BONUS (USDC) *
                     </label>
                     <div className="group relative">
                       <Info className="w-4 h-4 text-black/50" />
@@ -767,11 +764,10 @@ const TaskCreationForm = () => {
                       onChange={(e) => setAiCriteria(e.target.value)}
                       rows={6}
                       disabled={isImprovingCriteria}
-                      className={`w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter ${
-                        isImprovingCriteria
-                          ? "border-celo-forest  cursor-not-allowed "
-                          : ""
-                      }`}
+                      className={`w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter ${isImprovingCriteria
+                        ? "border-celo-forest  cursor-not-allowed "
+                        : ""
+                        }`}
                       placeholder="Example: Look for detailed feedback, specific suggestions, constructive criticism, and actionable insights. Higher ratings for comprehensive responses that show understanding of the task."
                     />
                     {isImprovingCriteria && (
@@ -787,13 +783,12 @@ const TaskCreationForm = () => {
                   </div>
                   <div className="flex justify-between items-center mt-2 text-eyebrow">
                     <p
-                      className={`font-inter font-heavy ${
-                        aiCriteria.length < 10
-                          ? "text-red-500"
-                          : aiCriteria.length < 50
+                      className={`font-inter font-heavy ${aiCriteria.length < 10
+                        ? "text-red-500"
+                        : aiCriteria.length < 50
                           ? "text-celo-orange"
                           : "text-celo-forest"
-                      }`}
+                        }`}
                     >
                       {aiCriteria.length} CHARACTERS
                     </p>
@@ -842,671 +837,677 @@ const TaskCreationForm = () => {
                 </div>
               </div>
             </div>
-          )}
+          )
+          }
           {/* Restrictions */}
-          {currentStep === 4 && (
-            <div className="bg-white border-2 border-black p-4">
-              <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-celo-orange w-fit border-2 border-black">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-                <div className="min-w-0 flex-1 text-center">
-                  <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
-                    PARTICIPANT RESTRICTIONS
-                  </h2>
-                  <p className="text-body-s font-inter text-black/70 mt-1">
-                    Set filters for who can participate
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Main toggle */}
-                <div className="flex items-center justify-between p-4 bg-celo-lt-tan border-2 border-black">
-                  <div>
-                    <h3 className="font-inter font-heavy text-black text-body-s">
-                      ENABLE RESTRICTIONS
-                    </h3>
-                    <p className="text-body-s font-inter text-black/70">
-                      Turn on to filter participants
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <span
-                      className={`px-2 py-1 border-2  text-[11px] font-inter font-heavy ${
-                        restrictionsEnabled
-                          ? "bg-celo-forest border-celo-forest text-white"
-                          : "bg-white text-black border-black"
-                      }`}
-                    >
-                      {restrictionsEnabled ? "ON" : "OFF"}
-                    </span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={restrictionsEnabled}
-                        onChange={(e) =>
-                          setRestrictionsEnabled(e.target.checked)
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-5 after:w-5 after:transition-all peer-checked:bg-celo-purple"></div>
-                    </label>
-                  </div>
-                </div>
-
-                {restrictionsEnabled && (
-                  <div className="space-y-6">
-                    {/* Age Restriction */}
-                    <div className="p-4 bg-white border-2 border-black">
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="font-inter font-heavy text-black text-body-s">
-                          AGE RESTRICTION
-                        </h4>
-                        <div className="flex items-center space-x-3">
-                          <span
-                            className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${
-                              ageRestriction
-                                ? "bg-celo-forest text-white"
-                                : "bg-white text-black"
-                            }`}
-                          >
-                            {ageRestriction ? "ON" : "OFF"}
-                          </span>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={ageRestriction}
-                              onChange={(e) =>
-                                setAgeRestriction(e.target.checked)
-                              }
-                              className="sr-only peer"
-                            />
-                            <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
-                          </label>
-                        </div>
-                      </div>
-
-                      {ageRestriction && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-body-s font-inter font-heavy text-black mb-2">
-                              MINIMUM AGE *
-                            </label>
-                            <input
-                              type="number"
-                              value={minAge}
-                              onChange={(e) =>
-                                setMinAge(parseInt(e.target.value))
-                              }
-                              min="13"
-                              max="100"
-                              className="w-full px-3 py-2 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-body-s font-inter font-heavy text-black mb-2">
-                              MAXIMUM AGE *
-                            </label>
-                            <input
-                              type="number"
-                              value={maxAge}
-                              onChange={(e) =>
-                                setMaxAge(parseInt(e.target.value))
-                              }
-                              min="13"
-                              max="100"
-                              className="w-full px-3 py-2 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
-                              required
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Gender Restriction */}
-                    <div className="p-4 bg-white border-2 border-black">
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="font-inter font-heavy text-black text-body-s">
-                          GENDER RESTRICTION
-                        </h4>
-                        <div className="flex items-center space-x-3">
-                          <span
-                            className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${
-                              genderRestriction
-                                ? "bg-celo-forest text-white"
-                                : "bg-white text-black"
-                            }`}
-                          >
-                            {genderRestriction ? "ON" : "OFF"}
-                          </span>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={genderRestriction}
-                              onChange={(e) =>
-                                setGenderRestriction(e.target.checked)
-                              }
-                              className="sr-only peer"
-                            />
-                            <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
-                          </label>
-                        </div>
-                      </div>
-
-                      {genderRestriction && (
-                        <div className="flex space-x-4">
-                          <label className="flex items-center">
-                            <input
-                              type="radio"
-                              name="gender"
-                              value="M"
-                              checked={gender === "M"}
-                              onChange={(e) => setGender(e.target.value)}
-                              className="mr-2 text-celo-purple focus:ring-celo-purple"
-                            />
-                            <span className="text-body-s font-inter text-black">
-                              Male
-                            </span>
-                          </label>
-                          <label className="flex items-center">
-                            <input
-                              type="radio"
-                              name="gender"
-                              value="F"
-                              checked={gender === "F"}
-                              onChange={(e) => setGender(e.target.value)}
-                              className="mr-2 text-celo-purple focus:ring-celo-purple"
-                            />
-                            <span className="text-body-s font-inter text-black">
-                              Female
-                            </span>
-                          </label>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {!restrictionsEnabled && (
-                  <div className="p-4 bg-celo-yellow border-2 border-black">
-                    <div className="flex items-start space-x-3">
-                      <Info className="w-5 h-5 text-black mt-0.5 flex-shrink-0" />
-                      <div>
-                        <h4 className="text-body-s font-inter font-heavy text-black">
-                          NO RESTRICTIONS
-                        </h4>
-                        <p className="text-body-s font-inter text-black/70 mt-1">
-                          Your task will be open to all participants. Enable
-                          restrictions above if you want to filter participants
-                          by age, gender, or location.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          {/* Contact Information */}
-          {currentStep === 5 && (
-            <div className="bg-white border-2 border-black p-4">
-              <div className="flex flex-col items-center space-y-3 mb-6">
-                <div className="p-3 bg-celo-lime w-fit border-2 border-black">
-                  <Mail className="w-6 h-6 text-black" />
-                </div>
-                <div className="min-w-0 flex-1 text-center">
-                  <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
-                    CONTACT INFORMATION
-                  </h2>
-                  <p className="text-body-s font-inter text-black/70 mt-1">
-                    How participants can reach you
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <label className="block text-body-s font-inter font-heavy text-black">
-                    CONTACT METHOD *
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={contactMethod}
-                      onChange={(e) => setContactMethod(e.target.value)}
-                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 appearance-none text-body-m font-inter"
-                    >
-                      <option value="EMAIL">📧 Email</option>
-                      <option value="WHATSAPP">📱 WhatsApp</option>
-                    </select>
-                    <ChevronDown className="absolute right-4 top-3 w-5 h-5 text-black pointer-events-none" />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="block text-body-s font-inter font-heavy text-black">
-                    CONTACT INFO *
-                  </label>
-                  {contactMethod === "WHATSAPP" ? (
-                    <div className="flex space-x-2">
-                      <div className="w-32 relative">
-                        <select
-                          value={countryCode}
-                          onChange={(e) => setCountryCode(e.target.value)}
-                          className="w-full px-3 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter appearance-none"
-                        >
-                          {countryCodes.map((country) => (
-                            <option key={country.code} value={country.code}>
-                              {country.flag} {country.code}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="absolute right-2 top-3 w-4 h-4 text-black pointer-events-none" />
-                      </div>
-                      <div className="flex-1">
-                        <input
-                          type="tel"
-                          value={contactInfo}
-                          onChange={(e) => setContactInfo(e.target.value)}
-                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
-                          placeholder="1234567890"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <input
-                      type="email"
-                      value={contactInfo}
-                      onChange={(e) => setContactInfo(e.target.value)}
-                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
-                      placeholder="your@email.com"
-                    />
-                  )}
-                  {contactMethod === "WHATSAPP" && (
-                    <p className="text-body-s font-inter text-black/70">
-                      Full number will be: {countryCode}
-                      {contactInfo || "1234567890"}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  <label className="block text-body-s font-inter font-heavy text-black">
-                    TASK DEADLINE (OPTIONAL)
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-4 top-3 w-5 h-5 text-black" />
-                    <input
-                      type="datetime-local"
-                      value={expiresAt}
-                      onChange={(e) => setExpiresAt(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
-                    />
-                  </div>
-                  <p className="text-body-s font-inter text-black/70 mt-2">
-                    Leave empty for no deadline. Tasks without deadlines run
-                    until manually closed.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Subtasks */}
-          {currentStep === 6 && (
-            <div className="bg-white border-2 border-black p-4">
-              <div className="flex flex-col items-center justify-between mb-6 space-y-3">
-                <div className="flex flex-col items-center space-y-3">
+          {
+            currentStep === 4 && (
+              <div className="bg-white border-2 border-black p-4">
+                <div className="flex flex-col items-center space-y-3 mb-6">
                   <div className="p-3 bg-celo-orange w-fit border-2 border-black">
-                    <FileText className="w-6 h-6 text-white" />
+                    <Users className="w-6 h-6 text-white" />
                   </div>
                   <div className="min-w-0 flex-1 text-center">
                     <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
-                      SUBTASKS
+                      PARTICIPANT RESTRICTIONS
                     </h2>
                     <p className="text-body-s font-inter text-black/70 mt-1">
-                      Break down your task into manageable parts
+                      Set filters for who can participate
                     </p>
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-4">
-                {subtasks.map((subtask, index) => (
-                  <div
-                    key={subtask.id}
-                    className="bg-celo-lt-tan border-2 border-black p-4"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-body-l font-inter font-heavy text-black flex items-center space-x-3">
-                        <span className="bg-celo-purple text-white w-10 h-10 flex items-center justify-center text-body-s font-inter font-heavy border-2 border-black">
-                          {index + 1}
-                        </span>
-                        <span className="truncate">SUBTASK {index + 1}</span>
+                <div className="space-y-6">
+                  {/* Main toggle */}
+                  <div className="flex items-center justify-between p-4 bg-celo-lt-tan border-2 border-black">
+                    <div>
+                      <h3 className="font-inter font-heavy text-black text-body-s">
+                        ENABLE RESTRICTIONS
                       </h3>
-                      {subtasks.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeSubtask(subtask.id)}
-                          className="p-2 text-celo-orange hover:bg-celo-orange hover:text-white border-2 border-celo-orange transition-all duration-200"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                      <p className="text-body-s font-inter text-black/70">
+                        Turn on to filter participants
+                      </p>
                     </div>
-
-                    <div className="space-y-4 mb-4">
-                      <div className="space-y-3">
-                        <label className="block text-body-s font-inter font-heavy text-black">
-                          SUBTASK TITLE *
-                        </label>
+                    <div className="flex items-center space-x-3">
+                      <span
+                        className={`px-2 py-1 border-2  text-[11px] font-inter font-heavy ${restrictionsEnabled
+                          ? "bg-celo-forest border-celo-forest text-white"
+                          : "bg-white text-black border-black"
+                          }`}
+                      >
+                        {restrictionsEnabled ? "ON" : "OFF"}
+                      </span>
+                      <label className="relative inline-flex items-center cursor-pointer">
                         <input
-                          type="text"
-                          value={subtask.title}
+                          type="checkbox"
+                          checked={restrictionsEnabled}
                           onChange={(e) =>
-                            updateSubtask(subtask.id, "title", e.target.value)
+                            setRestrictionsEnabled(e.target.checked)
                           }
-                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
-                          placeholder="Enter subtask title"
+                          className="sr-only peer"
                         />
+                        <div className="w-11 h-6 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-5 after:w-5 after:transition-all peer-checked:bg-celo-purple"></div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {restrictionsEnabled && (
+                    <div className="space-y-6">
+                      {/* Age Restriction */}
+                      <div className="p-4 bg-white border-2 border-black">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="font-inter font-heavy text-black text-body-s">
+                            AGE RESTRICTION
+                          </h4>
+                          <div className="flex items-center space-x-3">
+                            <span
+                              className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${ageRestriction
+                                ? "bg-celo-forest text-white"
+                                : "bg-white text-black"
+                                }`}
+                            >
+                              {ageRestriction ? "ON" : "OFF"}
+                            </span>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={ageRestriction}
+                                onChange={(e) =>
+                                  setAgeRestriction(e.target.checked)
+                                }
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
+                            </label>
+                          </div>
+                        </div>
+
+                        {ageRestriction && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-body-s font-inter font-heavy text-black mb-2">
+                                MINIMUM AGE *
+                              </label>
+                              <input
+                                type="number"
+                                value={minAge}
+                                onChange={(e) =>
+                                  setMinAge(parseInt(e.target.value))
+                                }
+                                min="13"
+                                max="100"
+                                className="w-full px-3 py-2 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-body-s font-inter font-heavy text-black mb-2">
+                                MAXIMUM AGE *
+                              </label>
+                              <input
+                                type="number"
+                                value={maxAge}
+                                onChange={(e) =>
+                                  setMaxAge(parseInt(e.target.value))
+                                }
+                                min="13"
+                                max="100"
+                                className="w-full px-3 py-2 bg-white border-2 border-black focus:outline-none focus:border-celo-yellow transition-all duration-200 text-body-s font-inter"
+                                required
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
 
-                      <div className="space-y-3">
-                        <label className="block text-body-s font-inter font-heavy text-black">
-                          INPUT TYPE *
-                        </label>
-                        <div className="relative">
-                          <select
-                            value={subtask.type}
-                            onChange={(e) =>
-                              updateSubtask(subtask.id, "type", e.target.value)
-                            }
-                            className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 appearance-none text-body-s font-inter"
-                          >
-                            {availableSubtaskTypes.map((type) => (
-                              <option key={type.value} value={type.value}>
-                                {type.label}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown className="absolute right-3 top-3 w-5 h-5 text-black pointer-events-none" />
+                      {/* Gender Restriction */}
+                      <div className="p-4 bg-white border-2 border-black">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="font-inter font-heavy text-black text-body-s">
+                            GENDER RESTRICTION
+                          </h4>
+                          <div className="flex items-center space-x-3">
+                            <span
+                              className={`px-2 py-1 border-2 border-black text-[11px] font-inter font-heavy ${genderRestriction
+                                ? "bg-celo-forest text-white"
+                                : "bg-white text-black"
+                                }`}
+                            >
+                              {genderRestriction ? "ON" : "OFF"}
+                            </span>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={genderRestriction}
+                                onChange={(e) =>
+                                  setGenderRestriction(e.target.checked)
+                                }
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-celo-dk-tan peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-celo-purple/20 border-2 border-black peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-black after:border after:h-4 after:w-4 after:transition-all peer-checked:bg-celo-purple"></div>
+                            </label>
+                          </div>
+                        </div>
+
+                        {genderRestriction && (
+                          <div className="flex space-x-4">
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name="gender"
+                                value="M"
+                                checked={gender === "M"}
+                                onChange={(e) => setGender(e.target.value)}
+                                className="mr-2 text-celo-purple focus:ring-celo-purple"
+                              />
+                              <span className="text-body-s font-inter text-black">
+                                Male
+                              </span>
+                            </label>
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name="gender"
+                                value="F"
+                                checked={gender === "F"}
+                                onChange={(e) => setGender(e.target.value)}
+                                className="mr-2 text-celo-purple focus:ring-celo-purple"
+                              />
+                              <span className="text-body-s font-inter text-black">
+                                Female
+                              </span>
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {!restrictionsEnabled && (
+                    <div className="p-4 bg-celo-yellow border-2 border-black">
+                      <div className="flex items-start space-x-3">
+                        <Info className="w-5 h-5 text-black mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-body-s font-inter font-heavy text-black">
+                            NO RESTRICTIONS
+                          </h4>
+                          <p className="text-body-s font-inter text-black/70 mt-1">
+                            Your task will be open to all participants. Enable
+                            restrictions above if you want to filter participants
+                            by age, gender, or location.
+                          </p>
                         </div>
                       </div>
                     </div>
-
-                    <div className="mb-4 space-y-3">
-                      <label className="block text-body-s font-inter font-heavy text-black">
-                        DESCRIPTION (OPTIONAL)
-                      </label>
-                      <textarea
-                        value={subtask.description}
-                        onChange={(e) =>
-                          updateSubtask(
-                            subtask.id,
-                            "description",
-                            e.target.value
-                          )
-                        }
-                        rows={2}
-                        className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
-                        placeholder="Additional details about this subtask..."
-                      />
-                    </div>
-
-                    {subtask.type === "MULTIPLE_CHOICE" && (
-                      <div className="mb-4 space-y-3">
-                        <label className="block text-body-s font-inter font-heavy text-black">
-                          OPTIONS (ONE PER LINE) *
-                        </label>
-                        <textarea
-                          value={subtask.options || ""}
-                          onChange={(e) =>
-                            updateSubtask(subtask.id, "options", e.target.value)
-                          }
-                          rows={3}
-                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
-                          placeholder="Option 1, Option 2, Option 3&#10;Or use new lines"
-                        />
-                      </div>
-                    )}
-
-                    {subtask.type === "CHOICE_SELECTION" && (
-                      <div className="mb-4 space-y-3">
-                        <label className="block text-body-s font-inter font-heavy text-black">
-                          OPTIONS (ONE PER LINE) *
-                        </label>
-                        <textarea
-                          value={subtask.options || ""}
-                          onChange={(e) =>
-                            updateSubtask(subtask.id, "options", e.target.value)
-                          }
-                          rows={3}
-                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
-                          placeholder="Option 1, Option 2, Option 3&#10;Or use new lines"
-                        />
-                      </div>
-                    )}
-
-                    <div className="flex flex-col items-center justify-between space-y-2">
-                      <label className="flex items-center space-x-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={subtask.required}
-                          onChange={(e) =>
-                            updateSubtask(
-                              subtask.id,
-                              "required",
-                              e.target.checked
-                            )
-                          }
-                          className="h-5 w-5 text-celo-forest focus:ring-celo-forest border-black border-2 transition-all duration-200"
-                        />
-                        <span className="text-body-s font-inter font-heavy text-black">
-                          REQUIRED FIELD
-                        </span>
-                      </label>
-
-                      <div className="flex items-center space-x-2 text-body-s font-inter text-black/70">
-                        {subtask.type === "TEXT_INPUT" && (
-                          <FileText className="w-4 h-4" />
-                        )}
-                        {subtask.type === "MULTIPLE_CHOICE" && (
-                          <CheckCircle className="w-4 h-4" />
-                        )}
-                        {subtask.type === "RATING" && (
-                          <Star className="w-4 h-4" />
-                        )}
-                        {subtask.type === "FILE_UPLOAD" && (
-                          <Upload className="w-4 h-4" />
-                        )}
-                        <span className="capitalize">
-                          {subtask.type.replace("_", " ")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Add Subtask Button */}
-                <div className="mt-6 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={addSubtask}
-                    className="flex items-center space-x-2 bg-celo-forest text-white px-6 py-3 font-inter font-heavy hover:bg-black hover:text-celo-forest transition-all duration-200 border-2 border-black text-body-s"
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span>ADD SUBTASK</span>
-                  </button>
+                  )}
                 </div>
               </div>
-
-              <div className="mt-6 bg-celo-yellow border-2 border-black p-4">
-                <div className="flex items-start space-x-3">
-                  <Info className="w-5 h-5 text-black mt-0.5 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <h4 className="text-body-s font-inter font-heavy text-black">
-                      SUBTASK GUIDELINES
-                    </h4>
+            )
+          }
+          {/* Contact Information */}
+          {
+            currentStep === 5 && (
+              <div className="bg-white border-2 border-black p-4">
+                <div className="flex flex-col items-center space-y-3 mb-6">
+                  <div className="p-3 bg-celo-lime w-fit border-2 border-black">
+                    <Mail className="w-6 h-6 text-black" />
+                  </div>
+                  <div className="min-w-0 flex-1 text-center">
+                    <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
+                      CONTACT INFORMATION
+                    </h2>
                     <p className="text-body-s font-inter text-black/70 mt-1">
-                      Keep subtasks focused and specific. Each subtask should
-                      have a clear purpose and contribute to the overall task
-                      goal. Consider the time participants will need for each
-                      subtask.
+                      How participants can reach you
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="block text-body-s font-inter font-heavy text-black">
+                      CONTACT METHOD *
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={contactMethod}
+                        onChange={(e) => setContactMethod(e.target.value)}
+                        className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 appearance-none text-body-m font-inter"
+                      >
+                        <option value="EMAIL">📧 Email</option>
+                        <option value="WHATSAPP">📱 WhatsApp</option>
+                      </select>
+                      <ChevronDown className="absolute right-4 top-3 w-5 h-5 text-black pointer-events-none" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="block text-body-s font-inter font-heavy text-black">
+                      CONTACT INFO *
+                    </label>
+                    {contactMethod === "WHATSAPP" ? (
+                      <div className="flex space-x-2">
+                        <div className="w-32 relative">
+                          <select
+                            value={countryCode}
+                            onChange={(e) => setCountryCode(e.target.value)}
+                            className="w-full px-3 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter appearance-none"
+                          >
+                            {countryCodes.map((country) => (
+                              <option key={country.code} value={country.code}>
+                                {country.flag} {country.code}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="absolute right-2 top-3 w-4 h-4 text-black pointer-events-none" />
+                        </div>
+                        <div className="flex-1">
+                          <input
+                            type="tel"
+                            value={contactInfo}
+                            onChange={(e) => setContactInfo(e.target.value)}
+                            className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
+                            placeholder="1234567890"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <input
+                        type="email"
+                        value={contactInfo}
+                        onChange={(e) => setContactInfo(e.target.value)}
+                        className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
+                        placeholder="your@email.com"
+                      />
+                    )}
+                    {contactMethod === "WHATSAPP" && (
+                      <p className="text-body-s font-inter text-black/70">
+                        Full number will be: {countryCode}
+                        {contactInfo || "1234567890"}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="block text-body-s font-inter font-heavy text-black">
+                      TASK DEADLINE (OPTIONAL)
+                    </label>
+                    <div className="relative">
+                      <Calendar className="absolute left-4 top-3 w-5 h-5 text-black" />
+                      <input
+                        type="datetime-local"
+                        value={expiresAt}
+                        onChange={(e) => setExpiresAt(e.target.value)}
+                        className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
+                      />
+                    </div>
+                    <p className="text-body-s font-inter text-black/70 mt-2">
+                      Leave empty for no deadline. Tasks without deadlines run
+                      until manually closed.
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )
+          }
 
-          {/* Enhanced Submit Section */}
-          {currentStep === 6 && (
-            <div className="mt-6 bg-celo-lt-tan border-2 border-black p-4">
-              <div className="text-center mb-6">
-                <h3 className="text-h3 font-gt-alpina font-thin text-black tracking-tight mb-2">
-                  READY TO LAUNCH?
-                </h3>
-                <p className="text-body-s font-inter text-black/70">
-                  Review your task details and submit to go live
-                </p>
-              </div>
-
-              {/* Validation Errors */}
-              {getValidationErrors().length > 0 && (
-                <div className="bg-red-500 border-2 border-black p-4 mb-6">
-                  <div className="flex items-start space-x-3">
-                    <AlertCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <h4 className="text-body-s font-inter font-heavy text-white mb-2">
-                        PLEASE FIX THE FOLLOWING ISSUES:
-                      </h4>
-                      <ul className="space-y-1 text-eyebrow text-white">
-                        {getValidationErrors().map((error, index) => (
-                          <li
-                            key={index}
-                            className="flex items-start space-x-2"
-                          >
-                            <span>•</span>
-                            <span className="font-inter">{error}</span>
-                          </li>
-                        ))}
-                      </ul>
+          {/* Subtasks */}
+          {
+            currentStep === 6 && (
+              <div className="bg-white border-2 border-black p-4">
+                <div className="flex flex-col items-center justify-between mb-6 space-y-3">
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="p-3 bg-celo-orange w-fit border-2 border-black">
+                      <FileText className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="min-w-0 flex-1 text-center">
+                      <h2 className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
+                        SUBTASKS
+                      </h2>
+                      <p className="text-body-s font-inter text-black/70 mt-1">
+                        Break down your task into manageable parts
+                      </p>
                     </div>
                   </div>
                 </div>
-              )}
 
-              {/* Task Summary - Mobile Optimized */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-white border-2 border-black p-3 text-center">
-                  <Target className="w-4 h-6 text-celo-purple mx-auto mb-1" />
-                  <div className="text-eyebrow text-black/70 font-inter">
-                    TASK TYPE
-                  </div>
-                  <div className="font-inter font-heavy text-black text-eyebrow">
-                    {subtasks.length} SUBTASKS
+                <div className="space-y-4">
+                  {subtasks.map((subtask, index) => (
+                    <div
+                      key={subtask.id}
+                      className="bg-celo-lt-tan border-2 border-black p-4"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-body-l font-inter font-heavy text-black flex items-center space-x-3">
+                          <span className="bg-celo-purple text-white w-10 h-10 flex items-center justify-center text-body-s font-inter font-heavy border-2 border-black">
+                            {index + 1}
+                          </span>
+                          <span className="truncate">SUBTASK {index + 1}</span>
+                        </h3>
+                        {subtasks.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeSubtask(subtask.id)}
+                            className="p-2 text-celo-orange hover:bg-celo-orange hover:text-white border-2 border-celo-orange transition-all duration-200"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="space-y-4 mb-4">
+                        <div className="space-y-3">
+                          <label className="block text-body-s font-inter font-heavy text-black">
+                            SUBTASK TITLE *
+                          </label>
+                          <input
+                            type="text"
+                            value={subtask.title}
+                            onChange={(e) =>
+                              updateSubtask(subtask.id, "title", e.target.value)
+                            }
+                            className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 text-body-s font-inter"
+                            placeholder="Enter subtask title"
+                          />
+                        </div>
+
+                        <div className="space-y-3">
+                          <label className="block text-body-s font-inter font-heavy text-black">
+                            INPUT TYPE *
+                          </label>
+                          <div className="relative">
+                            <select
+                              value={subtask.type}
+                              onChange={(e) =>
+                                updateSubtask(subtask.id, "type", e.target.value)
+                              }
+                              className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 appearance-none text-body-s font-inter"
+                            >
+                              {availableSubtaskTypes.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-3 w-5 h-5 text-black pointer-events-none" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mb-4 space-y-3">
+                        <label className="block text-body-s font-inter font-heavy text-black">
+                          DESCRIPTION (OPTIONAL)
+                        </label>
+                        <textarea
+                          value={subtask.description}
+                          onChange={(e) =>
+                            updateSubtask(
+                              subtask.id,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          rows={2}
+                          className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
+                          placeholder="Additional details about this subtask..."
+                        />
+                      </div>
+
+                      {subtask.type === "MULTIPLE_CHOICE" && (
+                        <div className="mb-4 space-y-3">
+                          <label className="block text-body-s font-inter font-heavy text-black">
+                            OPTIONS (ONE PER LINE) *
+                          </label>
+                          <textarea
+                            value={subtask.options || ""}
+                            onChange={(e) =>
+                              updateSubtask(subtask.id, "options", e.target.value)
+                            }
+                            rows={3}
+                            className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
+                            placeholder="Option 1, Option 2, Option 3&#10;Or use new lines"
+                          />
+                        </div>
+                      )}
+
+                      {subtask.type === "CHOICE_SELECTION" && (
+                        <div className="mb-4 space-y-3">
+                          <label className="block text-body-s font-inter font-heavy text-black">
+                            OPTIONS (ONE PER LINE) *
+                          </label>
+                          <textarea
+                            value={subtask.options || ""}
+                            onChange={(e) =>
+                              updateSubtask(subtask.id, "options", e.target.value)
+                            }
+                            rows={3}
+                            className="w-full px-4 py-3 bg-white border-2 border-gray-300 focus:outline-none focus:border-celo-forest transition-all duration-200 resize-none text-body-s font-inter"
+                            placeholder="Option 1, Option 2, Option 3&#10;Or use new lines"
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex flex-col items-center justify-between space-y-2">
+                        <label className="flex items-center space-x-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={subtask.required}
+                            onChange={(e) =>
+                              updateSubtask(
+                                subtask.id,
+                                "required",
+                                e.target.checked
+                              )
+                            }
+                            className="h-5 w-5 text-celo-forest focus:ring-celo-forest border-black border-2 transition-all duration-200"
+                          />
+                          <span className="text-body-s font-inter font-heavy text-black">
+                            REQUIRED FIELD
+                          </span>
+                        </label>
+
+                        <div className="flex items-center space-x-2 text-body-s font-inter text-black/70">
+                          {subtask.type === "TEXT_INPUT" && (
+                            <FileText className="w-4 h-4" />
+                          )}
+                          {subtask.type === "MULTIPLE_CHOICE" && (
+                            <CheckCircle className="w-4 h-4" />
+                          )}
+                          {subtask.type === "RATING" && (
+                            <Star className="w-4 h-4" />
+                          )}
+                          {subtask.type === "FILE_UPLOAD" && (
+                            <Upload className="w-4 h-4" />
+                          )}
+                          <span className="capitalize">
+                            {subtask.type.replace("_", " ")}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Add Subtask Button */}
+                  <div className="mt-6 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={addSubtask}
+                      className="flex items-center space-x-2 bg-celo-forest text-white px-6 py-3 font-inter font-heavy hover:bg-black hover:text-celo-forest transition-all duration-200 border-2 border-black text-body-s"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>ADD SUBTASK</span>
+                    </button>
                   </div>
                 </div>
 
-                <div className="bg-white border-2 border-black p-3 text-center">
-                  <Users className="w-4 h-6 text-celo-purple mx-auto mb-1" />
-                  <div className="text-eyebrow text-black/70 font-inter">
-                    MAX PARTICIPANTS
-                  </div>
-                  <div className="font-inter font-heavy text-black text-eyebrow">
-                    {maxParticipants}
-                  </div>
-                </div>
-
-                <div className="bg-white border-2 border-black p-3 text-center">
-                  <DollarSign className="w-4 h-6 text-celo-forest mx-auto mb-1" />
-                  <div className="text-eyebrow text-black/70 font-inter">
-                    TOTAL BUDGET
-                  </div>
-                  <div className="font-inter font-heavy text-black text-eyebrow">
-                    ${calculateTotalRequired().toFixed(2)}
-                  </div>
-                </div>
-
-                <div className="bg-white border-2 border-black p-3 text-center">
-                  <Clock className="w-4 h-6 text-celo-purple mx-auto mb-1" />
-                  <div className="text-eyebrow text-black/70 font-inter">
-                    DEADLINE
-                  </div>
-                  <div className="font-inter font-heavy text-black text-eyebrow">
-                    {expiresAt ? "SET" : "OPEN"}
+                <div className="mt-6 bg-celo-yellow border-2 border-black p-4">
+                  <div className="flex items-start space-x-3">
+                    <Info className="w-5 h-5 text-black mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <h4 className="text-body-s font-inter font-heavy text-black">
+                        SUBTASK GUIDELINES
+                      </h4>
+                      <p className="text-body-s font-inter text-black/70 mt-1">
+                        Keep subtasks focused and specific. Each subtask should
+                        have a clear purpose and contribute to the overall task
+                        goal. Consider the time participants will need for each
+                        subtask.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
+            )
+          }
 
-              {/* Restrictions Summary */}
-              {restrictionsEnabled && (
-                <div className="bg-celo-orange border-2 border-black p-4 mb-6">
-                  <h4 className="font-inter font-heavy text-black mb-3 text-body-s">
-                    ACTIVE RESTRICTIONS:
-                  </h4>
-                  <div className="space-y-2 text-eyebrow text-black">
-                    {ageRestriction && (
-                      <div className="flex items-center space-x-2">
-                        <span>•</span>
-                        <span className="font-inter">
-                          Age: {minAge} - {maxAge} years
-                        </span>
+          {/* Enhanced Submit Section */}
+          {
+            currentStep === 6 && (
+              <div className="mt-6 bg-celo-lt-tan border-2 border-black p-4">
+                <div className="text-center mb-6">
+                  <h3 className="text-h3 font-gt-alpina font-thin text-black tracking-tight mb-2">
+                    READY TO LAUNCH?
+                  </h3>
+                  <p className="text-body-s font-inter text-black/70">
+                    Review your task details and submit to go live
+                  </p>
+                </div>
+
+                {/* Validation Errors */}
+                {getValidationErrors().length > 0 && (
+                  <div className="bg-red-500 border-2 border-black p-4 mb-6">
+                    <div className="flex items-start space-x-3">
+                      <AlertCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <h4 className="text-body-s font-inter font-heavy text-white mb-2">
+                          PLEASE FIX THE FOLLOWING ISSUES:
+                        </h4>
+                        <ul className="space-y-1 text-eyebrow text-white">
+                          {getValidationErrors().map((error, index) => (
+                            <li
+                              key={index}
+                              className="flex items-start space-x-2"
+                            >
+                              <span>•</span>
+                              <span className="font-inter">{error}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    )}
-                    {genderRestriction && (
-                      <div className="flex items-center space-x-2">
-                        <span>•</span>
-                        <span className="font-inter">
-                          Gender: {gender === "M" ? "Male" : "Female"}
-                        </span>
-                      </div>
-                    )}
-                    {countryRestriction && countries.length > 0 && (
-                      <div className="flex items-center space-x-2">
-                        <span>•</span>
-                        <span className="font-inter">
-                          Countries: {countries.length} selected
-                        </span>
-                      </div>
-                    )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Task Summary - Mobile Optimized */}
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <div className="bg-white border-2 border-black p-3 text-center">
+                    <Target className="w-4 h-6 text-celo-purple mx-auto mb-1" />
+                    <div className="text-eyebrow text-black/70 font-inter">
+                      TASK TYPE
+                    </div>
+                    <div className="font-inter font-heavy text-black text-eyebrow">
+                      {subtasks.length} SUBTASKS
+                    </div>
+                  </div>
+
+                  <div className="bg-white border-2 border-black p-3 text-center">
+                    <Users className="w-4 h-6 text-celo-purple mx-auto mb-1" />
+                    <div className="text-eyebrow text-black/70 font-inter">
+                      MAX PARTICIPANTS
+                    </div>
+                    <div className="font-inter font-heavy text-black text-eyebrow">
+                      {maxParticipants}
+                    </div>
+                  </div>
+
+                  <div className="bg-white border-2 border-black p-3 text-center">
+                    <DollarSign className="w-4 h-6 text-celo-forest mx-auto mb-1" />
+                    <div className="text-eyebrow text-black/70 font-inter">
+                      TOTAL BUDGET
+                    </div>
+                    <div className="font-inter font-heavy text-black text-eyebrow">
+                      ${calculateTotalRequired().toFixed(2)}
+                    </div>
+                  </div>
+
+                  <div className="bg-white border-2 border-black p-3 text-center">
+                    <Clock className="w-4 h-6 text-celo-purple mx-auto mb-1" />
+                    <div className="text-eyebrow text-black/70 font-inter">
+                      DEADLINE
+                    </div>
+                    <div className="font-inter font-heavy text-black text-eyebrow">
+                      {expiresAt ? "SET" : "OPEN"}
+                    </div>
                   </div>
                 </div>
-              )}
 
-              <div className="flex flex-col gap-3 justify-center">
-                <button
-                  type="submit"
-                  disabled={isSubmitting || getValidationErrors().length > 0}
-                  className="flex items-center justify-center space-x-3 bg-celo-yellow text-black px-12 py-4 font-inter font-heavy shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-body-l border-2 border-black"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-6 h-6 border-3 border-black border-t-transparent animate-spin"></div>
-                      <span>CREATING...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-6 h-6" />
-                      <span>CREATE TASK</span>
-                    </>
-                  )}
-                </button>
-              </div>
+                {/* Restrictions Summary */}
+                {restrictionsEnabled && (
+                  <div className="bg-celo-orange border-2 border-black p-4 mb-6">
+                    <h4 className="font-inter font-heavy text-black mb-3 text-body-s">
+                      ACTIVE RESTRICTIONS:
+                    </h4>
+                    <div className="space-y-2 text-eyebrow text-black">
+                      {ageRestriction && (
+                        <div className="flex items-center space-x-2">
+                          <span>•</span>
+                          <span className="font-inter">
+                            Age: {minAge} - {maxAge} years
+                          </span>
+                        </div>
+                      )}
+                      {genderRestriction && (
+                        <div className="flex items-center space-x-2">
+                          <span>•</span>
+                          <span className="font-inter">
+                            Gender: {gender === "M" ? "Male" : "Female"}
+                          </span>
+                        </div>
+                      )}
+                      {countryRestriction && countries.length > 0 && (
+                        <div className="flex items-center space-x-2">
+                          <span>•</span>
+                          <span className="font-inter">
+                            Countries: {countries.length} selected
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
-              <div className="mt-4 text-center">
-                <p className="text-eyebrow text-black/50 font-inter">
-                  By creating this task, you agree to pay the specified rewards
-                  to participants who complete the requirements.
-                </p>
+                <div className="flex flex-col gap-3 justify-center">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || getValidationErrors().length > 0}
+                    className="flex items-center justify-center space-x-3 bg-celo-yellow text-black px-12 py-4 font-inter font-heavy shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-body-l border-2 border-black"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-6 h-6 border-3 border-black border-t-transparent animate-spin"></div>
+                        <span>CREATING...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-6 h-6" />
+                        <span>CREATE TASK</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="mt-4 text-center">
+                  <p className="text-eyebrow text-black/50 font-inter">
+                    By creating this task, you agree to pay the specified rewards
+                    to participants who complete the requirements.
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </form>
+            )
+          }
+        </form >
 
         {/* Progress Indicator - Below Form Content */}
-        <div className="mt-6 px-4">
+        < div className="mt-6 px-4" >
           <div className="bg-white border-2 border-black p-3">
             <div className="flex flex-col items-center space-y-3">
               {/* Current Step Info */}
@@ -1531,13 +1532,12 @@ const TaskCreationForm = () => {
                 {steps.map((step, index) => (
                   <div
                     key={step.id}
-                    className={`w-2.5 h-2.5 border-2 border-black transition-all duration-300 ${
-                      index + 1 === currentStep
-                        ? "bg-celo-purple"
-                        : index + 1 < currentStep
+                    className={`w-2.5 h-2.5 border-2 border-black transition-all duration-300 ${index + 1 === currentStep
+                      ? "bg-celo-purple"
+                      : index + 1 < currentStep
                         ? "bg-celo-forest"
                         : "bg-white"
-                    }`}
+                      }`}
                   />
                 ))}
               </div>
@@ -1568,11 +1568,11 @@ const TaskCreationForm = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </div >
+      </div >
 
       <BottomNavigation />
-    </div>
+    </div >
   );
 };
 

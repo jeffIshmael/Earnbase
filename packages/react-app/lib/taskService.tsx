@@ -53,7 +53,7 @@ export interface TaskIconInfo {
 // Helper function to determine task icon based on category/type
 export const getTaskIconInfo = (task: TaskWithEligibility): TaskIconInfo => {
   const title = task.title.toLowerCase();
-  
+
   if (title.includes('survey') || title.includes('study')) {
     return { iconType: 'trending', iconColor: 'text-emerald-600' };
   } else if (title.includes('tech') || title.includes('career')) {
@@ -70,7 +70,7 @@ export const getTaskIconInfo = (task: TaskWithEligibility): TaskIconInfo => {
 // Helper function to render task icon
 export const renderTaskIcon = (iconType: string, iconColor: string, size: string = 'w-4 h-4') => {
   const iconClass = `${size} ${iconColor}`;
-  
+
   switch (iconType) {
     case 'trending':
       return <div className={`${iconClass} bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg p-1`} />;
@@ -221,15 +221,15 @@ export const formatReward = (reward: string): string => {
 // Helper function to calculate time left
 export const getTimeLeft = (expiresAt?: Date): string => {
   if (!expiresAt) return 'No deadline';
-  
+
   const now = new Date();
   const diff = expiresAt.getTime() - now.getTime();
-  
+
   if (diff <= 0) return 'Expired';
-  
+
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  
+
   if (days > 0) return `${days}d ${hours}h`;
   if (hours > 0) return `${hours}h`;
   return 'Less than 1h';
