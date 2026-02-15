@@ -30,5 +30,9 @@
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "ethers": "^5.7.2"
+  },
+  "overrides": {
+    "wagmi": "2.19.5",
+    "@wagmi/connectors": "6.2.0"
   }
 }

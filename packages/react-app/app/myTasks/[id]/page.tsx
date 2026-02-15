@@ -58,7 +58,7 @@ import {
 import { erc20Abi, parseEther } from "viem";
 import { readContract, waitForTransactionReceipt } from "@wagmi/core";
 import { celo } from "wagmi/chains";
-import { config } from "@/providers/AppProvider";
+import { wagmiConfig } from "@/providers/AppProvider";
 import { TaskStatus } from "@prisma/client";
 import { getBalances } from "@/lib/Balance";
 
@@ -183,15 +183,15 @@ const MyTaskDetailPage = () => {
 
   useEffect(() => {
     const fetchBalances = async () => {
-    if (isConnected && address) {
-      const balances = await getBalances(address as `0x${string}`);
-      setBalances({
-        cUSDBalance: (Number(balances.cUSDBalance) / 1e18).toFixed(3),
-        USDCBalance: (Number(balances.USDCBalance) / 1e18).toFixed(3),
-        celoBalance: (Number(balances.celoBalance) / 1e18).toFixed(3),
-      });
-    }
-  };
+      if (isConnected && address) {
+        const balances = await getBalances(address as `0x${string}`);
+        setBalances({
+          cUSDBalance: (Number(balances.cUSDBalance) / 1e18).toFixed(3),
+          USDCBalance: (Number(balances.USDCBalance) / 1e18).toFixed(3),
+          celoBalance: (Number(balances.celoBalance) / 1e18).toFixed(3),
+        });
+      }
+    };
     fetchBalances();
   }, [isConnected, address]);
 
@@ -216,7 +216,7 @@ const MyTaskDetailPage = () => {
       });
 
       // Wait for confirmation
-      await waitForTransactionReceipt(config, {
+      await waitForTransactionReceipt(wagmiConfig, {
         chainId: celo.id,
         hash: approveTx,
         pollingInterval: 3000, // 3s
@@ -224,7 +224,7 @@ const MyTaskDetailPage = () => {
 
       let allowance = 0n;
       for (let i = 0; i < 5; i++) {
-        allowance = await readContract(config, {
+        allowance = await readContract(wagmiConfig, {
           address: cUSDAddress,
           abi: erc20Abi,
           functionName: "allowance",
@@ -333,12 +333,12 @@ const MyTaskDetailPage = () => {
     } catch (error) {
       console.error("Error deleting task:", error);
       toast.error("Failed to delete task");
-      } finally {
-        setIsDeleting(false);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  
+
   if (loading) {
     return (
       <div className="min-h-screen bg-celo-lt-tan">
@@ -584,11 +584,10 @@ const MyTaskDetailPage = () => {
           <button
             onClick={() => handleDeactivateTask(task.status === "ACTIVE" ? "PAUSED" : "ACTIVE")}
             disabled={isPausing}
-            className={`flex items-center gap-3 px-6 py-4 border-4 border-black rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-all duration-300 active:scale-95 font-heavy ${
-              task.status === "ACTIVE"
+            className={`flex items-center gap-3 px-6 py-4 border-4 border-black rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-all duration-300 active:scale-95 font-heavy ${task.status === "ACTIVE"
                 ? "bg-celo-orange text-black hover:bg-black hover:text-celo-orange"
                 : "bg-celo-success text-white hover:bg-black hover:text-celo-success"
-            }`}
+              }`}
           >
             {isPausing ? (
               <div className="w-5 h-5 border-2 border-current border-t-transparent animate-spin"></div>
@@ -617,11 +616,10 @@ const MyTaskDetailPage = () => {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`flex items-center gap-2 px-6 py-3 font-heavy text-body-m transition-all duration-300 ${
-                  activeTab === tab.key
+                className={`flex items-center gap-2 px-6 py-3 font-heavy text-body-m transition-all duration-300 ${activeTab === tab.key
                     ? "bg-celo-yellow text-black"
                     : "bg-transparent hover:bg-celo-dk-tan hover:text-black"
-                }`}
+                  }`}
               >
                 <tab.icon className="w-5 h-5" />
                 <span>{tab.label}</span>
@@ -676,9 +674,9 @@ const MyTaskDetailPage = () => {
                   <p className="text-h5 font-bold font-gt-alpina text-black">
                     {task.expiresAt
                       ? `${Math.ceil(
-                          (task.expiresAt.getTime() - Date.now()) /
-                            (1000 * 60 * 60 * 24)
-                        )} days`
+                        (task.expiresAt.getTime() - Date.now()) /
+                        (1000 * 60 * 60 * 24)
+                      )} days`
                       : "No deadline"}
                   </p>
                 </div>
@@ -794,8 +792,8 @@ const MyTaskDetailPage = () => {
                               {Array.isArray(resp.response)
                                 ? resp.response.join(", ")
                                 : typeof resp.response === "number"
-                                ? `${resp.response}/10`
-                                : resp.response}
+                                  ? `${resp.response}/10`
+                                  : resp.response}
                             </p>
                           </div>
                         ))}
