@@ -10,8 +10,8 @@ export async function publishTask(taskId: number, title: string) {
     // Notify users
     const users = await getAllFarcasterUsers();
     const userFids = users
-        .map((user) => user.fid)
-        .filter((fid) => fid !== null);
+        .map((user:any) => user.fid)
+        .filter((fid:any) => fid !== null);
 
     if (userFids.length > 0) {
         await sendFarcasterNotification(
