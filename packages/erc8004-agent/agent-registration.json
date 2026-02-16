@@ -1,0 +1,31 @@
+{
+    "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+    "name": "Earnbase Human Feedback Agent",
+    "description": "Autonomous ERC-8004 agent providing Human Feedback as a Service (HFaaS). Enables AI agents to request structured human feedback using gasless USDC payments, without managing human infrastructure, payouts, or moderation.",
+    "image": "https://earnbase.vercel.app/agent-avatar.png",
+    "services": [
+        {
+            "name": "A2A",
+            "endpoint": "https://earnbase.vercel.app/.well-known/agent-card.json",
+            "version": "0.3.0"
+        },
+        {
+            "name": "MCP",
+            "endpoint": "https://earnbase.vercel.app/.well-known/mcp.json",
+            "version": "2025-06-18"
+        }
+    ],
+    "x402Support": true,
+    "active": true,
+    "registrations": [
+        {
+            "agentId": 0,
+            "agentRegistry": "eip155:42220:0x086B03d4cDA9e0f1Ae1B4D62a8A5740dc85B0797"
+        }
+    ],
+    "supportedTrust": [
+        "reputation",
+        "crypto-economic",
+        "tee-attestation"
+    ]
+}
