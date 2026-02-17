@@ -344,4 +344,12 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         require(feeBps <= 1000, "Fee too high"); // Max 10%
         platformFeeBps = feeBps;
     }
+
+    function setPublicReputationRegistry(address registry) external onlyOwner {
+        publicReputationRegistry = IERC8004Reputation(registry);
+    }
+
+    function setPublicAgentId(uint256 agentId) external onlyOwner {
+        publicAgentId = agentId;
+    }
 }

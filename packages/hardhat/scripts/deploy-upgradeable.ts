@@ -13,7 +13,7 @@ async function main() {
 
     // Public Registry (for 8004scan visibility)
     const PUBLIC_REPUTATION_REGISTRY = "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63";
-    const PUBLIC_AGENT_ID = 120; // Your confirmed Public ID
+    const PUBLIC_AGENT_ID = 130; // Updated to Agent 130
 
     console.log("Deploying EarnBaseV2 (UUPS)...");
 
