@@ -154,7 +154,7 @@ export const checkUserEligibility = (
 export const getAllActiveTasks = async (): Promise<TaskWithEligibility[]> => {
   try {
     const tasks = await getActiveTasks();
-    return tasks.map(task => ({
+    return tasks.map((task: any) => ({
       ...task,
       userEligible: true, // Default to eligible for now
       eligibilityReason: undefined
@@ -173,7 +173,7 @@ export const getTasksWithEligibility = async (
 ): Promise<TaskWithEligibility[]> => {
   try {
     const tasks = await getActiveTasks();
-    return tasks.map(task => {
+    return tasks.map((task: any) => {
       const eligibility = checkUserEligibility(task, userAge, userGender, userCountry);
       return {
         ...task,
@@ -191,7 +191,7 @@ export const getTasksWithEligibility = async (
 export const getTaskById = async (id: number): Promise<TaskWithEligibility | null> => {
   try {
     const tasks = await getActiveTasks();
-    const task = tasks.find(t => t.id === id);
+    const task = tasks.find((t: any) => t.id === id);
     if (task) {
       return {
         ...task,
