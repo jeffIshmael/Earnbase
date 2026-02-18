@@ -26,91 +26,87 @@ export default function LandingPage() {
     { from: "user", text: "What’s EarnBase? 🤔" },
     {
       from: "bot",
-      text: "EarnBase is where AI meets blockchain — you earn cUSD by giving valuable feedback on real tasks 💬💰.",
+      text: "I’m the EarnBase Agent 🤖. I source high-value tasks from other AI agents who need human feedback to evolve.",
     },
-    { from: "user", text: "That’s interesting! What makes it unique? 🤩" },
+    { from: "user", text: "That’s unique! What’s my role? 🤩" },
     {
       from: "bot",
-      text: "Our AI evaluates how helpful your feedback is and rewards you instantly in cUSD. The more useful your feedback, the more you earn!",
+      text: "You provide the human insights these agents need and get rewarded instantly in USDC 💬💰.",
     },
-    { from: "user", text: "Nice! Can anyone create tasks too? 🙌" },
-    {
-      from: "bot",
-      text: "Absolutely! Anyone can post tasks, set reward rules, and EarnBase handles everything on-chain — simple, fair, and transparent.",
-    },
+
     { from: "user", text: "Perfect, I’m in! 💯" },
   ];
-  
-  
 
-// Detect Farcaster context early
-useEffect(() => {
-  let cancelled = false;
-  (async () => {
-    try {
-      const context = await sdk.context;
-      if (!cancelled && context?.user) {
-        setIsFarcaster(true);
-      } else if (!cancelled) {
-        setIsFarcaster(false);
-      }
-    } catch {
-      if (!cancelled) setIsFarcaster(false);
-    }
-  })();
-  return () => { cancelled = true; };
-}, []);
 
-// First-time logic with Farcaster-safe flow
-useEffect(() => {
-  if (isFarcaster === null) return; // wait until we know
 
-  const proceed = async () => {
-    // Always initialize frame in Farcaster BEFORE any navigation
-    if (isFarcaster) {
+  // Detect Farcaster context early
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
       try {
-        await sdk.actions.ready();
-        await sdk.actions.addFrame();
-      } catch (err) {
-        // Non-farcaster or error – continue
+        const context = await sdk.context;
+        if (!cancelled && context?.user) {
+          setIsFarcaster(true);
+        } else if (!cancelled) {
+          setIsFarcaster(false);
+        }
+      } catch {
+        if (!cancelled) setIsFarcaster(false);
       }
-    }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-    if (typeof window !== "undefined") {
-      const hasSeenWelcome = localStorage.getItem(HAS_SEEN_WELCOME_KEY);
-      if (hasSeenWelcome === "true") {
-        router.replace("/Start");
-        return;
+  // First-time logic with Farcaster-safe flow
+  useEffect(() => {
+    if (isFarcaster === null) return; // wait until we know
+
+    const proceed = async () => {
+      // Always initialize frame in Farcaster BEFORE any navigation
+      if (isFarcaster) {
+        try {
+          await sdk.actions.ready();
+          await sdk.actions.addFrame();
+        } catch (err) {
+          // Non-farcaster or error – continue
+        }
       }
-      setIsChecking(false);
-      setIsInterfaceReady(true);
-    }
-  };
 
-  proceed();
-}, [isFarcaster, router]);
+      if (typeof window !== "undefined") {
+        const hasSeenWelcome = localStorage.getItem(HAS_SEEN_WELCOME_KEY);
+        if (hasSeenWelcome === "true") {
+          router.replace("/Start");
+          return;
+        }
+        setIsChecking(false);
+        setIsInterfaceReady(true);
+      }
+    };
+
+    proceed();
+  }, [isFarcaster, router]);
 
   // Initialize Farcaster
-useEffect(() => {
-  if (!isChecking) {
-    setIsInterfaceReady(true);
-  }
-}, [isChecking]);
-
-useEffect(() => {
-  const init = async () => {
-    if (isInterfaceReady && !isFarcaster) {
-      // Only try to init frame for browsers if desired; safe noop otherwise
-      try {
-        await sdk.actions.ready();
-        await sdk.actions.addFrame();
-      } catch {
-        // ignore outside Farcaster
-      }
+  useEffect(() => {
+    if (!isChecking) {
+      setIsInterfaceReady(true);
     }
-  };
-  init();
-}, [isInterfaceReady, isFarcaster]);
+  }, [isChecking]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (isInterfaceReady && !isFarcaster) {
+        // Only try to init frame for browsers if desired; safe noop otherwise
+        try {
+          await sdk.actions.ready();
+          await sdk.actions.addFrame();
+        } catch {
+          // ignore outside Farcaster
+        }
+      }
+    };
+    init();
+  }, [isInterfaceReady, isFarcaster]);
 
   // Chat sequence
   useEffect(() => {
@@ -192,16 +188,14 @@ useEffect(() => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className={`flex ${
-                msg.from === "user" ? "justify-end" : "justify-start"
-              }`}
+              className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"
+                }`}
             >
               <div
-                className={`max-w-[75%] p-3 rounded-2xl text-sm font-medium leading-snug ${
-                  msg.from === "user"
-                    ? "bg-celo-yellow text-black rounded-br-none"
-                    : "bg-celo-purple text-white rounded-bl-none"
-                }`}
+                className={`max-w-[75%] p-3 rounded-2xl text-sm font-medium leading-snug ${msg.from === "user"
+                  ? "bg-celo-yellow text-black rounded-br-none"
+                  : "bg-celo-purple text-white rounded-bl-none"
+                  }`}
               >
                 <div className="flex items-start gap-2">
                   {msg.from === "bot" && (

@@ -209,12 +209,12 @@ export const getTaskById = async (id: number): Promise<TaskWithEligibility | nul
 // Helper function to format reward amount
 export const formatReward = (reward: string): string => {
   try {
-    // Convert from wei to cUSD (assuming 18 decimals)
-    const weiAmount = BigInt(reward);
-    const cusdAmount = Number(weiAmount) / Math.pow(10, 18);
-    return `${cusdAmount.toFixed(2)} cUSD`;
+    // Convert from base units to USDC (assuming 6 decimals)
+    const amount = BigInt(reward);
+    const usdcAmount = Number(amount) / Math.pow(10, 6);
+    return `${usdcAmount.toFixed(2)} USDC`;
   } catch (error) {
-    return '0 cUSD';
+    return '0 USDC';
   }
 };
 

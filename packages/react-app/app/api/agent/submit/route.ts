@@ -2,11 +2,10 @@ import { settlePayment, facilitator } from "thirdweb/x402";
 import { createThirdwebClient } from "thirdweb";
 import { celo } from "thirdweb/chains";
 import prisma from "@/lib/prisma";
-// import { TaskStatus, SubtaskType } from "@prisma/client";
 import { parseUnits } from "viem";
 
 const thirdwebSecretKey = process.env.THIRDWEB_SECRET_KEY;
-const ADMIN_WALLET = process.env.ADMIN_WALLET_ADDRESS || "0x79fd2035F482937A9d94943E4E8092B0053E5b66"; // Fallback or env
+const ADMIN_WALLET = process.env.EARNBASE_AGENT_WALLET_ADDRESS || "0x4821ced48Fb4456055c86E42587f61c1F39c6315"; // Fallback or env
 
 if (!thirdwebSecretKey) {
     // Warn but don't crash building
@@ -24,9 +23,21 @@ const thirdwebFacilitator = facilitator({
 
 export async function POST(request: Request) {
     try {
+        // ERC-8004 Agent Verification
+        const agentType = request.headers.get('X-Agent-Type');
+        if (agentType !== 'ERC8004') {
+            return Response.json({
+                error: "Unauthorized: Only certified ERC-8004 agents can submit to this endpoint."
+            }, { status: 403 });
+        }
+
         const paymentData =
             request.headers.get("PAYMENT-SIGNATURE") ||
             request.headers.get("X-PAYMENT");
+
+        if (!paymentData) {
+            return Response.json({ error: "Payment signature required" }, { status: 402 });
+        }
 
         const body = await request.json();
 
@@ -61,7 +72,7 @@ export async function POST(request: Request) {
             paymentData,
             payTo: ADMIN_WALLET,
             network: celo,
-            price: { amount: finalPrice.toString(), asset: { address: "0xcebA9300f2b948710d2653dD7B07f33c8B655d7f", decimals: 6, symbol: "USDC" } }, // USDC on Celo
+            price: { amount: parseUnits(finalPrice.toString(), 6).toString(), asset: { address: "0xcebA9300f2b948710d2653dD7B07f33A8B32118C", decimals: 6, symbol: "USDC" } }, // USDC on Celo
             facilitator: thirdwebFacilitator,
             routeConfig: {
                 description: `Agent Feedback Request: ${title || prompt.substring(0, 30)}...`,
@@ -72,7 +83,12 @@ export async function POST(request: Request) {
 
         if (result.status !== 200) {
             // Payment required or failed
-            return Response.json(result.responseBody, {
+            console.error("Agent Request Settlement Failed:", {
+                status: result.status,
+                error: (result as any).responseBody?.error,
+                errorMessage: (result as any).responseBody?.errorMessage
+            });
+            return Response.json((result as any).responseBody || {}, {
                 status: result.status,
                 headers: result.responseHeaders,
             });
@@ -82,10 +98,10 @@ export async function POST(request: Request) {
         // Map Agent Request to Task Model
 
         // Determine Subtask Type
-        let dbSubtaskType = SubtaskType.TEXT_INPUT; // Default
-        if (feedbackType === 'multiple_choice') dbSubtaskType = SubtaskType.MULTIPLE_CHOICE;
-        if (feedbackType === 'file_upload') dbSubtaskType = SubtaskType.FILE_UPLOAD;
-        if (feedbackType === 'rating') dbSubtaskType = SubtaskType.RATING;
+        let dbSubtaskType: any = 'TEXT_INPUT'; // Default
+        if (feedbackType === 'multiple_choice') dbSubtaskType = 'MULTIPLE_CHOICE';
+        if (feedbackType === 'file_upload') dbSubtaskType = 'FILE_UPLOAD';
+        if (feedbackType === 'rating') dbSubtaskType = 'RATING';
 
         // earnbase agent is the one to create
 
@@ -97,7 +113,7 @@ export async function POST(request: Request) {
                 baseReward: parseUnits(rewardPerParticipant.toString(), 6).toString(), // Store as Wei/BigInt string
                 maxBonusReward: "0",
                 totalDeposited: parseUnits(finalPrice.toString(), 6).toString(),
-                status: TaskStatus.ACTIVE,
+                status: 'ACTIVE',
                 aiCriteria: JSON.stringify(constraints),
                 feedbackType: feedbackType,
                 agentRequestId: body.requestId || crypto.randomUUID(), // Use provided ID or generate new

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Wallet,
   ArrowRight,
@@ -14,6 +15,7 @@ import {
   Star,
   Clock,
   X,
+  Send,
 } from "lucide-react";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter } from "next/navigation";
@@ -30,6 +32,9 @@ import { useIsFarcaster } from "../context/isFarcasterContext";
 import { sdk } from "@farcaster/miniapp-sdk";
 import { injected } from "wagmi/connectors";
 import { celo } from "wagmi/chains";
+import { createThirdwebClient, getContract } from "thirdweb";
+import { celo as twCelo } from "thirdweb/chains";
+import { wrapFetchWithPayment } from "thirdweb/x402";
 import { getUser, getUserSubmissions, registerUser } from "@/lib/Prismafnctns";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -52,8 +57,53 @@ const MobileEarnBaseHome = () => {
   const [statsLoading, setStatsLoading] = useState(true);
   const [tasks, setTasks] = useState<TaskWithEligibility[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isTestingX402, setIsTestingX402] = useState(false);
   const router = useRouter();
   const { address, isConnected, chain } = useAccount();
+
+  // Initialize thirdweb client
+  const twClient = createThirdwebClient({
+    clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID || "",
+  });
+
+  const handleTestX402 = async () => {
+    if (!address) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+
+    try {
+      setIsTestingX402(true);
+      toast.loading("Initiating x402 test payment...", { id: "x402-test" });
+
+      // 1. Bridge wagmi/injected wallet to thirdweb account
+      const { createWallet } = await import("thirdweb/wallets");
+      const wallet = createWallet("io.metamask");
+      const account = await wallet.connect({ client: twClient });
+
+      // 2. Wrap the fetch function
+      const fetchWithPayment = wrapFetchWithPayment(fetch, twClient, wallet);
+
+      // 3. Make the request
+      const res = await fetchWithPayment("/api/test-x402", {
+        method: "POST",
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        toast.success("✅ x402 Payment successful!", { id: "x402-test" });
+        console.log("x402 Result:", result);
+      } else {
+        toast.error(`Error: ${result.error || "Payment failed"}`, { id: "x402-test" });
+      }
+    } catch (error: any) {
+      console.error("x402 Test Error:", error);
+      toast.error(`Error: ${error.message || "Unknown error"}`, { id: "x402-test" });
+    } finally {
+      setIsTestingX402(false);
+    }
+  };
   const { isFarcaster, setIsFarcaster } = useIsFarcaster();
   const [fcDetails, setFcDetails] = useState<User | null>(null);
   const { connect, connectors } = useConnect();
@@ -157,7 +207,7 @@ const MobileEarnBaseHome = () => {
           // Get user's task submissions to calculate stats
           const userSubmissions = await getUserSubmissions(address);
           const completedTasks = userSubmissions.filter(
-            (sub) => sub.status === "APPROVED"
+            (sub: any) => sub.status === "APPROVED"
           ).length;
 
           // Calculate total earned (this would come from blockchain in real app)
@@ -166,7 +216,7 @@ const MobileEarnBaseHome = () => {
             : "0.00";
 
           setUserStats({
-            totalEarned: `${totalEarned} cUSD`,
+            totalEarned: `${totalEarned} USDC`,
             tasksCompleted: completedTasks,
           });
         }
@@ -239,7 +289,7 @@ const MobileEarnBaseHome = () => {
                 <ConnectButton />
               </div>
             )}
-            
+
             {/* Logo and Title */}
             <div className="flex items-center space-x-3">
               <div>
@@ -261,23 +311,36 @@ const MobileEarnBaseHome = () => {
         </div>
         {/* Welcome Section */}
         {isConnected && (
-          <div className="mx-6 mt-6 bg-gradient-to-br from-white via-celo-dk-tan/5 to-white border-[3px] border-black rounded-2xl p-6 shadow-[4px_4px_0_0_rgba(55,65,81,1)] hover:shadow-[6px_6px_0_0_rgba(55,65,81,1)] transition-all duration-200">
-            <div className="text-center">
-              <p className="text-sm tracking-wider text-gray-600 mb-2 font-inter font-semibold">
-                YOUR TOTAL EARNBASE EARNINGS
-              </p>
-              {statsLoading ? (
-                <div className="h-10 bg-celo-dk-tan/40 animate-pulse rounded-md"></div>
-              ) : (
-                <p className="text-4xl font-gt-alpina font-thin text-celo-forest">
-                  {userStats.totalEarned}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mx-6 mt-4 bg-white border-4 border-black rounded-2xl p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between relative z-10">
+              <div>
+                <p className="text-[10px] font-inter font-heavy text-celo-body uppercase tracking-wider mb-1">
+                  TOTAL EARNED
                 </p>
-              )}
+                {statsLoading ? (
+                  <div className="h-8 bg-celo-lt-tan animate-pulse rounded-lg w-24"></div>
+                ) : (
+                  <div className="flex items-baseline space-x-1">
+                    <span className="text-h3 font-gt-alpina font-bold text-celo-forest">
+                      {userStats.totalEarned.split(' ')[0]}
+                    </span>
+                    <span className="text-eyebrow font-inter font-heavy text-celo-forest/70">USDC</span>
+                  </div>
+                )}
+              </div>
+              <div className="w-12 h-12 bg-celo-forest/10 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-celo-forest" />
+              </div>
             </div>
-          </div>
+            <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-celo-forest/5 rounded-full blur-xl"></div>
+          </motion.div>
         )}
         {/* Self Protocol Verification Warning */}
-        <div className="mx-6 mt-6">
+        {/* <div className="mx-6 mt-6">
           <div className="bg-celo-orange border-2 border-black p-4">
             <div className="flex items-start space-x-3">
               <div className="flex-1">
@@ -299,20 +362,25 @@ const MobileEarnBaseHome = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
+
         {/* Tasks Section */}
         <div className="px-6 mt-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-h5 font-gt-alpina font-bold text-gray-800">
               AVAILABLE TASKS
             </h3>
-            <button
-              onClick={() => router.push("/Marketplace")}
-              className="text-celo-purple text-body-s font-inter font-heavy flex items-center gap-2 hover:text-black transition-colors"
-            >
-              VIEW ALL
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {
+              tasks.length > 4 ? (
+                <button
+                  onClick={() => router.push("/Marketplace")}
+                  className="text-celo-purple text-body-s font-inter font-heavy flex items-center gap-2 hover:text-black transition-colors"
+                >
+                  VIEW ALL
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : null
+            }
           </div>
           <div className="space-y-4">
             {loading ? (
@@ -358,7 +426,7 @@ const MobileEarnBaseHome = () => {
                   <div className="flex items-start justify-between mb-3">
                     {/* Left: Icon + Title */}
                     <div className="flex items-start gap-4 flex-1 min-w-0">
-                      <div className="p-3 bg-gradient-to-tr from-celo-purple to-celo-forest rounded-xl shadow-sm">
+                      {/* <div className="p-3 bg-gradient-to-tr from-celo-purple to-celo-forest rounded-xl shadow-sm">
                         {(() => {
                           const iconInfo = {
                             iconType: "trending",
@@ -381,7 +449,7 @@ const MobileEarnBaseHome = () => {
                             "w-5 h-5"
                           );
                         })()}
-                      </div>
+                      </div> */}
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -405,7 +473,7 @@ const MobileEarnBaseHome = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* Description - Full Width */}
                   <p className="text-sm text-gray-600 line-clamp-2">
                     {task.description}

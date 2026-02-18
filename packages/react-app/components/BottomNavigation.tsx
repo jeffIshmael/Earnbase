@@ -16,8 +16,6 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { key: 'home', label: 'Home', icon: Home, path: '/Start', color: 'bg-celo-yellow' },
-  { key: 'mytasks', label: 'My Tasks', icon: ClipboardList, path: '/myTasks', color: 'bg-celo-purple' },
-  { key: 'create', label: 'Create', icon: Plus, path: '/CreateTask', color: 'bg-celo-forest' },
   { key: 'history', label: 'History', icon: Clock, path: '/History', color: 'bg-celo-orange' },
   { key: 'wallet', label: 'Wallet', icon: Wallet, path: '/Wallet', color: 'bg-celo-blue' }
 ];
@@ -45,14 +43,14 @@ export default function BottomNavigation() {
     <div className="fixed bottom-0 max-w-sm mx-auto left-0 right-0 z-50 pb-safe">
       {/* Shadow effect */}
       <div className="absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
-      
+
       {/* Navigation container */}
       <div className="relative">
         <div className="bg-white border-t-4 border-black shadow-[0_-8px_0_0_rgba(0,0,0,0.15)]">
           <div className="flex items-end justify-around relative px-3 py-2">
             {navItems.map((item, index) => {
               const isActive = isMounted && activeTab === item.key;
-              
+
               return (
                 <div key={item.key} className="relative flex-1 flex justify-center">
                   <motion.button
@@ -83,14 +81,14 @@ export default function BottomNavigation() {
                     <div className={cn(
                       'relative z-10 transition-all duration-300',
                       // Special permanent styling for create button
-                      item.key === 'create' 
-                        ? 'p-4 border-3 border-black bg-celo-forest text-white shadow-[5px_5px_0_0_rgba(0,0,0,1)] hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]' 
+                      item.key === 'create'
+                        ? 'p-4 border-3 border-black bg-celo-forest text-white shadow-[5px_5px_0_0_rgba(0,0,0,1)] hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]'
                         : cn(
-                            'p-2',
-                            isActive 
-                              ? 'text-black' 
-                              : 'group-hover:bg-celo-dk-tan/40 group-hover:text-black'
-                          )
+                          'p-2',
+                          isActive
+                            ? 'text-black'
+                            : 'group-hover:bg-celo-dk-tan/40 group-hover:text-black'
+                        )
                     )}>
                       <item.icon className={cn(
                         'transition-all duration-300',
