@@ -31,18 +31,18 @@ model User {
 // New model for task creators and their tasks
 model Task {
   id                Int      @id @default(autoincrement())
+  uuid              String?   @unique @default(uuid())
+  agentRequestId    String?   @unique
   title             String
   description       String
   blockChainId      String   @default("0")
   maxParticipants   Int
   currentParticipants Int    @default(0)
   baseReward        String
-  maxBonusReward    String
+  maxBonusReward    String?
   totalDeposited    String
   status            TaskStatus @default(ACTIVE)
   aiCriteria        String   // JSON string of creator's AI rating criteria
-  contactMethod     ContactMethod
-  contactInfo       String   // Email or WhatsApp number
   createdAt         DateTime @default(now())
   expiresAt         DateTime?
   
@@ -57,8 +57,8 @@ model Task {
   countries          String?  // JSON array of country codes
   
   // Relationships
-  creatorId         Int
-  creator           User     @relation("TaskCreator", fields: [creatorId], references: [id])
+  creatorId         Int?
+  creator           User?    @relation("TaskCreator", fields: [creatorId], references: [id])
   subtasks          TaskSubtask[]
   submissions       TaskSubmission[]
   
@@ -72,6 +72,7 @@ model Task {
   aiRating          String?
   userId            Int?
   user              User?    @relation(fields: [userId], references: [id])
+  feedbackType      String?
 }
 
 // New model for task subtasks with different types

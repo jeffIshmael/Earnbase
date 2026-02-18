@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { 
+import {
   ArrowLeft,
   Target,
   Users,
@@ -62,7 +62,7 @@ const TaskDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "subtasks" | "leaderboard"
+    "overview" | "subtasks"
   >("overview");
   const [expandedSubtask, setExpandedSubtask] = useState<number | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -85,11 +85,11 @@ const TaskDetailPage = () => {
         setLoading(true);
         // Simulate API delay
         await new Promise((resolve) => setTimeout(resolve, 800));
-        
+
         const taskData = await getTaskById(parseInt(taskId));
         if (taskData) {
           setTask(taskData);
-          
+
           // Check if user has already submitted to this task
           if (address) {
             setCheckingSubmission(true);
@@ -138,25 +138,25 @@ const TaskDetailPage = () => {
 
   const handleStartTask = async () => {
     if (!task) return;
-    
+
     // Check if task has actual requirements and user is not verified
     const hasRequirements =
       task.restrictionsEnabled &&
       ((task.ageRestriction && (task.minAge || task.maxAge)) ||
-      task.genderRestriction ||
+        task.genderRestriction ||
         (task.countryRestriction && task.countries));
-    
+
     if (hasRequirements && !isVerified) {
       setShowSelfModal(true);
       return;
     }
-    
+
     // No requirements or already verified - proceed to task
     setIsStartingTask(true);
     try {
       // Simulate task start process
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       // Set task as started and show form
       setIsStartingTask(false);
       setTaskStarted(true);
@@ -178,7 +178,7 @@ const TaskDetailPage = () => {
                 <div className="space-y-2">
                   <div className="h-6 w-48 bg-black animate-pulse"></div>
                   <div className="h-4 w-32 bg-black animate-pulse"></div>
-        </div>
+                </div>
               </div>
             </div>
           </div>
@@ -329,10 +329,10 @@ const TaskDetailPage = () => {
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
           <div className="bg-white border-4 border-black px-6 py-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
             <div className="flex items-center space-x-3">
-          <div className="relative">
+              <div className="relative">
                 <div className="w-6 h-6 border-2 border-celo-purple rounded-full animate-spin"></div>
                 <div className="w-4 h-4 border-2 border-celo-forest border-t-transparent rounded-full animate-spin absolute top-1 left-1"></div>
-          </div>
+              </div>
               <div className="text-black text-sm font-inter font-heavy">
                 LOADING TASK DETAILS...
               </div>
@@ -428,16 +428,16 @@ const TaskDetailPage = () => {
     // 1. Save submission to database
     // 2. Update user progress
     // 3. Handle reward distribution
-    
+
     // For now, show success message
     alert(
       `Task completed successfully! Your score: ${submission.totalScore}/10`
     );
-    
+
     setTimeout(() => {
-    // Reset task state
-    setTaskStarted(false);
-    setIsVerified(false);
+      // Reset task state
+      setTaskStarted(false);
+      setIsVerified(false);
     }, 3000);
   };
 
@@ -445,7 +445,7 @@ const TaskDetailPage = () => {
   const hasRequirements =
     task?.restrictionsEnabled &&
     ((task.ageRestriction && (task.minAge || task.maxAge)) ||
-    task.genderRestriction ||
+      task.genderRestriction ||
       (task.countryRestriction && task.countries));
 
   return (
@@ -460,43 +460,43 @@ const TaskDetailPage = () => {
       {/* Header */}
       <header className="bg-celo-yellow border-b-4 border-black rounded-b-3xl sticky top-0 z-50 shadow-[0_6px_0_0_rgba(0,0,0,1)]">
         <div className="px-6 py-5 flex items-center space-x-3">
-              <button 
-                onClick={() => router.back()}
+          <button
+            onClick={() => router.back()}
             className="p-2 border-2 border-black bg-white rounded-lg hover:bg-black hover:text-celo-yellow transition-all duration-300 active:scale-95"
-              >
+          >
             <ArrowLeft className="w-5 h-5" />
-              </button>
-          <div>
-            <h1 className="text-h5 font-gt-alpina font-bold text-black truncate tracking-tight">
+          </button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-h4 font-gt-alpina font-bold text-black truncate tracking-tight">
               {task.title}
             </h1>
-            <p className="text-eyebrow font-inter text-black/70">
-              by{" "}
-              {task.creator.walletAddress.slice(0, 6) +
-                "..." +
-                task.creator.walletAddress.slice(-4)}
-            </p>
-              </div>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 bg-celo-success rounded-full animate-pulse"></span>
+              <p className="text-eyebrow font-inter text-black/70 uppercase tracking-widest">
+                Agent Powered Task
+              </p>
             </div>
+          </div>
+        </div>
       </header>
 
       <div className="relative px-4 py-6 pb-24 space-y-6">
         {/* Show FormGenerator if task is started */}
         {taskStarted ? (
-          <FormGenerator 
+          <FormGenerator
             task={task}
             onTaskCompleted={() => {
               // Refresh leaderboard data after task completion
               setLoadingLeaderboard(true);
               getTaskSubmissionsForLeaderboard(task.id)
                 .then((submissions) => {
-                setLeaderboardSubmissions(submissions);
-                setLoadingLeaderboard(false);
+                  setLeaderboardSubmissions(submissions);
+                  setLoadingLeaderboard(false);
                 })
                 .catch((err) => {
                   console.error("Error refreshing leaderboard:", err);
-                setLoadingLeaderboard(false);
-              });
+                  setLoadingLeaderboard(false);
+                });
             }}
             closeFormGenerator={() => {
               setTaskStarted(false);
@@ -506,82 +506,82 @@ const TaskDetailPage = () => {
           <>
             {/* Hero Card */}
             <div className="bg-white border-4 border-black p-6">
-            <div className="flex items-center justify-end mb-2">
-              <div
-                    className={`px-3 py-1 text-eyebrow font-inter font-heavy border-2 border-black ${getStatusColor(
-                      task.status
-                    )}`}
-                  >
-                {task.status}
+              <div className="flex items-center justify-end mb-2">
+                <div
+                  className={`px-3 py-1 text-eyebrow font-inter font-heavy border-2 border-black ${getStatusColor(
+                    task.status
+                  )}`}
+                >
+                  {task.status}
+                </div>
               </div>
-            </div>
-          <div className="flex items-start justify-between mb-4">
-          
-            <div className="flex items-center space-x-3 flex-1 min-w-0">
-              <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between mb-4">
+
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <h2 className="text-h4 font-gt-alpina font-bold text-black mb-1 leading-tight tracking-tight">
                       {task.title}
                     </h2>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Reward and Status */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-                  <div className="text-h3 font-gt-alpina font-thin text-celo-success tracking-tight">
-                {Number(task.baseReward) / Math.pow(10, 18)} cUSD
+              {/* Reward and Status */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="text-h2 font-gt-alpina font-thin text-celo-success tracking-tight">
+                    {Number(task.baseReward) / Math.pow(10, 6)} USDC
+                  </div>
+                </div>
+
               </div>
-            </div>
-               
-          </div>
 
               <p className="text-body-s font-inter text-black/70 mb-6 leading-relaxed">
                 {task.description}
               </p>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="bg-celo-lt-tan border-4 border-black p-4">
-              <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex items-center space-x-2 mb-2">
                     <span className="text-celo-purple text-eyebrow font-inter font-heavy">
                       PARTICIPANTS
                     </span>
-              </div>
+                  </div>
                   <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
                     {task.currentParticipants}/{task.maxParticipants}
                   </div>
-            </div>
-            
+                </div>
+
                 <div className="bg-celo-lt-tan border-4 border-black p-4">
-              <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex items-center space-x-2 mb-2">
                     <Clock className="w-4 h-4 text-celo-purple" />
                     <span className="text-celo-purple text-eyebrow font-inter font-heavy">
                       TIME LEFT
                     </span>
-              </div>
+                  </div>
                   <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
                     {task.expiresAt
                       ? Math.max(
-                          0,
-                          Math.ceil(
-                            (new Date(task.expiresAt).getTime() - Date.now()) /
-                              (1000 * 60 * 60 * 24)
-                          )
+                        0,
+                        Math.ceil(
+                          (new Date(task.expiresAt).getTime() - Date.now()) /
+                          (1000 * 60 * 60 * 24)
                         )
+                      )
                       : "∞"}{" "}
                     days
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Action Button */}
-        {userSubmission ? (
+            {/* Action Button */}
+            {userSubmission ? (
               <div className="w-full bg-celo-forest border-4 border-black p-6 text-center">
                 <div className="w-16 h-16 bg-celo-yellow flex items-center justify-center mx-auto mb-4 border-2 border-black">
                   <CheckCircle className="w-8 h-8 text-black" />
-            </div>
+                </div>
                 <h3 className="text-h3 font-gt-alpina font-thin text-white mb-2 tracking-tight">
                   TASK COMPLETED! 🎉
                 </h3>
@@ -590,107 +590,106 @@ const TaskDetailPage = () => {
                 </p>
                 <div className="bg-white border-4 border-black p-4 mb-4">
                   <div className="grid grid-cols-2 gap-4 text-body-s">
-                <div>
+                    <div>
                       <span className="text-celo-forest font-inter font-heavy">
                         AI RATING:
                       </span>
                       <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
                         {userSubmission.aiRating}/10
                       </div>
-                </div>
-                <div>
+                    </div>
+                    <div>
                       <span className="text-celo-forest font-inter font-heavy">
                         REWARD EARNED:
                       </span>
                       <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
-                        {Number(userSubmission.reward).toFixed(4)} cUSD
+                        {Number(userSubmission.reward).toFixed(4)} USDC
                       </div>
-                </div>
-              </div>
-              {userSubmission.aiFeedback && (
-                <div className="mt-3 text-left">
+                    </div>
+                  </div>
+                  {userSubmission.aiFeedback && (
+                    <div className="mt-3 text-left">
                       <span className="text-celo-forest font-inter font-heavy text-body-s">
                         AI FEEDBACK:
                       </span>
                       <p className="text-black/70 font-inter text-body-s mt-1">
                         {userSubmission.aiFeedback}
                       </p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <button
+                <button
                   onClick={() => setActiveTab("subtasks")}
                   className="px-6 py-2 bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow transition-colors text-body-s font-inter font-heavy border-2 border-black"
-            >
+                >
                   VIEW YOUR RESPONSES
-            </button>
-          </div>
-        ) : (
-          <button 
-            onClick={handleStartTask}
-            disabled={isStartingTask}
-                className={`w-full font-inter font-heavy py-4 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] disabled:scale-100 flex items-center justify-center space-x-2 border-4 border-black text-body-l ${
-              isVerified 
-                    ? "bg-celo-forest text-white hover:bg-black hover:text-celo-forest"
-                : hasRequirements 
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleStartTask}
+                disabled={isStartingTask}
+                className={`w-full font-inter font-heavy py-4 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] disabled:scale-100 flex items-center justify-center space-x-2 border-4 border-black text-body-l ${isVerified
+                  ? "bg-celo-forest text-white hover:bg-black hover:text-celo-forest"
+                  : hasRequirements
                     ? "bg-celo-orange text-black hover:bg-black hover:text-celo-orange"
                     : "bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow"
-            }`}
-          >
-            {isStartingTask ? (
-              <>
+                  }`}
+              >
+                {isStartingTask ? (
+                  <>
                     <div className="w-5 h-5 border-2 border-black border-t-transparent animate-spin"></div>
                     <span>STARTING TASK...</span>
-              </>
-            ) : isVerified ? (
-              <>
-                <Play className="w-5 h-5" />
+                  </>
+                ) : isVerified ? (
+                  <>
+                    <Play className="w-5 h-5" />
                     <span>START TASK</span>
-              </>
-            ) : hasRequirements ? (
-              <>
-                <Shield className="w-5 h-5" />
+                  </>
+                ) : hasRequirements ? (
+                  <>
+                    <Shield className="w-5 h-5" />
                     <span>VERIFY IDENTITY TO START</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-5 h-5" />
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5" />
                     <span>START TASK</span>
-              </>
+                  </>
+                )}
+              </button>
             )}
-          </button>
-        )}
 
-        {/* Verification Status */}
-        {userSubmission ? (
-          <div className="text-center">
+            {/* Verification Status */}
+            {userSubmission ? (
+              <div className="text-center">
                 <div className="flex items-center justify-center space-x-2 text-celo-forest text-body-s font-inter font-heavy">
-              <CheckCircle className="w-4 h-4" />
+                  <CheckCircle className="w-4 h-4" />
                   <span>TASK COMPLETED SUCCESSFULLY ✓</span>
-            </div>
-          </div>
+                </div>
+              </div>
             ) : (
               hasRequirements && (
-          <div className="text-center">
-            {isVerified ? (
+                <div className="text-center">
+                  {isVerified ? (
                     <div className="flex items-center justify-center space-x-2 text-celo-forest text-body-s font-inter font-heavy">
-                <CheckCircle className="w-4 h-4" />
+                      <CheckCircle className="w-4 h-4" />
                       <span>IDENTITY VERIFIED ✓</span>
-              </div>
-            ) : (
+                    </div>
+                  ) : (
                     <div className="flex items-center justify-center space-x-2 text-celo-orange text-body-s font-inter font-heavy">
-                <AlertCircle className="w-4 h-4" />
+                      <AlertCircle className="w-4 h-4" />
                       <span>IDENTITY VERIFICATION REQUIRED</span>
-              </div>
-            )}
-          </div>
+                    </div>
+                  )}
+                </div>
               )
-        )}
+            )}
 
-        {/* Tab Navigation */}
+            {/* Tab Navigation */}
             <div className="bg-white border-4 border-black p-1">
-          <div className="flex">
-            {[
+              <div className="flex">
+                {[
                   {
                     key: "overview",
                     label: "OVERVIEW",
@@ -703,143 +702,84 @@ const TaskDetailPage = () => {
                     icon: Target,
                     color: "bg-celo-forest",
                   },
-                  {
-                    key: "leaderboard",
-                    label: "LEADERBOARD",
-                    icon: Trophy,
-                    color: "bg-celo-forest",
-                  },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
-                    className={`flex-1 flex items-center justify-center space-x-2 px-3 py-3 text-body-s font-inter font-heavy transition-all duration-300 border-2 border-black ${
-                  activeTab === tab.key
-                        ? `${tab.color} text-white shadow-[3px_3px_0_0_rgba(0,0,0,1)]`
-                        : "bg-white text-black hover:bg-celo-dk-tan"
-                }`}
-              >
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key as any)}
+                    className={`flex-1 flex items-center justify-center space-x-2 px-3 py-3 text-body-s font-inter font-heavy transition-all duration-300 border-2 border-black ${activeTab === tab.key
+                      ? `${tab.color} text-white shadow-[3px_3px_0_0_rgba(0,0,0,1)]`
+                      : "bg-white text-black hover:bg-celo-dk-tan"
+                      }`}
+                  >
                     {/* <tab.icon className="w-4 h-4" /> */}
-                <span className="inline">{tab.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Tab Content */}
-            {activeTab === "overview" && (
-          <div className="space-y-4">
-            {/* Creator */}
-                <div className="bg-white border-4 border-black p-5">
-                  <h3 className="text-h5 font-gt-alpina font-bold text-black mb-4 flex items-center">
-                    <User className="w-5 h-5 text-celo-purple mr-2" />
-                    CREATOR
-              </h3>
-              <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-celo-purple border-2 border-black rounded-lg flex items-center justify-center">
-                      <span className="text-white font-gt-alpina text-h4">
-                        {task.creator.userName.charAt(0)}
-                      </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                      <h4 className="font-inter font-heavy text-black truncate">
-                        {task.creator.userName}
-                      </h4>
-                      <p className="text-body-s text-celo-body font-mono truncate">
-                        {task.creator.walletAddress.slice(0, 6) +
-                          "..." +
-                          task.creator.walletAddress.slice(-4)}
-                      </p>
-                </div>
-                    <div className="flex items-center space-x-1 text-celo-forest bg-celo-lime px-3 py-1 border-2 border-black">
-                  <Shield className="w-4 h-4" />
-                      <span className="text-eyebrow font-inter font-heavy">
-                        ACTIVE
-                      </span>
-                </div>
+                    <span className="inline">{tab.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Requirements */}
-            {task.restrictionsEnabled && (
+            {/* Tab Content */}
+            {activeTab === "overview" && (
+              <div className="space-y-4">
+
+                {/* Requirements */}
+                {task.restrictionsEnabled && (
                   <div className="bg-white border-4 border-black p-5">
                     <h3 className="text-h4 font-gt-alpina font-thin text-black mb-4 flex items-center">
                       <Shield className="w-5 h-5 text-celo-orange mr-2" />
                       REQUIREMENTS
-                </h3>
-                <div className="space-y-3">
-                  {task.ageRestriction && (task.minAge || task.maxAge) && (
+                    </h3>
+                    <div className="space-y-3">
+                      {task.ageRestriction && (task.minAge || task.maxAge) && (
                         <div className="flex items-center space-x-3 p-3 bg-celo-lt-tan border-2 border-black">
                           <CalendarDays className="w-4 h-4 text-celo-orange flex-shrink-0" />
-                      <div>
+                          <div>
                             <div className="text-body-s text-celo-orange font-inter font-heavy">
                               AGE RANGE
                             </div>
                             <div className="text-black font-inter font-heavy">
                               {task.minAge || 0} - {task.maxAge || "∞"} years
                             </div>
-                      </div>
-                    </div>
-                  )}
-                  {task.countryRestriction && task.countries && (
+                          </div>
+                        </div>
+                      )}
+                      {task.countryRestriction && task.countries && (
                         <div className="flex items-center space-x-3 p-3 bg-celo-lt-tan border-2 border-black">
                           <MapPin className="w-4 h-4 text-celo-blue flex-shrink-0" />
-                      <div>
+                          <div>
                             <div className="text-body-s text-celo-blue font-inter font-heavy">
                               COUNTRIES
                             </div>
                             <div className="text-black font-inter font-heavy">
                               {task.countries}
                             </div>
-                      </div>
-                    </div>
-                  )}
-                  {task.genderRestriction && task.gender && (
+                          </div>
+                        </div>
+                      )}
+                      {task.genderRestriction && task.gender && (
                         <div className="flex items-center space-x-3 p-3 bg-celo-lt-tan border-2 border-black">
                           <AwardIcon className="w-4 h-4 text-celo-purple flex-shrink-0" />
-                      <div>
+                          <div>
                             <div className="text-body-s text-celo-purple font-inter font-heavy">
                               GENDER REQUIRED
                             </div>
                             <div className="text-black font-inter font-heavy">
                               {task.gender === "M" ? "Male" : "Female"}
                             </div>
-                      </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-            )}
+                  </div>
+                )}
 
-            {/* Budget */}
-            <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-celo-yellow border-4 border-black p-5 text-center">
-                    <Coins className="w-8 h-8 text-black mx-auto mb-3" />
-                    <div className="text-body-s text-black mb-1 font-inter font-heavy">
-                      TOTAL BUDGET
-                    </div>
-                    <div className="text-h4 font-gt-alpina font-thin text-black">
-                  {Number(task.baseReward) / Math.pow(10, 18)} cUSD
-                </div>
-              </div>
-                  <div className="bg-celo-purple border-4 border-black p-5 text-center">
-                    <DollarSign className="w-8 h-8 text-white mx-auto mb-3" />
-                    <div className="text-body-s text-white mb-1 font-inter font-heavy">
-                      CURRENT
-                    </div>
-                    <div className="text-h4 font-gt-alpina font-thin text-white">
-                  {Number(task.maxBonusReward) / Math.pow(10, 18)} cUSD
-                </div>
-              </div>
-            </div>
-
-            {/* Timeline */}
+                {/* Timeline */}
                 <div className="bg-white border-4 border-black p-5">
                   <h3 className="text-h4 font-gt-alpina font-thin text-black mb-4 flex items-center">
                     <Clock className="w-5 h-5 text-celo-purple mr-2" />
                     TIMELINE
-              </h3>
-              <div className="space-y-3">
+                  </h3>
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-celo-lt-tan border-2 border-black">
                       <span className="text-celo-purple text-body-s font-inter font-heavy">
                         CREATED
@@ -847,7 +787,7 @@ const TaskDetailPage = () => {
                       <span className="font-inter font-heavy text-black text-body-s">
                         {task.createdAt.toLocaleDateString()}
                       </span>
-                </div>
+                    </div>
                     <div className="flex items-center justify-between p-3 bg-celo-lt-tan border-2 border-black">
                       <span className="text-celo-error text-body-s font-inter font-heavy">
                         EXPIRES
@@ -857,51 +797,51 @@ const TaskDetailPage = () => {
                           ? task.expiresAt.toLocaleDateString()
                           : "No expiry"}
                       </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
             {activeTab === "subtasks" && (
               <div className="bg-white border-4 border-black p-5">
                 <h3 className="text-h5 font-gt-alpina font-heavy text-black mb-6 flex items-center">
                   {userSubmission ? "YOUR COMPLETED SUBTASKS" : "SUBTASKS"} (
                   {task.subtasks.length})
-            </h3>
-            
-            {userSubmission ? (
-              <div className="space-y-4">
-                {/* User's responses */}
-                <div className="space-y-3">
+                </h3>
+
+                {userSubmission ? (
+                  <div className="space-y-4">
+                    {/* User's responses */}
+                    <div className="space-y-3">
                       {userSubmission.responses.map(
                         (response: any, index: number) => {
                           const subtask = task.subtasks.find(
                             (s) => s.id === response.subtaskId
                           );
-                    if (!subtask) return null;
-                    
-                    return (
+                          if (!subtask) return null;
+
+                          return (
                             <div
                               key={response.id}
                               className="bg-celo-lime border-4 border-black overflow-hidden"
                             >
-                        <div className="p-4">
-                          <div className="flex items-center space-x-3 mb-3">
+                              <div className="p-4">
+                                <div className="flex items-center space-x-3 mb-3">
                                   <div className="w-8 h-8 bg-celo-forest border-2 border-black flex items-center justify-center text-white text-sm font-inter font-heavy flex-shrink-0">
-                              {index + 1}
-                            </div>
-                            <div className="flex-1 min-w-0">
+                                    {index + 1}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
                                     <h4 className="font-inter font-heavy text-black">
                                       {subtask.title}
                                     </h4>
                                     <p className="text-celo-body text-body-s font-inter">
                                       {subtask.description}
                                     </p>
-                            </div>
+                                  </div>
                                   <CheckCircle className="w-6 h-6 text-celo-forest" />
-                          </div>
-                          
+                                </div>
+
                                 <div className="bg-white border-2 border-black p-3">
                                   <div className="text-body-s text-celo-body mb-2 font-inter font-heavy">
                                     YOUR RESPONSE:
@@ -910,23 +850,23 @@ const TaskDetailPage = () => {
                                     {subtask.type === "MULTIPLE_CHOICE"
                                       ? JSON.parse(response.response).join(", ")
                                       : response.response}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
+                          );
                         }
                       )}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {task.subtasks.map((subtask, index) => (
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {task.subtasks.map((subtask, index) => (
                       <div
                         key={subtask.id}
                         className="bg-celo-lt-tan border-4 border-black overflow-hidden"
                       >
-                    <button
+                        <button
                           onClick={() =>
                             setExpandedSubtask(
                               expandedSubtask === subtask.id ? null : subtask.id
@@ -935,293 +875,118 @@ const TaskDetailPage = () => {
                           className="w-full p-4 flex items-center space-x-3 hover:bg-celo-dk-tan transition-colors"
                         >
                           <div className="w-8 h-8 bg-celo-purple border-2 border-black flex items-center justify-center text-white text-sm font-inter font-heavy flex-shrink-0">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1 text-left min-w-0">
-                        <div className="flex items-center space-x-2 mb-1">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 text-left min-w-0">
+                            <div className="flex items-center space-x-2 mb-1">
                               <h4 className="font-inter font-heavy text-black truncate">
                                 {subtask.title}
                               </h4>
-                          {subtask.required && (
+                              {subtask.required && (
                                 <span className="bg-celo-error text-white px-2 py-1 border-2 border-black text-eyebrow font-inter font-heavy">
                                   REQUIRED
-                            </span>
-                          )}
-                        </div>
+                                </span>
+                              )}
+                            </div>
                             <p className="text-celo-body text-body-s font-inter truncate">
                               {subtask.description}
                             </p>
-                      </div>
+                          </div>
                           <ChevronDown
-                            className={`w-5 h-5 text-black transform transition-transform ${
-                              expandedSubtask === subtask.id ? "rotate-180" : ""
-                            }`}
+                            className={`w-5 h-5 text-black transform transition-transform ${expandedSubtask === subtask.id ? "rotate-180" : ""
+                              }`}
                           />
-                    </button>
-                    
-                    {expandedSubtask === subtask.id && (
+                        </button>
+
+                        {expandedSubtask === subtask.id && (
                           <div className="px-4 pb-4 border-t-2 border-black bg-white">
-                        <div className="pt-4 space-y-2">
+                            <div className="pt-4 space-y-2">
                               <p className="text-black text-body-s font-inter leading-relaxed">
                                 {subtask.description}
                               </p>
-                          
-                          {subtask.placeholder && (
+
+                              {subtask.placeholder && (
                                 <div className="text-body-s text-celo-body">
                                   <span className="font-inter font-heavy">
                                     PLACEHOLDER:
                                   </span>{" "}
                                   {subtask.placeholder}
-                            </div>
-                          )}
-                          {subtask.maxLength && (
+                                </div>
+                              )}
+                              {subtask.maxLength && (
                                 <div className="text-body-s text-celo-body">
                                   <span className="font-inter font-heavy">
                                     MAX LENGTH:
                                   </span>{" "}
                                   {subtask.maxLength} characters
-                            </div>
-                          )}
+                                </div>
+                              )}
                               <div className="text-body-s text-celo-body">
                                 <span className="font-inter font-heavy">
                                   FILE TYPES:
                                 </span>{" "}
                                 All types accepted
-                          </div>
-                          {subtask.options && (
+                              </div>
+                              {subtask.options && (
                                 <div className="text-body-s text-celo-body">
                                   <span className="font-inter font-heavy">
                                     OPTIONS:
                                   </span>{" "}
                                   {subtask.options}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
-          </div>
-        )}
 
-            {activeTab === "leaderboard" && (
-              <div className="bg-white border-4 border-black p-5">
-                <h3 className="text-h5 font-gt-alpina font-bold text-black mb-6 flex items-center">
-                  <Trophy className="w-5 h-5 text-celo-orange mr-2" />
-                  LEADERBOARD BY AI RATING
-            </h3>
-            
-            {loadingLeaderboard ? (
-              <div className="text-center py-12">
-                    <div className="w-20 h-20 border-4 border-celo-purple rounded-full mx-auto mb-4 animate-spin"></div>
-                    <p className="text-black text-body-l mb-2 font-inter font-heavy">
-                      LOADING LEADERBOARD...
-                    </p>
-                    <p className="text-celo-body font-inter">Please wait a moment</p>
-              </div>
-            ) : leaderboardSubmissions.length === 0 ? (
-              <div className="text-center py-12">
-                    <div className="w-20 h-20 bg-celo-dk-tan border-4 border-black flex items-center justify-center mx-auto mb-4">
-                      <Trophy className="w-10 h-10 text-black" />
-                </div>
-                    <p className="text-black text-body-l mb-2 font-inter font-heavy">
-                      NO PARTICIPANTS YET
-                    </p>
-                    <p className="text-celo-body font-inter">
-                      Be the first to join and earn rewards!
-                    </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Top 3 Podium */}
-                <div className="space-y-3">
-                      {leaderboardSubmissions
-                        .slice(0, 3)
-                        .map((submission, index) => (
-                          <div
-                            key={submission.id}
-                            className={`border-4 border-black p-4 transition-all ${
-                      index === 0 
-                                ? "bg-celo-yellow shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
-                        : index === 1 
-                                ? "bg-celo-dk-tan shadow-[3px_3px_0_0_rgba(0,0,0,1)]"
-                                : "bg-celo-lt-tan shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-                            }`}
-                          >
-                      <div className="flex items-center space-x-4">
-                        {/* Rank Badge */}
-                        <div className="flex items-center justify-center flex-shrink-0">
-                          {index === 0 ? (
-                                  <div className="w-12 h-12 bg-celo-orange border-2 border-black flex items-center justify-center shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
-                              <Trophy className="w-6 h-6 text-white" />
-                            </div>
-                          ) : index === 1 ? (
-                                  <div className="w-12 h-12 bg-celo-purple border-2 border-black flex items-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-                              <Medal className="w-6 h-6 text-white" />
-                            </div>
-                          ) : (
-                                  <div className="w-12 h-12 bg-celo-forest border-2 border-black flex items-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
-                              <Award className="w-6 h-6 text-white" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Participant Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <div className="min-w-0">
-                              <div className="flex items-center space-x-2">
-                                      <h4 className="font-inter font-heavy text-black truncate text-body-l">
-                                        {submission.user.userName ||
-                                          "Anonymous"}
-                                </h4>
-                                      {address &&
-                                        submission.user.walletAddress ===
-                                          address && (
-                                          <span className="bg-celo-purple text-white px-2 py-1 border-2 border-black text-eyebrow font-inter font-heavy">
-                                            YOU
-                                  </span>
-                                )}
-                              </div>
-                                    <p className="text-body-s text-celo-body font-mono truncate">
-                                      {submission.user.walletAddress.slice(
-                                        0,
-                                        6
-                                      )}
-                                      ...
-                                      {submission.user.walletAddress.slice(-4)}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Rating and Reward */}
-                        <div className="text-right flex-shrink-0">
-                                <div className="text-h4 font-gt-alpina font-thin text-black mb-1">
-                            {submission.aiRating}/10
-                          </div>
-                                <div className="text-body-s text-celo-body font-inter">
-                            {Number(submission.reward).toFixed(4)} cUSD
-                          </div>
-                                <div className="text-body-s text-celo-body font-inter font-heavy">
-                                  {index === 0
-                                    ? "🥇 1ST PLACE"
-                                    : index === 1
-                                    ? "🥈 2ND PLACE"
-                                    : "🥉 3RD PLACE"}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Current User Position (if not in top 3) */}
-                {(() => {
-                      const currentUserSubmission = leaderboardSubmissions.find(
-                        (s) => address && s.user.walletAddress === address
-                      );
-                      if (
-                        currentUserSubmission &&
-                        !leaderboardSubmissions
-                          .slice(0, 3)
-                          .find(
-                            (s) => address && s.user.walletAddress === address
-                          )
-                      ) {
-                        const userRank =
-                          leaderboardSubmissions.findIndex(
-                            (s) => address && s.user.walletAddress === address
-                    ) + 1;
-                    
-                    return (
-                          <div className="pt-4 border-t-2 border-black">
-                            <h4 className="text-body-s font-inter font-heavy text-celo-body mb-3 text-center">
-                              YOUR POSITION
-                            </h4>
-                            <div className="bg-celo-purple border-4 border-black p-4">
-                          <div className="flex items-center space-x-4">
-                                <div className="w-10 h-10 bg-celo-yellow border-2 border-black flex items-center justify-center flex-shrink-0">
-                                  <span className="text-black font-inter font-heavy text-body-s">
-                                    {userRank}
-                                  </span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                  <h4 className="font-inter font-heavy text-white truncate">
-                                    YOU
-                                  </h4>
-                                  <p className="text-body-s text-white/90 font-inter">
-                                    Keep going to reach the top!
-                                  </p>
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                                  <div className="text-h4 font-gt-alpina font-thin text-white">
-                                    {currentUserSubmission.aiRating}/10
-                                  </div>
-                                  <div className="text-body-s text-white/90 font-inter">
-                                    #{userRank} of{" "}
-                                    {leaderboardSubmissions.length}
-                                  </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                })()}
-
-                {/* Total Participants Info */}
-                <div className="text-center pt-2">
-                      <p className="text-body-s text-celo-body font-inter">
-                    {leaderboardSubmissions.length} total participants
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+            {/* Removed Leaderboard section */}
           </>
         )}
       </div>
 
       {/* Self Protocol Verification Modal */}
-      {showSelfModal && task && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="animate-in fade-in-0 zoom-in-95 duration-200">
-            <React.Suspense
-              fallback={
-              <div className="bg-white rounded-2xl p-6 text-center">
-                <div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading verification...</p>
-              </div>
-              }
-            >
-              <SelfModal 
-                requirements={{
-                  age:
-                    task.ageRestriction && task.minAge && task.maxAge
-                      ? { min: task.minAge, max: task.maxAge }
-                      : undefined,
-                  gender:
-                    task.genderRestriction && task.gender
-                      ? task.gender
-                      : undefined,
-                  countries:
-                    task.countryRestriction && task.countries
-                      ? [task.countries]
-                      : undefined,
-                }} 
-                onVerificationSuccess={handleVerificationSuccess}
-                onClose={handleVerificationClose}
-              />
-            </React.Suspense>
+      {
+        showSelfModal && task && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="animate-in fade-in-0 zoom-in-95 duration-200">
+              <React.Suspense
+                fallback={
+                  <div className="bg-white rounded-2xl p-6 text-center">
+                    <div className="animate-spin w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading verification...</p>
+                  </div>
+                }
+              >
+                <SelfModal
+                  requirements={{
+                    age:
+                      task.ageRestriction && task.minAge && task.maxAge
+                        ? { min: task.minAge, max: task.maxAge }
+                        : undefined,
+                    gender:
+                      task.genderRestriction && task.gender
+                        ? task.gender
+                        : undefined,
+                    countries:
+                      task.countryRestriction && task.countries
+                        ? [task.countries]
+                        : undefined,
+                  }}
+                  onVerificationSuccess={handleVerificationSuccess}
+                  onClose={handleVerificationClose}
+                />
+              </React.Suspense>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 

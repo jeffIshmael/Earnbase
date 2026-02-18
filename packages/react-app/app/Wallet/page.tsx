@@ -280,144 +280,66 @@ export default function WalletPage() {
   return (
     <div className="min-h-screen bg-celo-lt-tan pb-28">
       <div className="p-4 space-y-8">
-        {/* Wallet Status */}
+        {/* Unified Wallet Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border-4 border-black p-6 rounded-2xl shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-[8px_8px_0_0_rgba(0,0,0,1)] transition-all duration-200"
+          className="bg-black border-4 border-black rounded-3xl overflow-hidden shadow-[8px_8px_0_0_rgba(0,0,0,1)]"
         >
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-h5 font-gt-alpina font-bold text-black tracking-wide">
-              WALLET STATUS
-            </h2>
-            <div className="flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-celo-success"></span>
-              <span className="text-body-s text-celo-success font-inter font-heavy">
-                CONNECTED
-              </span>
+          {/* Main Balance Area */}
+          <div className="bg-celo-purple p-8 text-white relative">
+            <div className="absolute top-4 right-4 opacity-20">
+              <Image src="/static/usdclogo.png" alt="USDC" width={80} height={80} />
             </div>
-          </div>
 
-          {/* Wallet Address */}
-          <div className="bg-celo-dk-tan border-4 border-black p-4 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-body-s text-celo-body mb-1 font-inter font-heavy">
-                  WALLET ADDRESS
-                </p>
-                <p className="text-body-s font-mono text-black truncate font-inter">
+            <p className="text-eyebrow font-inter font-heavy uppercase tracking-widest mb-2 opacity-80">
+              USDC BALANCE
+            </p>
+            <div className="flex items-baseline space-x-2 mb-8">
+              <h2 className="text-h1 font-gt-alpina font-normal">
+                {isLoading ? "..." : usdcBalance || "0.000"}
+              </h2>
+              <span className="text-h4 font-gt-alpina opacity-80">USDC</span>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-[10px] font-inter font-heavy opacity-70 uppercase tracking-widest">WALLET ADDRESS</p>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 px-2 py-0.5 bg-celo-success/20 rounded-full border border-celo-success/30">
+                    <span className="w-1.5 h-1.5 bg-celo-success rounded-full animate-pulse"></span>
+                    <span className="text-[10px] font-heavy text-celo-success">ACTIVE</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="font-mono text-xs truncate tracking-tighter opacity-90 max-w-[80%]">
                   {address}
                 </p>
-              </div>
-              <div className="flex items-center space-x-2 ml-3">
                 <button
                   onClick={() => copyToClipboard(address!)}
-                  className="p-2 text-celo-body bg-white border-2 border-black hover:bg-celo-yellow hover:text-black transition-all duration-200 rounded-lg"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => openCeloScan(address!)}
-                  className="p-2 text-celo-body bg-white border-2 border-black hover:bg-celo-yellow hover:text-black transition-all duration-200 rounded-lg"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Smart Account */}
-          {smartAccount && (
-            <div className="mt-4 bg-celo-purple border-4 border-black p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-body-s text-white mb-1 font-inter font-heavy">
-                    SMART ACCOUNT
-                  </p>
-                  <p className="text-body-s font-mono text-white truncate font-inter">
-                    {smartAccount.address}
-                  </p>
-                </div>
-                <button
-                  onClick={() => copyToClipboard(smartAccount.address)}
-                  className="p-2 text-white bg-transparent border-2 border-white hover:bg-white hover:text-celo-purple transition-all duration-200 rounded-lg ml-3"
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
               </div>
             </div>
-          )}
-        </motion.div>
-
-        {/* Token Balances */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white border-4 border-black p-6 rounded-2xl shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
-        >
-          <h2 className="text-h5 font-gt-alpina font-bold text-black mb-5 tracking-wide">
-            TOKEN BALANCES
-          </h2>
-
-          <div className="grid grid-cols-2 gap-5">
-            {/* cUSD Card */}
-            <div className="bg-celo-yellow border-2 border-black p-5 text-black rounded-xl hover:scale-[1.02] transition-transform duration-200">
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="relative w-10 h-10">
-                  <Image
-                    src="/static/cusdLogo.jpg"
-                    alt="CUSD"
-                    width={50}
-                    height={50}
-                    className="object-cover border-2 border-white bg-white rounded-full"
-                  />
-                  <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full">
-                    <CeloLogo />
-                  </div>
-                </div>
-                <p className="text-body-s font-inter font-heavy">
-                  CUSD BALANCE
-                </p>
-              </div>
-              <p className="text-h4 font-gt-alpina font-thin">
-                {isLoading ? "..." : cUSDBalance || "0.000"}
-              </p>
-            </div>
-
-            {/* USDC Card */}
-            <div className="bg-celo-purple border-2 border-black p-4 text-white rounded-xl hover:scale-[1.02] transition-transform duration-200">
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="relative w-8 h-8">
-                  <Image
-                    src="/static/usdclogo.png"
-                    alt="USDC"
-                    width={50}
-                    height={50}
-                    className="object-cover border-2 border-white bg-white rounded-full"
-                  />
-                  <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full">
-                    <CeloLogo />
-                  </div>
-                </div>
-                <p className="text-body-s font-inter font-heavy">
-                  USDC BALANCE
-                </p>
-              </div>
-              <p className="text-h4 font-gt-alpina font-thin">
-                {isLoading ? "..." : usdcBalance || "0.000"}
-              </p>
-            </div>
           </div>
 
-          {/* Send Button */}
-          <div className="flex justify-center mt-8">
+          {/* Actions Area */}
+          <div className="bg-white p-4 flex gap-4 border-t-4 border-black">
             <button
               onClick={() => setShowTransferModal(true)}
-              className="bg-celo-forest text-white border-4 border-black font-inter font-heavy py-3 px-10 hover:bg-black hover:text-celo-forest transition-all duration-200 flex items-center space-x-2 rounded-xl"
+              className="flex-1 bg-celo-yellow text-black border-4 border-black font-inter font-heavy py-4 rounded-xl hover:bg-black hover:text-celo-yellow transition-all duration-200 flex items-center justify-center space-x-2 active:translate-y-[1px]"
             >
-              <ArrowUpRight className="w-4 h-4" />
-              <span>SEND TOKENS</span>
+              <ArrowUpRight className="w-5 h-5" />
+              <span>SEND USDC</span>
+            </button>
+            <button
+              onClick={() => openCeloScan(address!)}
+              className="bg-celo-dk-tan text-black border-4 border-black p-4 rounded-xl hover:bg-white transition-all flex items-center justify-center active:translate-y-[1px]"
+            >
+              <ExternalLink className="w-5 h-5" />
             </button>
           </div>
         </motion.div>
@@ -631,14 +553,12 @@ export default function WalletPage() {
         </motion.div>
       </div>
 
-      {/* Transfer Modal */}
-      {showTransferModal && (
-        <TransferModal
-          cUSDBalance={cUSDBalance ?? "0"}
-          usdcBalance={usdcBalance ?? "0"}
-          onClose={() => setShowTransferModal(false)}
-        />
-      )}
+      <TransferModal
+        isOpen={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        address={address ?? undefined}
+        usdcBalance={usdcBalance ?? "0"}
+      />
 
       <BottomNavigation />
     </div>

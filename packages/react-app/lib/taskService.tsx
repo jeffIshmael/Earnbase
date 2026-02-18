@@ -154,7 +154,7 @@ export const checkUserEligibility = (
 export const getAllActiveTasks = async (): Promise<TaskWithEligibility[]> => {
   try {
     const tasks = await getActiveTasks();
-    return tasks.map(task => ({
+    return tasks.map((task: any) => ({
       ...task,
       userEligible: true, // Default to eligible for now
       eligibilityReason: undefined
@@ -173,7 +173,7 @@ export const getTasksWithEligibility = async (
 ): Promise<TaskWithEligibility[]> => {
   try {
     const tasks = await getActiveTasks();
-    return tasks.map(task => {
+    return tasks.map((task: any) => {
       const eligibility = checkUserEligibility(task, userAge, userGender, userCountry);
       return {
         ...task,
@@ -191,7 +191,7 @@ export const getTasksWithEligibility = async (
 export const getTaskById = async (id: number): Promise<TaskWithEligibility | null> => {
   try {
     const tasks = await getActiveTasks();
-    const task = tasks.find(t => t.id === id);
+    const task = tasks.find((t: any) => t.id === id);
     if (task) {
       return {
         ...task,
@@ -209,12 +209,12 @@ export const getTaskById = async (id: number): Promise<TaskWithEligibility | nul
 // Helper function to format reward amount
 export const formatReward = (reward: string): string => {
   try {
-    // Convert from wei to cUSD (assuming 18 decimals)
-    const weiAmount = BigInt(reward);
-    const cusdAmount = Number(weiAmount) / Math.pow(10, 18);
-    return `${cusdAmount.toFixed(2)} cUSD`;
+    // Convert from base units to USDC (assuming 6 decimals)
+    const amount = BigInt(reward);
+    const usdcAmount = Number(amount) / Math.pow(10, 6);
+    return `${usdcAmount.toFixed(2)} USDC`;
   } catch (error) {
-    return '0 cUSD';
+    return '0 USDC';
   }
 };
 
