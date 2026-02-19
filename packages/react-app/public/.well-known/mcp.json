@@ -1,53 +1,153 @@
 {
   "name": "Earnbase Human Feedback Agent",
-  "description": "Provides Human Feedback as a Service (HFaaS) to autonomous agents by routing paid feedback requests to human contributors and returning structured results with cryptographic and economic guarantees.",
-  "protocolVersion": "0.3.0",
-  "version": "1.0.0",
-
-  "provider": {
-    "organization": "Earnbase",
-    "url": "https://earnbase.vercel.app"
+  "version": "2026-02-19",
+  "description": "Human Feedback as a Service (HFaaS) for AI agents. Routes paid feedback requests to verified human contributors and returns structured results. Supports RLHF, content moderation, data labeling, and market research. Payment via gasless USDC on Celo (x402). Results typically within hours.",
+  "auth": {
+    "type": "x402",
+    "description": "Payment via X-PAYMENT header using x402 protocol. USDC on Celo (chainId: 42220). Payment is settled on-chain before task is created. No API key or account required.",
+    "header": "X-PAYMENT",
+    "currency": "USDC",
+    "chain": "celo",
+    "chainId": 42220,
+    "tokenAddress": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C"
   },
-
-  "endpoints": {
-    "submit": "https://earnbase.vercel.app/api/agent/submit",
-    "status": "https://earnbase.vercel.app/api/agent/status/{requestId}",
-    "results": "https://earnbase.vercel.app/api/agent/results/{requestId}"
-  },
-
-  "authentication": {
-    "schemes": ["signature"],
-    "signature": {
-      "type": "eip712",
-      "identityStandard": "erc-8004",
-      "description": "Requests must be signed by a registered ERC-8004 agent identity. No API keys are required."
-    }
-  },
-
-  "payments": {
-    "x402": {
-      "supported": true,
-      "currency": "USDC",
-      "chain": "celo",
-      "mode": "gasless",
-      "pricing": {
-        "model": "per-request",
-        "formula": "(participants × rewardPerParticipant) + platform fee",
-        "platformFeePercent": 1,
-        "enforcement": "payment-verified-before-acceptance"
+  "tools": [
+    {
+      "name": "submit_feedback_request",
+      "description": "Submit a new human feedback task. Payment is settled on-chain via x402 before task is created. Returns taskId and requestId for polling status and results.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "feedbackType": {
+            "type": "string",
+            "enum": ["multiple_choice", "single_choice", "free_text", "file_upload", "rating"],
+            "description": "Type of feedback to collect from human contributors"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "The question or instruction shown to human contributors"
+          },
+          "title": {
+            "type": "string",
+            "description": "Short title for the task (max 100 chars)"
+          },
+          "options": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Answer options — required for multiple_choice and single_choice"
+          },
+          "constraints": {
+            "type": "object",
+            "properties": {
+              "participants": { "type": "number", "description": "Number of human contributors needed" },
+              "rewardPerParticipant": { "type": "string", "description": "USDC reward per contributor e.g. '0.50'" },
+              "age": { "type": "string", "description": "Optional age filter for contributors" },
+              "gender": { "type": "string", "description": "Optional gender filter for contributors" },
+              "nationality": { "type": "string", "description": "Optional nationality filter for contributors" }
+            },
+            "required": ["participants", "rewardPerParticipant"]
+          },
+          "requestId": {
+            "type": "string",
+            "description": "Optional idempotency key — use to safely retry without creating duplicate tasks"
+          }
+        },
+        "required": ["feedbackType", "prompt", "constraints"]
+      }
+    },
+    {
+      "name": "get_feedback_status",
+      "description": "Poll the status of a submitted feedback request. Returns current status (pending, active, completed, cancelled) and participant progress.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "description": "The taskId or requestId returned from submit_feedback_request"
+          }
+        },
+        "required": ["requestId"]
+      }
+    },
+    {
+      "name": "get_feedback_results",
+      "description": "Retrieve completed human feedback results. Only returns data when status is completed. Returns structured responses with participant data and aggregated results.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "description": "The taskId or requestId to retrieve results for"
+          }
+        },
+        "required": ["requestId"]
       }
     }
-  },
-
-  "schemas": {
-    "feedbackRequest": "https://earnbase.vercel.app/schemas/feedbackRequest.schema.json",
-    "feedbackResult": "https://earnbase.vercel.app/schemas/feedbackResult.schema.json"
-  },
-
-  "interactionModel": {
-    "submission": "push",
-    "resultDelivery": ["pull", "webhook"],
-    "humanParticipants": true,
-    "async": true
+  ],
+  "prompts": [
+    {
+      "name": "human_feedback",
+      "description": "When human intelligence is needed, get it from human contributors via Earnbase"
+    },
+    {
+      "name": "content_moderation",
+      "description": "Submit content for human safety and quality review"
+    },
+    {
+      "name": "rlhf_collection",
+      "description": "Collect human preference data for reinforcement learning from human feedback"
+    },
+    {
+      "name": "data_labeling",
+      "description": "Send data items to human contributors for annotation and classification"
+    }
+  ],
+  "resources": [
+    {
+      "uri": "https://earnbase.vercel.app/schemas/feedbackRequest.schema.json",
+      "name": "Feedback Request Schema"
+    },
+    {
+      "uri": "https://earnbase.vercel.app/schemas/feedbackResult.schema.json",
+      "name": "Feedback Result Schema"
+    }
+  ],
+  "examples": [
+    {
+      "prompt": "Get human feedback on which of these two product descriptions is more compelling",
+      "tool": "submit_feedback_request",
+      "input": {
+        "feedbackType": "multiple_choice",
+        "title": "Product description preference",
+        "prompt": "Which product description is more compelling to you as a consumer?",
+        "options": ["Description A: ...", "Description B: ..."],
+        "constraints": { "participants": 10, "rewardPerParticipant": "0.25" }
+      }
+    },
+    {
+      "prompt": "Moderate this piece of content for safety",
+      "tool": "submit_feedback_request",
+      "input": {
+        "feedbackType": "single_choice",
+        "title": "Content moderation review",
+        "prompt": "Does this content violate community safety guidelines?",
+        "options": ["Safe", "Unsafe - violence", "Unsafe - hate speech", "Unsafe - other"],
+        "constraints": { "participants": 3, "rewardPerParticipant": "0.10" }
+      }
+    },
+    {
+      "prompt": "Collect RLHF preference data between two AI responses",
+      "tool": "submit_feedback_request",
+      "input": {
+        "feedbackType": "multiple_choice",
+        "title": "AI response preference",
+        "prompt": "Which AI response is more helpful and accurate?",
+        "options": ["Response A", "Response B", "Both equally good", "Neither is good"],
+        "constraints": { "participants": 5, "rewardPerParticipant": "0.20" }
+      }
+    }
+  ],
+  "integration": {
+    "note": "No API key or account required. Payment is automatic via x402 USDC on Celo. Total cost = (participants × rewardPerParticipant) + 1% platform fee."
   }
 }
