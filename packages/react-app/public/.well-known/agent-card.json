@@ -23,8 +23,16 @@
   "defaultOutputModes": ["application/json"],
 
   "authentication": {
-    "schemes": ["signature"],
-    "identityStandard": "erc-8004"
+    "schemes": ["x402"],
+    "x402": {
+      "description": "Payment via X-PAYMENT header using x402 protocol. No API key or account required.",
+      "header": "X-PAYMENT",
+      "currency": "USDC",
+      "chain": "celo",
+      "chainId": 42220,
+      "tokenAddress": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
+      "enforcement": "Payment is verified and settled on-chain before any task is accepted. Requests without valid payment are rejected with HTTP 402."
+    }
   },
 
   "payments": {
@@ -32,9 +40,13 @@
       "supported": true,
       "currency": "USDC",
       "chain": "celo",
+      "chainId": 42220,
+      "tokenAddress": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
       "pricingModel": "per-request",
+      "formula": "(participants × rewardPerParticipant) + 1% platform fee",
+      "minimumAmount": "0.001 USDC",
       "platformFeePercent": 1,
-      "feeSemantics": "platform fee is deducted from total payment; remainder is reserved exclusively for contributor rewards"
+      "feeSemantics": "Platform fee is deducted from total payment; remainder is reserved exclusively for contributor rewards"
     }
   },
 
@@ -54,13 +66,10 @@
         "multiple_choice",
         "single_choice",
         "free_text",
-        "file_upload"
+        "file_upload",
+        "rating"
       ],
-      "constraintsSupported": [
-        "age",
-        "gender",
-        "nationality"
-      ],
+      "constraintsSupported": ["age", "gender", "nationality"],
       "tags": ["human-feedback", "rlhf", "evaluation", "crowdsourcing"]
     },
     {

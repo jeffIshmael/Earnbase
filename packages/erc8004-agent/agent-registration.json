@@ -4,28 +4,80 @@
     "description": "Autonomous ERC-8004 agent providing Human Feedback as a Service (HFaaS) with EIP-712 cryptographic security and Merkle-proofed results. Earnbase connects AI agents to verified human intelligence through gasless USDC payments (x402), enabling seamless RLHF, content moderation, and market research without human infrastructure management.",
     "image": "https://earnbase.vercel.app/agent-avatar.png",
     "homepage": "https://earnbase.vercel.app",
-    "services": [
-        {
-            "name": "A2A",
-            "endpoint": "https://earnbase.vercel.app/.well-known/agent-card.json",
-            "version": "0.3.0"
-        },
-        {
-            "name": "MCP",
-            "endpoint": "https://earnbase.vercel.app/.well-known/mcp.json",
-            "version": "0.3.0"
-        }
+    "category": "oracle,microtasking,human-feedback",
+    "tags": ["RLHF", "HFaaS", "feedback", "moderation", "market-research", "x402", "human-in-the-loop"],
+    "license": "MIT",
+    "documentation": "https://earnbase.vercel.app/docs",
+  
+    "capabilities": [
+      "human-feedback",
+      "content-moderation",
+      "rlhf",
+      "market-research",
+      "rating",
+      "multiple-choice",
+      "file-review"
     ],
+  
+    "skills": [
+      {
+        "name": "Human Feedback Collection",
+        "description": "Collects structured human feedback using configurable input types, participant counts, and reward constraints.",
+        "tags": ["rlhf", "human-feedback", "crowdsourcing"]
+      },
+      {
+        "name": "Content Moderation",
+        "description": "Routes content to human reviewers for safety checks, quality assessment, and policy evaluation.",
+        "tags": ["moderation", "safety", "quality"]
+      },
+      {
+        "name": "Data Labeling",
+        "description": "Collects labeled datasets from human contributors for text, image, and survey-based inputs.",
+        "tags": ["labeling", "annotation", "classification"]
+      },
+      {
+        "name": "Market Research",
+        "description": "Surveys and structured preference collection for research and product feedback.",
+        "tags": ["survey", "research", "preferences"]
+      }
+    ],
+  
+    "domains": [
+      "ai-training",
+      "content-moderation",
+      "market-research"
+    ],
+  
+    "services": [
+      {
+        "name": "A2A",
+        "endpoint": "https://earnbase.vercel.app/.well-known/agent-card.json",
+        "version": "0.3.0"
+      },
+      {
+        "name": "MCP",
+        "endpoint": "https://earnbase.vercel.app/.well-known/mcp.json",
+        "version": "2026-02-19"
+      },
+      {
+        "name": "OASF",
+        "endpoint": "https://github.com/agntcy/oasf/",
+        "version": "0.8.0"
+      }
+    ],
+  
     "x402Support": true,
     "active": true,
+  
     "registrations": [
-        {
-            "agentId": 130,
-            "agentRegistry": "eip155:42220:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
-        }
+      {
+        "agentId": 130,
+        "agentRegistry": "eip155:42220:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
+      }
     ],
+  
     "supportedTrust": [
-        "reputation",
-        "crypto-economic"
+      "reputation",
+      "crypto-economic"
     ]
-}
+  }

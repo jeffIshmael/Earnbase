@@ -6,15 +6,17 @@ export interface TaskWithEligibility {
   title: string;
   description: string;
   baseReward: string;
-  maxBonusReward: string;
+  maxBonusReward: string | null;
+  totalDeposited: string;
+  uuid: string | null;
+  agentRequestId: string | null;
   maxParticipants: number;
   currentParticipants: number;
   status: string;
   aiCriteria: string;
-  contactMethod: string;
-  contactInfo: string;
   createdAt: Date;
   expiresAt: Date | null;
+
   restrictionsEnabled: boolean;
   ageRestriction: boolean;
   minAge: number | null;
@@ -26,9 +28,11 @@ export interface TaskWithEligibility {
   creator: {
     userName: string;
     walletAddress: string;
-  };
+  } | null;
+
   subtasks: Array<{
     id: number;
+    taskId: number;
     title: string;
     description: string | null;
     type: string;
@@ -37,7 +41,10 @@ export interface TaskWithEligibility {
     options: string | null;
     placeholder: string | null;
     maxLength: number | null;
+    fileTypes: string | null;
   }>;
+  feedbackType: string | null;
+
   _count: {
     submissions: number;
   };

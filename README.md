@@ -1,185 +1,64 @@
 <p align="center">
-  <img width="120" src="https://earnbase.vercel.app/logo.png" alt="EarnBase logo" />
+  <img src="https://earnbase.vercel.app/logo.png" alt="EarnBase Logo" width="200"/>
 </p>
 
-<p align="center"><b>EarnBase</b> — Incentivized feedback and task completion on Celo</p>
+# EarnBase: Human Feedback as a Service (HFaaS)
 
----
+EarnBase is an on-chain Human Feedback as a Service (HFaaS) platform that enables autonomous AI agents to securely obtain real-world human input through verifiable identity, enforced payments, and cryptographic proofs.
 
-## Overview
+EarnBase operates as an agent-native coordination layer where external agents can request structured human feedback, pay transparently in USDC, and receive provable results.
 
-**EarnBase** lets creators post tasks, collect structured feedback, and automatically reward contributors on-chain. AI evaluates responses for quality and allocates bonus rewards, making feedback loops fair, transparent, and engaging.
+## Problem Statement
 
-- **Network**: Celo (cUSD)
-- **Smart Accounts**: Pimlico for gas sponsorship
-- **AI Scoring**: Gemini API
-- **Frontend**: Next.js + Tailwind
-- **Database**: Prisma
+AI agents struggle to get:
+- Real-time human feedback
+- Reliable market insights
+- Clear signals on what users actually want
 
-> Originally built to support beta testing for the ChamaPay miniapp, now evolving into a general-purpose platform for high-quality crowdsourced insights and task execution.
+This creates a bottleneck for:
+- Market research
+- Content moderation and labeling
+- Reinforcement learning and preference alignment
+- Decision validation in high-stakes workflows
+- Model evaluation and benchmarking
 
----
+## Solution
 
-## Highlights
+EarnBase provides AI agents with direct, paid access to real-time human intelligence—delivered as verifiable, on-chain results.
 
-- **Structured tasks**: Clear criteria and expectations per task
-- **AI-evaluated feedback**: Higher-quality input earns more
-- **Instant on-chain rewards**: Base + bonus payout in cUSD
-- **Smart accounts**: Gasless reward settlement for a smooth UX
-- **Public task creation**: Anyone can create tasks and invite contributors
-- **Swaps**: cUSD ↔ USDC for easier off-ramps
+Agents submit structured feedback requests and receive responses from verified human contributors in minutes. This enables fast market research, preference discovery, and decision validation.
 
----
+### Key Features
 
-## Screenshots & Media
+- **Real-Time Human Feedback**: Get human insights at the speed of the internet.
+- **Payment-Enforced Access**: All feedback requests are gated by on-chain payment (x402, USDC). This prevents spam, guarantees fair compensation, and ensures contributors are economically aligned with the task’s importance.
+- **Structured Human Signals**: Feedback is collected in deterministic formats, producing clear, machine-consumable signals that agents can immediately use for learning, evaluation, or policy decisions.
 
-### Video Demo
-- Live Demo: [Watch on YouTube](https://youtu.be/MkSACyoYrds?si=wI57eqHpGIB6fCKO)
+## How It Works
 
----
+1. **Submit Request**: AI agents submit structured feedback requests to the EarnBase Agent, specifying the task, number of participants, format, and reward pool.
+2. **Collect Feedback**: Verified human contributors complete the task on the EarnBase platform, providing real-time feedback in predefined formats.
+3. **On-Chain Finalization**: Once the required participation threshold is met, the request is finalized on-chain and cryptographic proofs are generated.
+4. **Retrieve Results**: The requesting agent retrieves aggregated results using the request ID, receiving structured human signals along with verifiable proofs for auditability and reuse.
+
+## Comparison: V1 vs V2
+
+| Feature | EarnBase V1 | EarnBase V2 |
+| :--- | :--- | :--- |
+| **Model** | Task-reward platform | Human Feedback as a Service (HFaaS) |
+| **Agent Integration** | None | EarnBase Agent (ERC-8004) |
+| **Task Creation** | Open to anyone | Agent-only creation |
+| **Rewards** | cUSD | USDC |
+| **Role of Humans** | End users earning rewards | Infrastructure (HFaaS) |
 
 ## Architecture
 
-- `packages/hardhat`: Solidity contracts and deployment (Celo)
-- `packages/react-app`: Next.js app, API routes, Prisma, and UI
-- `app/api/*`: serverless endpoints for rewards, notifications, etc.
-- `lib/*`: blockchain, AI, email/WhatsApp utilities
-- `components/*`: UI components (Tailwind + shadcn)
+![EarnBase Architecture](https://earnbase.vercel.app/earnbase_arch.png)
 
-Smart contract: `EarnBase.sol` — manages task registration and reward accounting.
+## Useful Links
 
-Contract (CeloScan): `https://celoscan.io/address/0xFfcC76948C60606e7F71500AD569bE0977edC85E`
+- **EarnBase Agent**: [8004scan.io/agents/celo/130](https://www.8004scan.io/agents/celo/130)
+- **EarnBase Platform**: [earnbase.vercel.app](https://earnbase.vercel.app/)
+- **EarnBase Farcaster Mini-App**: [farcaster.xyz/miniapps/te_I8X6QteFo/earnbase](https://farcaster.xyz/miniapps/te_I8X6QteFo/earnbase)
+- **EarnBase Smart Contract**: [0xaA558aC98127c78f2125c8DE83eA87e4ac843AFb](https://celoscan.io/address/0xaA558aC98127c78f2125c8DE83eA87e4ac843AFb)
 
----
-
-## Quick Start
-
-### Prerequisites
-- Node.js LTS
-- pnpm or npm
-
-### Install
-```bash
-pnpm install
-# or
-npm install
-```
-
-### Environment Variables
-
-Create `.env` files in `packages/react-app` and set the following (as applicable):
-
-```bash
-# Blockchain / Wallet
-NEXT_PUBLIC_CHAIN_ID=42220
-NEXT_PUBLIC_RPC_URL=https://forno.celo.org
-
-# Pimlico / Smart Accounts
-PIMLICO_API_KEY=...
-
-# AI (Gemini)
-GEMINI_API_KEY=...
-
-# WhatsApp (Meta)
-WHATSAPP_PHONE_NUMBER_ID=...
-WHATSAPP_TOKEN=...
-WHATSAPP_BUSINESS_ACCOUNT_ID=...
-
-# Email
-RESEND_API_KEY=...
-```
-
-### Run the app
-```bash
-cd packages/react-app
-pnpm dev
-# or
-npm run dev
-```
-
-Open `http://localhost:3000`.
-
----
-
-## Key Flows
-
-### Create a Task
-1. Go to `Start` → `Create Task`
-2. Define subtasks, criteria, base reward, and max bonus
-3. Publish and share your task link
-
-### Submit Feedback
-1. Open a task and complete the subtasks
-2. Submit text and any required files
-3. AI scores your response → reward calculated (base + bonus)
-4. Reward sent on-chain (gasless)
-
-### Notifications
-- Email and WhatsApp notifications to creators when new responses arrive
-- Configured via API routes in `packages/react-app/app/api/*`
-
----
-
-## Integrations
-
-- **AI (Gemini)**: Scores feedback quality and provides short explanations
-- **Smart Accounts (Pimlico)**: Gas sponsorship for creating and sending reward transactions
-- **Swaps**: cUSD ↔ USDC helpers for off-ramping convenience
-- **Self Protocol**: Private eligibility approval for restricted tasks
-- **Divvi**: Earn slices from users’ gas fees
-
----
-
-## Development
-
-- Contracts: `packages/hardhat`
-- Frontend/API: `packages/react-app`
-
-Useful scripts:
-```bash
-# Hardhat (from packages/hardhat)
-pnpm hardhat compile
-pnpm hardhat test
-
-# React app (from packages/react-app)
-pnpm dev
-pnpm build && pnpm start
-```
-
-Database is managed via Prisma (see `packages/react-app/prisma`).
-
----
-
-## Roadmap
-
-- WhatsApp two-way flows (receive replies and ingest as submissions)
-- Advanced leaderboards and seasons
-- More chains and stablecoins
-- Richer task types and media uploads
-
----
-
-## Links
-
-- Live App: `https://earnbase.vercel.app/`
-- Farcaster Miniapp: `https://farcaster.xyz/miniapps/te_I8X6QteFo/earnbase`
-- Demo Video: `https://youtu.be/MkSACyoYrds?si=wI57eqHpGIB6fCKO`
-- Contract: `https://celoscan.io/address/0xFfcC76948C60606e7F71500AD569bE0977edC85E`
-
----
-
-## Contributing
-
-Contributions are welcome! Open issues/PRs for features, fixes, or docs. Please keep PRs focused and include screenshots for UI changes.
-
----
-
-## License
-
-MIT
-
----
-
-## Contact
-
-Email: `jeffianmuchiri24@gmail.com`
