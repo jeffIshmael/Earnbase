@@ -52,7 +52,7 @@ async function main() {
         {
             name: "MCP",
             endpoint: "https://earnbase.vercel.app/.well-known/mcp.json",
-            version: "2025-06-18",
+            version: "2026-02-19",
             description: "Model Context Protocol endpoint for AI agent integration"
         },
         {
@@ -92,9 +92,9 @@ async function main() {
         const updateResponse = await axios.put(
             `${SELFCLAW_API}/agent`,
             {
-                agentName: "Earnbase Human Feedback Agent",
-                description: "Autonomous ERC-8004 agent providing Human Feedback as a Service (HFaaS). Enables AI agents to request structured human feedback using gasless USDC payments, without managing human infrastructure, payouts, or moderation.",
-                agentUri: "https://earnbase.vercel.app/.well-known/agent-card.json",
+                agentName: "Earnbase Global Intelligence Agent",
+                description: "Autonomous ERC-8004 agent providing Global Human Intelligence as a Service (GHIaaS). Enables AI agents to access high-scale, unbiased human feedback with precise demographic targeting (age, country, gender) and multi-step task sequences via gasless USDC payments (x402). Perfect for RLHF, sentiment analysis, and multi-region market research.",
+                agentUri: "ipfs://bafkreidouqgzq5yrjrhvvraw35yg44klvqva3wfj62ewzhlxyqlh47mn3y",
                 ...auth
             }
         );

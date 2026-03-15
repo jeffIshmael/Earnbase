@@ -65,7 +65,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         RequestStatus status;
 
         // Proof data
-        bytes32 resultsHash;
+        string resultsCID;
         bytes32 merkleRoot;
 
         uint256 avgLatency;
@@ -97,7 +97,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
     /// Fired once when agent submits final results
     event FeedbackRequestCompleted(
         bytes32 indexed requestId,
-        bytes32 resultsHash,
+        string resultsCID,
         bytes32 merkleRoot,
         uint256 participants,
         uint256 completionRate,
@@ -225,7 +225,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
    
     function completeRequest(
         bytes32 requestId,
-        bytes32 resultsHash,
+        string calldata resultsCID,
         bytes32 merkleRoot,
         uint256 avgLatencySeconds,
         uint256 completionRate,
@@ -236,7 +236,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         require(req.status != RequestStatus.Completed && req.status != RequestStatus.Cancelled, "Already finalized");
 
         req.status = RequestStatus.Completed;
-        req.resultsHash = resultsHash;
+        req.resultsCID = resultsCID;
         req.merkleRoot = merkleRoot;
         req.avgLatency = avgLatencySeconds;
         req.completionRate = completionRate;
@@ -244,7 +244,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
 
         emit FeedbackRequestCompleted(
             requestId,
-            resultsHash,
+            resultsCID,
             merkleRoot,
             req.participantCount,
             completionRate,
@@ -279,7 +279,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
                 tag1,
                 tag2,
                 "", // endpoint
-                "", // uri (could be ipfs hash of results)
+                resultsCID, // uri (ipfs hash of results)
                 merkleRoot // hash
             ) {} catch {
                 // Ignore failure

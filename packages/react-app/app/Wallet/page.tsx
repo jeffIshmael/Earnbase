@@ -36,7 +36,7 @@ import {
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { wagmiConfig } from "@/providers/AppProvider";
 import { cn } from "@/lib/utils";
-import { cUSDAddress, USDCAddress, celoAddress } from "@/contexts/constants";
+import { cUSDAddress, USDCAddress, celoAddress } from "@/blockchain/constants";
 
 interface Quote {
   amountWei: string;

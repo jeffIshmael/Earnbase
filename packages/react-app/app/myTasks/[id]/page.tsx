@@ -54,7 +54,7 @@ import {
   contractAbi,
   contractAddress,
   cUSDAddress,
-} from "@/contexts/constants";
+} from "@/blockchain/constants";
 import { erc20Abi, parseEther } from "viem";
 import { readContract, waitForTransactionReceipt } from "@wagmi/core";
 import { celo } from "wagmi/chains";
@@ -585,8 +585,8 @@ const MyTaskDetailPage = () => {
             onClick={() => handleDeactivateTask(task.status === "ACTIVE" ? "PAUSED" : "ACTIVE")}
             disabled={isPausing}
             className={`flex items-center gap-3 px-6 py-4 border-4 border-black rounded-xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-all duration-300 active:scale-95 font-heavy ${task.status === "ACTIVE"
-                ? "bg-celo-orange text-black hover:bg-black hover:text-celo-orange"
-                : "bg-celo-success text-white hover:bg-black hover:text-celo-success"
+              ? "bg-celo-orange text-black hover:bg-black hover:text-celo-orange"
+              : "bg-celo-success text-white hover:bg-black hover:text-celo-success"
               }`}
           >
             {isPausing ? (
@@ -617,8 +617,8 @@ const MyTaskDetailPage = () => {
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
                 className={`flex items-center gap-2 px-6 py-3 font-heavy text-body-m transition-all duration-300 ${activeTab === tab.key
-                    ? "bg-celo-yellow text-black"
-                    : "bg-transparent hover:bg-celo-dk-tan hover:text-black"
+                  ? "bg-celo-yellow text-black"
+                  : "bg-transparent hover:bg-celo-dk-tan hover:text-black"
                   }`}
               >
                 <tab.icon className="w-5 h-5" />

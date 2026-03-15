@@ -33,6 +33,7 @@ model Task {
   id                Int      @id @default(autoincrement())
   uuid              String?   @unique @default(uuid())
   agentRequestId    String?   @unique
+  paymentTxHash     String?   @unique
   title             String
   description       String
   blockChainId      String   @default("0")
@@ -56,6 +57,12 @@ model Task {
   countryRestriction Boolean @default(false)
   countries          String?  // JSON array of country codes
   
+  // Agent Fields
+  callbackUrl        String?
+  ipfsHash           String?
+  contactMethod      ContactMethod @default(EMAIL)
+  contactInfo        String?
+  
   // Relationships
   creatorId         Int?
   creator           User?    @relation("TaskCreator", fields: [creatorId], references: [id])
@@ -68,7 +75,6 @@ model Task {
   claimed           Boolean  @default(false)
   feedback          String?
   reward            String   @default("0")
-  ipfsHash          String?
   aiRating          String?
   userId            Int?
   user              User?    @relation(fields: [userId], references: [id])

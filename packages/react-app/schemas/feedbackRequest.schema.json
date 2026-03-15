@@ -12,12 +12,16 @@
                 "multiple_choice",
                 "single_choice",
                 "text_input",
-                "file_upload"
+                "file_upload",
+                "rating"
             ]
         },
         "prompt": {
             "type": "string",
             "description": "Instruction shown to human contributors"
+        },
+        "title": {
+            "type": "string"
         },
         "options": {
             "type": "array",
@@ -41,31 +45,73 @@
                     "type": "string",
                     "description": "USDC amount per contributor"
                 },
-                "filters": {
-                    "type": "object",
-                    "properties": {
-                        "age": {
-                            "type": "object",
-                            "properties": {
-                                "min": {
-                                    "type": "integer"
-                                },
-                                "max": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "gender": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "country": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                "countryRestriction": {
+                    "type": "boolean"
+                },
+                "countries": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "ageRestriction": {
+                    "type": "boolean"
+                },
+                "minAge": {
+                    "type": "integer"
+                },
+                "maxAge": {
+                    "type": "integer"
+                },
+                "genderRestriction": {
+                    "type": "boolean"
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "M",
+                        "F"
+                    ]
+                }
+            }
+        },
+        "subtasks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "MULTIPLE_CHOICE",
+                            "TEXT_INPUT",
+                            "FILE_UPLOAD",
+                            "CHOICE_SELECTION",
+                            "RATING"
+                        ]
+                    },
+                    "required": {
+                        "type": "boolean"
+                    },
+                    "order": {
+                        "type": "integer"
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "fileTypes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
                         }
                     }
                 }

@@ -2,7 +2,7 @@
 // This file contains blockchain write functions by the agent
 import { createPublicClient, http, createWalletClient, parseUnits } from 'viem';
 import { celo, base } from 'viem/chains';
-import { contractAbi, contractAddress } from '@/contexts/constants';
+import { contractAbi, contractAddress } from '@/blockchain/constants';
 import { getAgentSmartAccount } from './Pimlico';
 
 // function to add a reward on the user 

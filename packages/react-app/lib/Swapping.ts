@@ -6,7 +6,7 @@
 // I'll do this according to the app.mento.org
 import { Mento, TradablePair } from "@mento-protocol/mento-sdk";
 import { ethers, providers } from "ethers";
-import { cUSDAddress, USDCAddress, celoAddress } from "@/contexts/constants";
+import { cUSDAddress, USDCAddress, celoAddress } from "@/blockchain/constants";
 import { parseInputExchangeAmount, calcExchangeRate, invertExchangeRate } from "@/utils/SwapUtils";
 import { fromWei } from "@/utils/amount";
 import { parseUnits } from "ethers/lib/utils";

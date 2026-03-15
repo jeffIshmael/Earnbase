@@ -32,7 +32,7 @@ import {
   contractAbi,
   contractAddress,
   USDCAddress,
-} from "@/contexts/constants";
+} from "@/blockchain/constants";
 import { readContract, waitForTransactionReceipt } from "@wagmi/core";
 import { erc20Abi, parseUnits } from "viem";
 import { wagmiConfig } from "@/providers/AppProvider";
