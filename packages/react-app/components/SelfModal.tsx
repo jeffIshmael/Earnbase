@@ -2,20 +2,22 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { countries, getUniversalLink } from "@selfxyz/core";
+import { getUniversalLink } from "@selfxyz/core";
+import { countries } from "@selfxyz/common";
 import {
   SelfQRcodeWrapper,
   SelfAppBuilder,
   type SelfApp,
 } from "@selfxyz/qrcode";
 import { useAccount } from "wagmi";
-import { X, AlertCircle, CheckCircle, Info } from "lucide-react";
+import { X, AlertCircle, CheckCircle, Info, Copy, SquareArrowOutUpRight } from "lucide-react";
 import { url } from "@/blockchain/constants";
+import { type Country3LetterCode } from "@selfxyz/common";
 
 interface Requirements {
   age?: { min: number; max: number };
   gender?: string;
-  countries?: string[];
+  countries?: Country3LetterCode[];
 }
 
 interface SelfModalProps {
@@ -46,7 +48,7 @@ export default function SelfModal({
     type: "success" | "error" | "info";
   }>({ show: false, message: "", type: "info" });
 
-  const excludedCountries = useMemo(() => [countries.NORTH_KOREA], []);
+  const excludedCountries = useMemo(() => [countries.NORTH_KOREA, countries.IRAN] as Country3LetterCode[], []);
 
   useEffect(() => {
     setRestrictions(requirements);
@@ -71,7 +73,7 @@ export default function SelfModal({
         userDefinedData: JSON.stringify(restrictions),
         disclosures: {
           minimumAge: restrictions.age?.min || 18,
-          excludedCountries: restrictions.countries || [],
+          excludedCountries: excludedCountries,
           nationality: true,
           date_of_birth:
             restrictions.age?.min || restrictions.age?.max ? true : false,
@@ -215,7 +217,7 @@ export default function SelfModal({
             disabled={!universalLink || isVerifying}
             className="w-full bg-celo-forest text-white border-2 border-black py-3 font-inter font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-md hover:bg-celo-purple hover:text-celo-yellow transition"
           >
-            {linkCopied ? "Copied!" : "Copy Universal Link"}
+            {linkCopied ? "Copied!" : "Copy Universal Link"} <Copy className="w-5 h-5" />
           </button>
 
           <button
@@ -223,7 +225,7 @@ export default function SelfModal({
             disabled={!universalLink || isVerifying}
             className="w-full bg-celo-yellow text-black border-2 border-black py-3 font-inter font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-md hover:bg-celo-purple hover:text-celo-yellow transition"
           >
-            Open Self App
+            Open Self App <SquareArrowOutUpRight className="w-5 h-5" />
           </button>
         </div>
 
@@ -239,10 +241,10 @@ export default function SelfModal({
         {toast.show && (
           <div
             className={`absolute bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 border-4 border-black text-sm font-inter font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-lg ${toast.type === "success"
-                ? "bg-green-600 text-white"
-                : toast.type === "error"
-                  ? "bg-red-500 text-white"
-                  : "bg-blue-300 text-black"
+              ? "bg-green-600 text-white"
+              : toast.type === "error"
+                ? "bg-red-500 text-white"
+                : "bg-blue-300 text-black"
               }`}
           >
             <div className="flex items-center space-x-2">

@@ -4,6 +4,7 @@ import { PrismaClient, TaskStatus, ContactMethod, SubtaskType, SubmissionStatus 
 import { parseEther } from 'viem';
 
 const prisma = new PrismaClient();
+import { finalizeAgentTask } from "@/lib/agentCompletion";
 
 // function to create a new task
 export async function createTask(
@@ -217,7 +218,7 @@ export async function submitTaskResponse(
     });
 
     // Update task participant count
-    await prisma.task.update({
+    const updatedTask = await prisma.task.update({
       where: { id: taskId },
       data: {
         currentParticipants: {
@@ -225,6 +226,11 @@ export async function submitTaskResponse(
         }
       }
     });
+
+    // Automatically finalize if participant limit reached for agent tasks
+    if (updatedTask.agentRequestId && updatedTask.currentParticipants >= updatedTask.maxParticipants) {
+      finalizeAgentTask(taskId).catch(err => console.error("Finalization failed:", err));
+    }
 
     return submission;
   } catch (error) {

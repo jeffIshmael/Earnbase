@@ -212,7 +212,7 @@ const MobileEarnBaseHome = () => {
 
           // Calculate total earned (this would come from blockchain in real app)
           const totalEarned = user.totalEarned
-            ? (Number(user.totalEarned) / Math.pow(10, 18)).toFixed(2)
+            ? (Number(user.totalEarned) / Math.pow(10, 6)).toFixed(2)
             : "0.00";
 
           setUserStats({

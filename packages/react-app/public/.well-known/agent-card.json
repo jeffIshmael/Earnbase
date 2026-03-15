@@ -70,7 +70,7 @@
       "constraintsSupported": [
         "age",
         "gender",
-        "country"
+        "country (ISO 3-letter)"
       ],
       "tags": [
         "human-feedback",

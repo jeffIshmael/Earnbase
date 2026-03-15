@@ -4,6 +4,7 @@ import { PrismaClient, TaskStatus, ContactMethod, SubtaskType, SubmissionStatus 
 import { parseUnits } from "viem";
 
 const prisma = new PrismaClient();
+import { finalizeAgentTask } from "@/lib/agentCompletion";
 
 // function to check if the user is registered
 export async function getUser(address: string) {
@@ -606,7 +607,7 @@ export async function submitTaskResponse(
     });
 
     // Update task participant count
-    await prisma.task.update({
+    const updatedTask = await prisma.task.update({
       where: { id: taskId },
       data: {
         currentParticipants: {
@@ -614,6 +615,11 @@ export async function submitTaskResponse(
         }
       }
     });
+
+    // Automatically finalize if participant limit reached for agent tasks
+    if (updatedTask.agentRequestId && updatedTask.currentParticipants >= updatedTask.maxParticipants) {
+      finalizeAgentTask(taskId).catch(err => console.error("Finalization failed:", err));
+    }
 
     return submission;
   } catch (error) {
@@ -807,7 +813,7 @@ export async function createTaskSubmissionWithResponses(
       });
 
       // Update task participant count
-      await tx.task.update({
+      const updatedTask = await tx.task.update({
         where: { id: taskId },
         data: {
           currentParticipants: {
@@ -815,6 +821,14 @@ export async function createTaskSubmissionWithResponses(
           }
         }
       });
+
+      // Automatically finalize if participant limit reached for agent tasks
+      if (updatedTask.agentRequestId && updatedTask.currentParticipants >= updatedTask.maxParticipants) {
+        // Trigger after transaction commits
+        setTimeout(() => {
+          finalizeAgentTask(taskId).catch(err => console.error("Finalization failed:", err));
+        }, 0);
+      }
 
       // Return submission with responses
       return tx.taskSubmission.findUnique({

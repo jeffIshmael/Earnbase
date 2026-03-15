@@ -27,11 +27,6 @@ export async function finalizeAgentTask(taskId: number) {
         const ipfsCid = await aggregateAndPinResults(taskId);
         console.log(`Pinned IPFS CID: ${ipfsCid}`);
 
-        // If no .env is setup for blockchain yet, return early
-        if (!process.env.ADMIN_PRIVATE_KEY) {
-            console.warn("No ADMIN_PRIVATE_KEY found. Skipping on-chain completion.");
-            return { success: true, ipfsCid, txHash: null };
-        }
 
         // Convert string ID to bytes32, hash the IPFS CID for storage
         // using a simple keccak256 or string-to-bytes32 logic based on how the contract expects it

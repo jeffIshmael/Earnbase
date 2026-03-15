@@ -62,7 +62,8 @@
                 "type": "array",
                 "items": {
                   "type": "string"
-                }
+                },
+                "description": "ISO 3-letter country codes (e.g., ['KEN', 'USA'])"
               },
               "ageRestriction": {
                 "type": "boolean"

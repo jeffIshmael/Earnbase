@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { CheckCircle, AlertCircle, X, ArrowUpRight, Info, TestTube } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { USDCAddress } from '@/blockchain/constants';
+import { USDCAddress, url } from '@/blockchain/constants';
+import { type Country3LetterCode } from "@selfxyz/common";
 import { motion, AnimatePresence } from 'framer-motion';
 import { prepareContractCall, getContract, sendTransaction, createThirdwebClient } from "thirdweb";
 import { celo } from "thirdweb/chains";
@@ -48,7 +49,7 @@ const TransferModal: React.FC<TransferModalProps> = ({
       participants: 1,
       rewardPerParticipant: 0.01,
       countryRestriction: true,
-      countries: ["KE"]
+      countries: ["KEN"] as Country3LetterCode[]
     }
   };
 

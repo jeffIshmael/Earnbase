@@ -80,11 +80,6 @@ export default function FormGenerator({
   const [feedbackLength, setFeedbackLength] = useState(0);
   const MAX_FEEDBACK_LENGTH = 500;
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [aiRating, setAiRating] = useState<{
-    rating: number;
-    explanation: string;
-  } | null>(null);
-  const [showAiRatingModal, setShowAiRatingModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submissionResults, setSubmissionResults] =
@@ -263,39 +258,17 @@ export default function FormGenerator({
         })
         .join("\n\n");
 
-      // Get AI rating for feedback
-      const feedbackText = feedbackToCreator.trim() || "No feedback provided";
-      const rating = await getAiRating(
-        "user-" + Date.now(),
-        feedbackText,
-        task.aiCriteria
-      );
-
-      // Calculate rewards
-      const baseReward = Number(task.baseReward) / Math.pow(10, 18);
-      const maxBonusReward = Number(task.maxBonusReward) / Math.pow(10, 18);
-      const bonusReward = ((rating?.rating || 1) * maxBonusReward) / 10;
-      const totalReward = baseReward + bonusReward;
-
-      // Set payment details
-      const newPaymentDetails = {
-        baseReward: baseReward,
-        bonusReward: bonusReward,
-        totalReward: totalReward,
-        aiRating: rating?.rating || 1,
-        explanation: rating?.explanation || "No explanation provided",
-      };
-
-      setAiRating(rating);
-      setPaymentDetails(newPaymentDetails);
-      setShowAiRatingModal(true);
+      // Process rewards directly
+      const baseRewardRaw = BigInt(task.baseReward);
+      const totalRewardRaw = baseRewardRaw; // AI bonus removed from UI flow
+      const totalRewardFormatted = Number(formatUnits(totalRewardRaw, 6));
 
       // Make payment to user via new on-chain payout action
       console.log(`💸 Initiating automated payout for task ${task.id} (Agent ID: ${task.agentRequestId})`);
       const payoutResult = await payoutTaskerAction(
         task.agentRequestId || "",
         address as string,
-        task.baseReward.toString(),
+        totalRewardRaw.toString(),
         1 // Default reputation weight
       );
 
@@ -308,21 +281,22 @@ export default function FormGenerator({
       const paymentHash = payoutResult.txHash;
       toast.success("Reward paid out on-chain!");
 
-      // Update earnings
+      // Update earnings (USDC uses 6 decimals)
       await updateEarnings(
         address as string,
-        BigInt(totalReward * Math.pow(10, 18))
+        totalRewardRaw
       );
 
-      // Update payment details with transaction hash
-      const updatedPaymentDetails = {
-        ...newPaymentDetails,
+      // Set payment details for success screen
+      setPaymentDetails({
+        baseReward: totalRewardFormatted,
+        bonusReward: 0,
+        totalReward: totalRewardFormatted,
+        aiRating: 10, // Default to 10 if removed from UI
+        explanation: "Automatic payout processed.",
         transactionHash: paymentHash,
-      };
-      setPaymentDetails(updatedPaymentDetails);
+      });
 
-      // Close AI rating modal and show payment modal
-      setShowAiRatingModal(false);
       setShowPaymentModal(true);
 
       // Prepare submission data for database
@@ -337,9 +311,9 @@ export default function FormGenerator({
         task.id,
         address as string,
         subtaskResponses,
-        rating?.rating || 1,
-        rating?.explanation || "No explanation provided",
-        totalReward.toString()
+        10, // Default rating
+        "Automatic payout processed.",
+        totalRewardFormatted.toString()
       );
 
       if (!dbSubmission) {
@@ -355,8 +329,8 @@ export default function FormGenerator({
         participant:
           address?.slice(0, 6) + "..." + address?.slice(-4) || "Unknown",
         response: feedbackToCreator,
-        aiRating: (rating?.rating || 1).toString(),
-        Reward: totalReward.toFixed(3).toString(),
+        aiRating: "10",
+        Reward: totalRewardFormatted.toFixed(3).toString(),
         TaskBalance: finalTaskBalance.toFixed(3),
       };
 
@@ -368,8 +342,8 @@ export default function FormGenerator({
           response: responses[subtask.id],
           completed: true,
         })),
-        totalScore: rating?.rating || 1,
-        feedback: feedbackText,
+        totalScore: 10,
+        feedback: "Automatic payout processed.",
         submittedAt: new Date().toISOString(),
       };
 
@@ -384,7 +358,7 @@ export default function FormGenerator({
           await sendFarcasterNotification(
             [userDetails.fid],
             "💵 Reward Received!",
-            `You’ve just earned ${totalReward.toFixed(
+            `You’ve just earned ${totalRewardFormatted.toFixed(
               3
             )} USDC for completing “${task.title
             }” on Earnbase. Keep sharing valuable feedback and earn more!`
@@ -858,89 +832,7 @@ export default function FormGenerator({
         )}
       </div>
 
-      {/* AI Rating Modal */}
-      {showAiRatingModal && aiRating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-sm p-4">
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0_0_rgba(0,0,0,1)] max-w-sm overflow-hidden"
-          >
-            {/* Header */}
-            <div className="bg-celo-purple text-white text-center py-6 px-4">
-              <div className="w-16 h-16 bg-white/20 border-2 border-white rounded-full flex items-center justify-center mx-auto mb-3">
-                <Sparkles className="w-7 h-7" />
-              </div>
-              <h3 className="text-xl font-gt-alpina font-bold tracking-wide">
-                AI ANALYSIS COMPLETE
-              </h3>
-              <p className="text-white/90 text-sm mt-1 font-inter">
-                Processing your reward...
-              </p>
-            </div>
 
-            {/* Body */}
-            <div className="p-6 space-y-5">
-              {/* Rating Display */}
-              <div className="text-center">
-                <motion.div
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.4 }}
-                  className="w-20 h-20 mx-auto border-4 border-black bg-celo-yellow flex items-center justify-center mb-3 shadow-[5px_5px_0_0_rgba(0,0,0,1)] rounded-full"
-                >
-                  <span className="text-2xl font-gt-alpina font-bold text-black">
-                    {aiRating.rating}/10
-                  </span>
-                </motion.div>
-                <p className="text-gray-700 text-sm">{aiRating.explanation}</p>
-              </div>
-
-              {/* Payment Summary */}
-              <div className="bg-celo-lt-tan border-4 border-black rounded-xl p-4 space-y-2 font-inter">
-                <div className="flex justify-between">
-                  <span className="font-bold text-black">Base Reward</span>
-                  <span>
-                    {Number(paymentDetails?.baseReward).toFixed(3)} USDC
-                  </span>
-                </div>
-                <div className="flex justify-between text-celo-purple">
-                  <span className="font-bold">
-                    Bonus ({aiRating.rating}/10)
-                  </span>
-                  <span>
-                    +
-                    {(
-                      (aiRating.rating *
-                        Number(paymentDetails?.bonusReward || 0)) /
-                      10
-                    ).toFixed(3)}{" "}
-                    USDC
-                  </span>
-                </div>
-                <div className="border-t-2 border-black pt-2 flex justify-between text-celo-success">
-                  <span className="font-bold">Total</span>
-                  <span className="font-bold">
-                    {paymentDetails?.totalReward.toFixed(3)} USDC
-                  </span>
-                </div>
-              </div>
-
-              {/* Processing */}
-              <div className="text-center pt-2">
-                <div className="flex justify-center items-center gap-2 text-celo-purple font-bold">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Processing payment...</span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Please wait while we finalize your transaction
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
 
       {/* Success Modal */}
       {showPaymentModal && paymentDetails && paymentDetails.transactionHash && (
@@ -1030,7 +922,6 @@ export default function FormGenerator({
                   onClick={() => {
                     setShowPaymentModal(false);
                     setResponses({});
-                    setAiRating(null);
                     setPaymentDetails(null);
                     closeFormGenerator?.();
                     router.push("/Start");
