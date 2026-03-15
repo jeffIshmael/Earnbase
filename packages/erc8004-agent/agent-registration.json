@@ -1,83 +1,75 @@
 {
-    "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
-    "name": "Earnbase Human Feedback Agent",
-    "description": "Autonomous ERC-8004 agent providing Human Feedback as a Service (HFaaS) with EIP-712 cryptographic security and Merkle-proofed results. Earnbase connects AI agents to verified human intelligence through gasless USDC payments (x402), enabling seamless RLHF, content moderation, and market research without human infrastructure management.",
-    "image": "https://earnbase.vercel.app/agent-avatar.png",
-    "homepage": "https://earnbase.vercel.app",
-    "category": "oracle,microtasking,human-feedback",
-    "tags": ["RLHF", "HFaaS", "feedback", "moderation", "market-research", "x402", "human-in-the-loop"],
-    "license": "MIT",
-    "documentation": "https://earnbase.vercel.app/docs",
-  
-    "capabilities": [
-      "human-feedback",
-      "content-moderation",
-      "rlhf",
-      "market-research",
-      "rating",
-      "multiple-choice",
-      "file-review"
-    ],
-  
-    "skills": [
-      {
-        "name": "Human Feedback Collection",
-        "description": "Collects structured human feedback using configurable input types, participant counts, and reward constraints.",
-        "tags": ["rlhf", "human-feedback", "crowdsourcing"]
-      },
-      {
-        "name": "Content Moderation",
-        "description": "Routes content to human reviewers for safety checks, quality assessment, and policy evaluation.",
-        "tags": ["moderation", "safety", "quality"]
-      },
-      {
-        "name": "Data Labeling",
-        "description": "Collects labeled datasets from human contributors for text, image, and survey-based inputs.",
-        "tags": ["labeling", "annotation", "classification"]
-      },
-      {
-        "name": "Market Research",
-        "description": "Surveys and structured preference collection for research and product feedback.",
-        "tags": ["survey", "research", "preferences"]
-      }
-    ],
-  
-    "domains": [
-      "ai-training",
-      "content-moderation",
-      "market-research"
-    ],
-  
-    "services": [
-      {
-        "name": "A2A",
-        "endpoint": "https://earnbase.vercel.app/.well-known/agent-card.json",
-        "version": "0.3.0"
-      },
-      {
-        "name": "MCP",
-        "endpoint": "https://earnbase.vercel.app/.well-known/mcp.json",
-        "version": "2026-02-19"
-      },
-      {
-        "name": "OASF",
-        "endpoint": "https://github.com/agntcy/oasf/",
-        "version": "0.8.0"
-      }
-    ],
-  
-    "x402Support": true,
-    "active": true,
-  
-    "registrations": [
-      {
-        "agentId": 130,
-        "agentRegistry": "eip155:42220:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
-      }
-    ],
-  
-    "supportedTrust": [
-      "reputation",
-      "crypto-economic"
-    ]
-  }
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Earnbase Global Intelligence Agent",
+  "description": "Autonomous ERC-8004 agent providing Global Human Intelligence as a Service (GHIaaS). Earnbase enables AI agents to access high-scale, unbiased human feedback with precise demographic targeting (age, country, gender) and multi-step task sequences via gasless USDC payments (x402). Perfect for RLHF, sentiment analysis, and multi-region market research.",
+  "image": "https://earnbase.vercel.app/agent-avatar.png",
+  "homepage": "https://earnbase.vercel.app",
+  "category": "crowdsourcing,market-research,rlhf",
+  "tags": [
+    "crowdsourcing",
+    "demographics",
+    "unbiased-data",
+    "global-reach",
+    "RLHF",
+    "sentiment-analysis",
+    "x402",
+    "human-intelligence",
+    "multi-step-tasks"
+  ],
+  "license": "MIT",
+  "documentation": "https://earnbase.vercel.app/docs",
+  "capabilities": [
+    "human-feedback",
+    "content-moderation",
+    "rlhf",
+    "market-research",
+    "rating",
+    "multiple-choice",
+    "file-review",
+    "multi-language-moderation",
+    "demographic-targeting"
+  ],
+  "services": [
+    {
+      "name": "A2A",
+      "endpoint": "https://earnbase.vercel.app/.well-known/agent-card.json",
+      "version": "0.3.0"
+    },
+    {
+      "name": "MCP",
+      "endpoint": "https://earnbase.vercel.app/.well-known/mcp.json",
+      "version": "2026-02-19"
+    },
+    {
+      "name": "OASF",
+      "skills": [
+        "global_demographic_feedback/marketing/market_research",
+        "verified_unbiased_sentiment/data_gathering/sentiment_analysis",
+        "high_volume_crowdsourcing/operations/scaling",
+        "multi_region_moderation/safety/moderation",
+        "decentralized_rlhf_pipelines/ai/alignment"
+      ],
+      "domains": [
+        "marketing_and_advertising/market_research",
+        "technology/blockchain/blockchain",
+        "technology/blockchain/cryptocurrency",
+        "technology/blockchain/defi",
+        "technology/artificial_intelligence"
+      ],
+      "version": "0.8.0",
+      "endpoint": "https://github.com/agntcy/oasf/"
+    }
+  ],
+  "x402Support": true,
+  "active": true,
+  "registrations": [
+    {
+      "agentId": 130,
+      "agentRegistry": "eip155:42220:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
+    }
+  ],
+  "supportedTrust": [
+    "reputation",
+    "crypto-economic"
+  ]
+}

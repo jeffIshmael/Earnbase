@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 import { createWalletClient, http, parseUnits, createPublicClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { celo, celoAlfajores } from 'viem/chains';
-import { USDCAddress } from '@/contexts/constants';
+import { USDCAddress } from '@/blockchain/constants';
 import { erc20Abi } from 'viem';
 
 // This function effectively replaces the old RewardVault logic for USDC

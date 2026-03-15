@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle, AlertCircle, X, ArrowUpRight, Info } from 'lucide-react';
+import { CheckCircle, AlertCircle, X, ArrowUpRight, Info, TestTube } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { USDCAddress } from '@/contexts/constants';
+import { USDCAddress } from '@/blockchain/constants';
 import { motion, AnimatePresence } from 'framer-motion';
 import { prepareContractCall, getContract, sendTransaction, createThirdwebClient } from "thirdweb";
 import { celo } from "thirdweb/chains";
+import { popWalletAndSubmit, popWalletOnly, submitWithTxHash } from '@/lib/x402-testing';
 
 const client = createThirdwebClient({
   clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID || "",
@@ -34,6 +35,90 @@ const TransferModal: React.FC<TransferModalProps> = ({
     message: string;
     txHash?: string;
   } | null>(null);
+  const [isAgentTestMode, setIsAgentTestMode] = useState(true);
+  const [isInitializingTest, setIsInitializingTest] = useState(false);
+  const [isAutoFlowRunning, setIsAutoFlowRunning] = useState(false);
+  const [lastTxHash, setLastTxHash] = useState('');
+
+  const restrictedDummyTask = {
+    title: "Restricted Agent Task",
+    prompt: "This task is only for users in Kenya.",
+    feedbackType: 'text_input',
+    constraints: {
+      participants: 1,
+      rewardPerParticipant: 0.01,
+      countryRestriction: true,
+      countries: ["KE"]
+    }
+  };
+
+  const complexDummyTask = {
+    title: "Complex Multi-Subtask Task",
+    prompt: "Please complete all steps below.",
+    feedbackType: 'multiple_choice', // Root feedback type for legacy
+    constraints: {
+      participants: 1,
+      rewardPerParticipant: 0.01
+    },
+    subtasks: [
+      {
+        title: "Upload a screenshot of your wallet",
+        type: 'FILE_UPLOAD',
+        fileTypes: ['image/png', 'image/jpeg'],
+        order: 1
+      },
+      {
+        title: "Which feature do you use most?",
+        type: 'MULTIPLE_CHOICE',
+        options: ["Swaps", "Staking", "Bridge", "Agent"],
+        order: 2
+      },
+      {
+        title: "Rate the agent performance (1-5)",
+        type: 'RATING',
+        order: 3
+      }
+    ]
+  };
+
+  const handleAutoFlow = async () => {
+    setIsAutoFlowRunning(true);
+    try {
+      const result = await popWalletAndSubmit(restrictedDummyTask);
+      setTransferStatus({
+        success: true,
+        message: `Restricted Task Success! ID: ${result.taskId}`,
+        txHash: result.agentRequestId
+      });
+    } catch (e) { }
+    finally { setIsAutoFlowRunning(false); }
+  };
+
+  const handlePopWalletOnly = async () => {
+    setIsInitializingTest(true);
+    try {
+      const txHash = await popWalletOnly(complexDummyTask);
+      setLastTxHash(txHash);
+    } catch (e) { }
+    finally { setIsInitializingTest(false); }
+  };
+
+  const handleSubmitHash = async () => {
+    if (!lastTxHash) {
+      toast.error("No transaction hash found. Please pay first.");
+      return;
+    }
+    try {
+      const result = await submitWithTxHash(lastTxHash, complexDummyTask);
+      setTransferStatus({
+        success: true,
+        message: `Complex Task Created! ID: ${result.taskId}`,
+        txHash: lastTxHash
+      });
+    } catch (e) {
+      // Error handled in utility
+    }
+  };
 
   const handleTransfer = async () => {
     if (!address) {
@@ -83,6 +168,41 @@ const TransferModal: React.FC<TransferModalProps> = ({
         message: 'Transfer successful!',
         txHash: transactionHash
       });
+
+      // If in Agent Test Mode, complete the lifecycle by notifying the backend
+      if (isAgentTestMode) {
+        try {
+          toast.loading("Transfer confirmed. Finalizing Agent Task...");
+          const finalResponse = await fetch('/api/agent/submit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Agent-Type': 'ERC8004',
+              'PAYMENT-SIGNATURE': transactionHash
+            },
+            body: JSON.stringify(complexDummyTask)
+          });
+
+          if (finalResponse.ok) {
+            const result = await finalResponse.json();
+            toast.dismiss();
+            toast.success("Agent Task Successfully Created!");
+            setTransferStatus({
+              success: true,
+              message: `Task Created! ID: ${result.taskId}`,
+              txHash: transactionHash
+            });
+            setIsAgentTestMode(false);
+          } else {
+            const err = await finalResponse.json();
+            throw new Error(err.error || "Failed to finalize task creation");
+          }
+        } catch (fError: any) {
+          console.error("Finalization Error:", fError);
+          toast.dismiss();
+          toast.error("Transfer succeeded but task creation failed: " + fError.message);
+        }
+      }
     } catch (error: any) {
       console.error("Transfer Error:", error);
       toast.error(error?.shortMessage || "Transfer failed. Please try again.");
@@ -111,7 +231,7 @@ const TransferModal: React.FC<TransferModalProps> = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 30, opacity: 0 }}
           transition={{ type: "spring", damping: 20 }}
-          className="bg-white border-4 border-black rounded-3xl shadow-[8px_8px_0_0_rgba(0,0,0,1)] w-full max-w-md relative overflow-hidden"
+          className="bg-white border-4 border-black rounded-3xl shadow-[8px_8px_0_0_rgba(0,0,0,1)] w-full max-w-sm relative overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -120,16 +240,77 @@ const TransferModal: React.FC<TransferModalProps> = ({
               <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
                 <ArrowUpRight className="text-celo-yellow w-6 h-6" />
               </div>
-              <h3 className="text-h4 font-gt-alpina font-bold text-black tracking-wide">
-                SEND USDC
-              </h3>
+              <div>
+                <h3 className="text-h4 font-gt-alpina font-bold text-black tracking-wide">
+                  SEND USDC
+                </h3>
+                {isAgentTestMode && (
+                  <span className="text-[10px] bg-black text-white px-2 py-0.5 rounded-full font-heavy tracking-widest uppercase">
+                    Agent Test Mode
+                  </span>
+                )}
+
+                {isAgentTestMode && !transferStatus?.success && (
+                  <div className="mt-4 pt-4 border-t-2 border-black border-dashed space-y-3">
+                    <p className="text-[10px] font-heavy text-black mb-1 flex items-center">
+                      <TestTube className="w-3 h-3 mr-1" />
+                      X402 REFINED TOOLS
+                    </p>
+
+                    {/* Flow A: Human Browser Automatic */}
+                    <button
+                      onClick={handleAutoFlow}
+                      disabled={isAutoFlowRunning}
+                      className="w-full h-10 bg-celo-yellow text-black border-4 border-black hover:bg-black hover:text-celo-yellow transition-all flex items-center justify-center space-x-2 font-heavy tracking-widest text-[10px]"
+                    >
+                      {isAutoFlowRunning ? (
+                        <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin rounded-full"></div>
+                      ) : (
+                        <span>🌈 AUTO FLOW (POP+SUBMIT)</span>
+                      )}
+                    </button>
+
+                    <div className="h-0.5 bg-black/5" />
+
+                    {/* Flow B: Granular Agent/Skill Flow */}
+                    <button
+                      onClick={handlePopWalletOnly}
+                      disabled={isInitializingTest}
+                      className="w-full h-8 bg-white text-black border-2 border-black hover:bg-celo-lt-tan transition-all flex items-center justify-center space-x-2 font-heavy tracking-widest text-[9px]"
+                    >
+                      {isInitializingTest ? (
+                        <div className="w-3 h-3 border-2 border-black border-t-transparent animate-spin rounded-full"></div>
+                      ) : (
+                        <span>1. POP WALLET (GET HASH)</span>
+                      )}
+                    </button>
+                    <button
+                      onClick={handleSubmitHash}
+                      disabled={!lastTxHash}
+                      className={cn(
+                        "w-full h-8 border-2 border-black transition-all flex items-center justify-center space-x-2 font-heavy tracking-widest text-[9px]",
+                        !lastTxHash ? "bg-celo-dk-tan text-black/40 cursor-not-allowed" : "bg-celo-purple text-white hover:bg-black"
+                      )}
+                    >
+                      <span>2. SUBMIT WITH SKILL HASH</span>
+                    </button>
+                    {lastTxHash && (
+                      <p className="text-[8px] font-mono text-celo-body break-all bg-white p-1 border border-black/10">
+                        Agent Hash: {lastTxHash.substring(0, 10)}...
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 border-2 border-black rounded-full bg-white hover:bg-celo-dk-tan transition-colors"
-            >
-              <X className="w-5 h-5 text-black" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={onClose}
+                className="p-2 border-2 border-black rounded-full bg-white hover:bg-celo-dk-tan transition-colors"
+              >
+                <X className="w-5 h-5 text-black" />
+              </button>
+            </div>
           </div>
 
           {/* Content */}

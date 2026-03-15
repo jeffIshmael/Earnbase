@@ -1,5 +1,5 @@
 import { PaymentRequirement, PaymentProof } from './types';
-import { USDCAddress } from '@/contexts/constants';
+import { USDCAddress } from '@/blockchain/constants';
 import { parseUnits } from 'viem';
 
 export function createPaymentRequirement(

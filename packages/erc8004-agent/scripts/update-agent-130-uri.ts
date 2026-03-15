@@ -6,10 +6,12 @@ async function main() {
     const AGENT_ID = 130; // Your Agent ID
 
     // Updated metadata URI - IPFS hosted
-    const METADATA_URI = "ipfs://bafkreibe6h5f2ry7nta2q6id5jmvvuuz7r6bb43vava6gpf2qo6lrkgmp4";
+    const METADATA_URI = "ipfs://bafkreigk6dfrrb7a7s3kliy74rbxmkkdarryw43buhxshtr2nhhbz5elf4";
 
     // Option 2: Upload to IPFS and use that URI
     // const METADATA_URI = "ipfs://bafkrei..."; // Replace with actual IPFS hash
+    // ipfs://bafkreic3dx234sw2cldjy5ae72guyjw42bjbzd3deno4l5qay5hb7eqphi
+    // ipfs://bafkreidouqgzq5yrjrhvvraw35yg44klvqva3wfj62ewzhlxyqlh47mn3y
 
     const [deployer] = await ethers.getSigners();
     console.log("Updating Agent 130 metadata with account:", deployer.address);

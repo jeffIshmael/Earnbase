@@ -20,7 +20,13 @@
         "properties": {
           "feedbackType": {
             "type": "string",
-            "enum": ["multiple_choice", "single_choice", "free_text", "file_upload", "rating"],
+            "enum": [
+              "multiple_choice",
+              "single_choice",
+              "text_input",
+              "file_upload",
+              "rating"
+            ],
             "description": "Type of feedback to collect from human contributors"
           },
           "prompt": {
@@ -33,26 +39,108 @@
           },
           "options": {
             "type": "array",
-            "items": { "type": "string" },
+            "items": {
+              "type": "string"
+            },
             "description": "Answer options — required for multiple_choice and single_choice"
           },
           "constraints": {
             "type": "object",
             "properties": {
-              "participants": { "type": "number", "description": "Number of human contributors needed" },
-              "rewardPerParticipant": { "type": "string", "description": "USDC reward per contributor e.g. '0.50'" },
-              "age": { "type": "string", "description": "Optional age filter for contributors" },
-              "gender": { "type": "string", "description": "Optional gender filter for contributors" },
-              "nationality": { "type": "string", "description": "Optional nationality filter for contributors" }
+              "participants": {
+                "type": "number",
+                "description": "Number of human contributors needed"
+              },
+              "rewardPerParticipant": {
+                "type": "string",
+                "description": "USDC reward per contributor e.g. '0.50'"
+              },
+              "countryRestriction": {
+                "type": "boolean"
+              },
+              "countries": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ageRestriction": {
+                "type": "boolean"
+              },
+              "minAge": {
+                "type": "number"
+              },
+              "maxAge": {
+                "type": "number"
+              },
+              "genderRestriction": {
+                "type": "boolean"
+              },
+              "gender": {
+                "type": "string",
+                "enum": [
+                  "M",
+                  "F"
+                ]
+              }
             },
-            "required": ["participants", "rewardPerParticipant"]
+            "required": [
+              "participants",
+              "rewardPerParticipant"
+            ]
+          },
+          "subtasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "MULTIPLE_CHOICE",
+                    "TEXT_INPUT",
+                    "FILE_UPLOAD",
+                    "CHOICE_SELECTION",
+                    "RATING"
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "order": {
+                  "type": "number"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "fileTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
           },
           "requestId": {
             "type": "string",
             "description": "Optional idempotency key — use to safely retry without creating duplicate tasks"
           }
         },
-        "required": ["feedbackType", "prompt", "constraints"]
+        "required": [
+          "feedbackType",
+          "prompt",
+          "constraints"
+        ]
       }
     },
     {
@@ -66,7 +154,9 @@
             "description": "The taskId or requestId returned from submit_feedback_request"
           }
         },
-        "required": ["requestId"]
+        "required": [
+          "requestId"
+        ]
       }
     },
     {
@@ -80,7 +170,9 @@
             "description": "The taskId or requestId to retrieve results for"
           }
         },
-        "required": ["requestId"]
+        "required": [
+          "requestId"
+        ]
       }
     }
   ],
@@ -120,8 +212,14 @@
         "feedbackType": "multiple_choice",
         "title": "Product description preference",
         "prompt": "Which product description is more compelling to you as a consumer?",
-        "options": ["Description A: ...", "Description B: ..."],
-        "constraints": { "participants": 10, "rewardPerParticipant": "0.25" }
+        "options": [
+          "Description A: ...",
+          "Description B: ..."
+        ],
+        "constraints": {
+          "participants": 10,
+          "rewardPerParticipant": "0.25"
+        }
       }
     },
     {
@@ -131,8 +229,16 @@
         "feedbackType": "single_choice",
         "title": "Content moderation review",
         "prompt": "Does this content violate community safety guidelines?",
-        "options": ["Safe", "Unsafe - violence", "Unsafe - hate speech", "Unsafe - other"],
-        "constraints": { "participants": 3, "rewardPerParticipant": "0.10" }
+        "options": [
+          "Safe",
+          "Unsafe - violence",
+          "Unsafe - hate speech",
+          "Unsafe - other"
+        ],
+        "constraints": {
+          "participants": 3,
+          "rewardPerParticipant": "0.10"
+        }
       }
     },
     {
@@ -142,8 +248,16 @@
         "feedbackType": "multiple_choice",
         "title": "AI response preference",
         "prompt": "Which AI response is more helpful and accurate?",
-        "options": ["Response A", "Response B", "Both equally good", "Neither is good"],
-        "constraints": { "participants": 5, "rewardPerParticipant": "0.20" }
+        "options": [
+          "Response A",
+          "Response B",
+          "Both equally good",
+          "Neither is good"
+        ],
+        "constraints": {
+          "participants": 5,
+          "rewardPerParticipant": "0.20"
+        }
       }
     }
   ],

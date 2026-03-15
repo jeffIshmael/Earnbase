@@ -2,7 +2,7 @@
 
 import { createPublicClient, http } from 'viem';
 import { celo } from 'viem/chains';
-import { contractAbi, contractAddress } from '@/contexts/constants';
+import { contractAbi, contractAddress } from '@/blockchain/constants';
 
 const publicClient = createPublicClient({
   chain: celo,
@@ -42,7 +42,7 @@ export async function getTask(taskId: bigint) {
       functionName: 'getTask',
       args: [taskId]
     }) as [bigint, `0x${string}`, bigint, bigint, bigint];
-    
+
     return {
       id: task[0],
       creator: task[1],
@@ -67,7 +67,7 @@ export async function getTaskDetails(taskId: bigint) {
       functionName: 'getTaskDetails',
       args: [taskId]
     }) as [bigint, `0x${string}`, bigint, bigint, bigint, `0x${string}`[], bigint[]];
-    
+
     return {
       id: taskDetails[0],
       creator: taskDetails[1],
@@ -94,7 +94,7 @@ export async function getTaskStats(taskId: bigint) {
       functionName: 'getTaskStats',
       args: [taskId]
     }) as [bigint, bigint, bigint, bigint];
-    
+
     return {
       totalAmount: stats[0],
       paidAmount: stats[1],
@@ -124,7 +124,7 @@ export async function getTaskPayments(taskId: bigint) {
       amount: bigint;
       timestamp: bigint;
     }>;
-    
+
     return payments.map(payment => ({
       id: payment.id,
       taskId: payment.taskId,
@@ -149,7 +149,7 @@ export async function getTaskParticipants(taskId: bigint) {
       functionName: 'getTaskParticipants',
       args: [taskId]
     }) as [`0x${string}`[], bigint[]];
-    
+
     return {
       participantAddresses: participants[0],
       participantAmounts: participants[1]
@@ -229,7 +229,7 @@ export async function getTesterInfo(testerAddress: `0x${string}`) {
       functionName: 'getTesterInfo',
       args: [testerAddress]
     }) as [bigint, bigint[], `0x${string}`, `0x${string}`, bigint];
-    
+
     return {
       id: testerInfo[0],
       taskIds: testerInfo[1],
@@ -278,7 +278,7 @@ export async function getTesterPayments(testerAddress: `0x${string}`) {
       amount: bigint;
       timestamp: bigint;
     }>;
-    
+
     return testerPayments.map(payment => ({
       id: payment.id,
       taskId: payment.taskId,
@@ -442,7 +442,7 @@ export async function getTesterTasks(testerAddress: `0x${string}`) {
   try {
     const testerInfo = await getTesterInfo(testerAddress);
     const tasks = [];
-    
+
     for (const taskId of testerInfo.taskIds) {
       try {
         const task = await getTask(taskId);
@@ -455,7 +455,7 @@ export async function getTesterTasks(testerAddress: `0x${string}`) {
         console.warn(`Error getting task ${taskId}:`, error);
       }
     }
-    
+
     return tasks;
   } catch (error) {
     console.error('Error getting tester tasks:', error);

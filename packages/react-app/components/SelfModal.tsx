@@ -10,7 +10,7 @@ import {
 } from "@selfxyz/qrcode";
 import { useAccount } from "wagmi";
 import { X, AlertCircle, CheckCircle, Info } from "lucide-react";
-import { url } from "@/contexts/constants";
+import { url } from "@/blockchain/constants";
 
 interface Requirements {
   age?: { min: number; max: number };
@@ -158,29 +158,29 @@ export default function SelfModal({
         {(restrictions.age ||
           restrictions.gender ||
           restrictions.countries) && (
-          <div className="bg-blue-200 border-4 border-black p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-lg">
-            <div className="space-y-2 text-sm font-inter text-black">
-              {restrictions.age && (
-                <p>
-                  <span className="font-bold">Age:</span> {restrictions.age.min}
-                  -{restrictions.age.max} years
-                </p>
-              )}
-              {restrictions.gender && (
-                <p>
-                  <span className="font-bold">Gender:</span>{" "}
-                  {restrictions.gender === "F" ? "Female" : "Male"}
-                </p>
-              )}
-              {restrictions.countries?.length ? (
-                <p>
-                  <span className="font-bold">Countries:</span>{" "}
-                  {restrictions.countries.join(", ")}
-                </p>
-              ) : null}
+            <div className="bg-blue-200 border-4 border-black p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-lg">
+              <div className="space-y-2 text-sm font-inter text-black">
+                {restrictions.age && (
+                  <p>
+                    <span className="font-bold">Age:</span> {restrictions.age.min}
+                    -{restrictions.age.max} years
+                  </p>
+                )}
+                {restrictions.gender && (
+                  <p>
+                    <span className="font-bold">Gender:</span>{" "}
+                    {restrictions.gender === "F" ? "Female" : "Male"}
+                  </p>
+                )}
+                {restrictions.countries?.length ? (
+                  <p>
+                    <span className="font-bold">Countries:</span>{" "}
+                    {restrictions.countries.join(", ")}
+                  </p>
+                ) : null}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* QR Section */}
         <div className="flex justify-center">
@@ -238,13 +238,12 @@ export default function SelfModal({
         {/* Toast */}
         {toast.show && (
           <div
-            className={`absolute bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 border-4 border-black text-sm font-inter font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-lg ${
-              toast.type === "success"
+            className={`absolute bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 border-4 border-black text-sm font-inter font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-lg ${toast.type === "success"
                 ? "bg-green-600 text-white"
                 : toast.type === "error"
-                ? "bg-red-500 text-white"
-                : "bg-blue-300 text-black"
-            }`}
+                  ? "bg-red-500 text-white"
+                  : "bg-blue-300 text-black"
+              }`}
           >
             <div className="flex items-center space-x-2">
               {toast.type === "success" && <CheckCircle className="w-4 h-4" />}

@@ -39,12 +39,12 @@ import {
   hasUserSubmittedToTask,
   getUser,
 } from "@/lib/Prismafnctns";
-import { sendWhatsappResponse } from "@/lib/Whatsapp";
-import { sendEmailResponse } from "@/lib/Email";
+import { parseUnits, formatUnits } from "viem";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { getTask } from "@/lib/ReadFunctions";
 import { sendFarcasterNotification } from "@/lib/FarcasterNotify";
+import { payoutTaskerAction } from "@/lib/payoutActions";
 
 interface FormGeneratorProps {
   task: TaskWithEligibility;
@@ -124,7 +124,7 @@ export default function FormGenerator({
     const thisTaskBalance = await getTask(BigInt(task.blockChainId));
     setTaskBalance(
       Number(thisTaskBalance.totalAmount - thisTaskBalance.paidAmount) /
-        Math.pow(10, 18)
+      Math.pow(10, 18)
     );
     return (
       Number(thisTaskBalance.totalAmount - thisTaskBalance.paidAmount) /
@@ -290,18 +290,23 @@ export default function FormGenerator({
       setPaymentDetails(newPaymentDetails);
       setShowAiRatingModal(true);
 
-      // Make payment to user
-      const paymentHash = await makePaymentToUser(
-        totalReward.toString(),
-        address as `0x${string}`,
-        Number(task.blockChainId)
+      // Make payment to user via new on-chain payout action
+      console.log(`💸 Initiating automated payout for task ${task.id} (Agent ID: ${task.agentRequestId})`);
+      const payoutResult = await payoutTaskerAction(
+        task.agentRequestId || "",
+        address as string,
+        task.baseReward.toString(),
+        1 // Default reputation weight
       );
 
-      if (!paymentHash) {
-        toast.error("Payment failed");
+      if (!payoutResult.success) {
+        toast.error(`Payout failed: ${payoutResult.error}`);
         setIsSubmitting(false);
         return;
       }
+
+      const paymentHash = payoutResult.txHash;
+      toast.success("Reward paid out on-chain!");
 
       // Update earnings
       await updateEarnings(
@@ -355,32 +360,6 @@ export default function FormGenerator({
         TaskBalance: finalTaskBalance.toFixed(3),
       };
 
-      if (task.contactMethod === "WHATSAPP" && task.contactInfo) {
-        try {
-          await sendWhatsappResponse({
-            ...notificationData,
-            creatorPhoneNo: task.contactInfo,
-          });
-
-          console.log("WhatsApp notification sent to creator");
-        } catch (whatsappError) {
-          console.error("Failed to send WhatsApp notification:", whatsappError);
-          // toast.error('Task submitted but failed to notify creator via WhatsApp');
-        }
-      } else if (task.contactMethod === "EMAIL" && task.contactInfo) {
-        try {
-          await sendEmailResponse({
-            ...notificationData,
-            creatorEmail: task.contactInfo,
-          });
-
-          console.log("Email notification sent to creator");
-        } catch (emailError) {
-          console.error("Failed to send email notification:", emailError);
-          toast.error("Task submitted but failed to notify creator via email");
-        }
-      }
-
       // Prepare submission data for UI
       const submission: TaskSubmission = {
         taskId: task.id,
@@ -407,8 +386,7 @@ export default function FormGenerator({
             "💵 Reward Received!",
             `You’ve just earned ${totalReward.toFixed(
               3
-            )} cUSD for completing “${
-              task.title
+            )} USDC for completing “${task.title
             }” on Earnbase. Keep sharing valuable feedback and earn more!`
           );
         } catch (error) {
@@ -443,18 +421,16 @@ export default function FormGenerator({
               placeholder={subtask.placeholder || "Enter your response..."}
               maxLength={subtask.maxLength || undefined}
               rows={2}
-              className={`w-full px-3 py-2 border-2 border-black focus:border-celo-yellow transition-all resize-none text-sm font-inter ${
-                hasError ? "bg-celo-error text-white" : "bg-white text-black"
-              }`}
+              className={`w-full px-3 py-2 border-2 border-black focus:border-celo-yellow transition-all resize-none text-sm font-inter ${hasError ? "bg-celo-error text-white" : "bg-white text-black"
+                }`}
             />
             {subtask.maxLength && (
               <div className="text-xs">
                 <div
-                  className={`font-inter ${
-                    responses[subtask.id]?.length > subtask.maxLength * 0.9
-                      ? "text-celo-orange"
-                      : "text-celo-body"
-                  }`}
+                  className={`font-inter ${responses[subtask.id]?.length > subtask.maxLength * 0.9
+                    ? "text-celo-orange"
+                    : "text-celo-body"
+                    }`}
                 >
                   {responses[subtask.id]?.length || 0}/{subtask.maxLength}{" "}
                   characters
@@ -476,55 +452,53 @@ export default function FormGenerator({
             <div className="space-y-1">
               {subtask.options
                 ? JSON.parse(subtask.options).map(
-                    (option: string, index: number) => {
-                      const isSelected =
-                        responses[subtask.id]?.includes(option) || false;
-                      return (
-                        <label
-                          key={index}
-                          className={`flex items-center space-x-2 p-2 border-2 border-black cursor-pointer transition-all ${
-                            isSelected
-                              ? "bg-celo-forest text-white"
-                              : "bg-white text-black hover:bg-celo-dk-tan"
+                  (option: string, index: number) => {
+                    const isSelected =
+                      responses[subtask.id]?.includes(option) || false;
+                    return (
+                      <label
+                        key={index}
+                        className={`flex items-center space-x-2 p-2 border-2 border-black cursor-pointer transition-all ${isSelected
+                          ? "bg-celo-forest text-white"
+                          : "bg-white text-black hover:bg-celo-dk-tan"
                           }`}
-                        >
-                          <div
-                            className={`w-4 h-4 border border-black flex items-center justify-center transition-all ${
-                              isSelected ? "bg-black" : "bg-white"
+                      >
+                        <div
+                          className={`w-4 h-4 border border-black flex items-center justify-center transition-all ${isSelected ? "bg-black" : "bg-white"
                             }`}
-                          >
-                            {isSelected && (
-                              <CheckCircle2 className="w-2 h-2 text-celo-yellow" />
-                            )}
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={(e) => {
-                              const current = responses[subtask.id] || [];
-                              if (e.target.checked) {
-                                handleInputChange(subtask.id, [
-                                  ...current,
-                                  option,
-                                ]);
-                              } else {
-                                handleInputChange(
-                                  subtask.id,
-                                  current.filter(
-                                    (item: string) => item !== option
-                                  )
-                                );
-                              }
-                            }}
-                            className="sr-only"
-                          />
-                          <span className="text-xs font-inter flex-1">
-                            {option}
-                          </span>
-                        </label>
-                      );
-                    }
-                  )
+                        >
+                          {isSelected && (
+                            <CheckCircle2 className="w-2 h-2 text-celo-yellow" />
+                          )}
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const current = responses[subtask.id] || [];
+                            if (e.target.checked) {
+                              handleInputChange(subtask.id, [
+                                ...current,
+                                option,
+                              ]);
+                            } else {
+                              handleInputChange(
+                                subtask.id,
+                                current.filter(
+                                  (item: string) => item !== option
+                                )
+                              );
+                            }
+                          }}
+                          className="sr-only"
+                        />
+                        <span className="text-xs font-inter flex-1">
+                          {option}
+                        </span>
+                      </label>
+                    );
+                  }
+                )
                 : null}
             </div>
             {hasError && (
@@ -540,13 +514,12 @@ export default function FormGenerator({
         return (
           <div className="space-y-2">
             <div
-              className={`border-2 border-black p-3 text-center transition-all ${
-                files[subtask.id]
-                  ? "bg-celo-success text-white"
-                  : hasError
+              className={`border-2 border-black p-3 text-center transition-all ${files[subtask.id]
+                ? "bg-celo-success text-white"
+                : hasError
                   ? "bg-celo-error text-white"
                   : "bg-white text-black hover:bg-celo-dk-tan"
-              }`}
+                }`}
             >
               <div className="space-y-1">
                 {files[subtask.id] ? (
@@ -602,11 +575,10 @@ export default function FormGenerator({
                   key={rating}
                   type="button"
                   onClick={() => handleRatingChange(subtask.id, rating)}
-                  className={`h-8 border-2 border-black flex items-center justify-center text-xs font-inter font-heavy transition-all active:scale-95 ${
-                    responses[subtask.id] === rating
-                      ? "bg-celo-forest text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-                      : "bg-white text-black hover:bg-celo-dk-tan"
-                  }`}
+                  className={`h-8 border-2 border-black flex items-center justify-center text-xs font-inter font-heavy transition-all active:scale-95 ${responses[subtask.id] === rating
+                    ? "bg-celo-forest text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+                    : "bg-white text-black hover:bg-celo-dk-tan"
+                    }`}
                 >
                   {rating}
                 </button>
@@ -640,9 +612,8 @@ export default function FormGenerator({
               onChange={(e) => handleInputChange(subtask.id, e.target.value)}
               placeholder="Share your detailed thoughts..."
               rows={3}
-              className={`w-full px-3 py-2 border-2 border-black focus:border-celo-yellow transition-all resize-none text-sm font-inter ${
-                hasError ? "bg-celo-error text-white" : "bg-white text-black"
-              }`}
+              className={`w-full px-3 py-2 border-2 border-black focus:border-celo-yellow transition-all resize-none text-sm font-inter ${hasError ? "bg-celo-error text-white" : "bg-white text-black"
+                }`}
             />
             {hasError && (
               <div className="flex items-center space-x-2 text-white text-xs bg-celo-error p-2 border border-black">
@@ -659,42 +630,40 @@ export default function FormGenerator({
             <div className="space-y-1">
               {subtask.options
                 ? JSON.parse(subtask.options).map(
-                    (option: string, index: number) => {
-                      const isSelected = responses[subtask.id] === option;
-                      return (
-                        <label
-                          key={index}
-                          className={`flex items-center space-x-2 p-2 border-2 border-black cursor-pointer transition-all ${
-                            isSelected
-                              ? "bg-celo-forest text-white"
-                              : "bg-white text-black hover:bg-celo-dk-tan"
+                  (option: string, index: number) => {
+                    const isSelected = responses[subtask.id] === option;
+                    return (
+                      <label
+                        key={index}
+                        className={`flex items-center space-x-2 p-2 border-2 border-black cursor-pointer transition-all ${isSelected
+                          ? "bg-celo-forest text-white"
+                          : "bg-white text-black hover:bg-celo-dk-tan"
                           }`}
-                        >
-                          <div
-                            className={`w-4 h-4 border border-black flex items-center justify-center transition-all ${
-                              isSelected ? "bg-black" : "bg-white"
+                      >
+                        <div
+                          className={`w-4 h-4 border border-black flex items-center justify-center transition-all ${isSelected ? "bg-black" : "bg-white"
                             }`}
-                          >
-                            {isSelected && (
-                              <CheckCircle2 className="w-2 h-2 text-celo-yellow" />
-                            )}
-                          </div>
-                          <input
-                            type="radio"
-                            name={`choice-${subtask.id}`}
-                            checked={isSelected}
-                            onChange={() =>
-                              handleInputChange(subtask.id, option)
-                            }
-                            className="sr-only"
-                          />
-                          <span className="text-xs font-inter flex-1">
-                            {option}
-                          </span>
-                        </label>
-                      );
-                    }
-                  )
+                        >
+                          {isSelected && (
+                            <CheckCircle2 className="w-2 h-2 text-celo-yellow" />
+                          )}
+                        </div>
+                        <input
+                          type="radio"
+                          name={`choice-${subtask.id}`}
+                          checked={isSelected}
+                          onChange={() =>
+                            handleInputChange(subtask.id, option)
+                          }
+                          className="sr-only"
+                        />
+                        <span className="text-xs font-inter flex-1">
+                          {option}
+                        </span>
+                      </label>
+                    );
+                  }
+                )
                 : null}
             </div>
             {hasError && (
@@ -792,7 +761,7 @@ export default function FormGenerator({
               <div className="bg-white border-2 border-black rounded-lg px-4 py-2 text-center">
                 <Trophy className="w-5 h-5 text-celo-forest mx-auto mb-1" />
                 <div className="text-lg font-bold text-celo-forest">
-                  {Number(task.baseReward) / Math.pow(10, 18)} cUSD
+                  {formatUnits(BigInt(task.baseReward), 6)} USDC
                 </div>
                 <div className="text-xs font-semibold text-black">REWARD</div>
               </div>
@@ -933,7 +902,7 @@ export default function FormGenerator({
                 <div className="flex justify-between">
                   <span className="font-bold text-black">Base Reward</span>
                   <span>
-                    {Number(paymentDetails?.baseReward).toFixed(3)} cUSD
+                    {Number(paymentDetails?.baseReward).toFixed(3)} USDC
                   </span>
                 </div>
                 <div className="flex justify-between text-celo-purple">
@@ -947,13 +916,13 @@ export default function FormGenerator({
                         Number(paymentDetails?.bonusReward || 0)) /
                       10
                     ).toFixed(3)}{" "}
-                    cUSD
+                    USDC
                   </span>
                 </div>
                 <div className="border-t-2 border-black pt-2 flex justify-between text-celo-success">
                   <span className="font-bold">Total</span>
                   <span className="font-bold">
-                    {paymentDetails?.totalReward.toFixed(3)} cUSD
+                    {paymentDetails?.totalReward.toFixed(3)} USDC
                   </span>
                 </div>
               </div>
@@ -1027,18 +996,18 @@ export default function FormGenerator({
                   </div>
                   <div className="flex justify-between border-b-2 border-black pb-2">
                     <span className="font-bold text-gray-700">Base Reward</span>
-                    <span>{paymentDetails.baseReward.toFixed(3)} cUSD</span>
+                    <span>{paymentDetails.baseReward.toFixed(3)} USDC</span>
                   </div>
                   <div className="flex justify-between border-b-2 border-black pb-2 text-celo-purple">
                     <span className="font-bold">Quality Bonus</span>
-                    <span>+{paymentDetails.bonusReward.toFixed(3)} cUSD</span>
+                    <span>+{paymentDetails.bonusReward.toFixed(3)} USDC</span>
                   </div>
                   <div className="flex justify-between items-center bg-celo-forest text-white px-3 py-3 border-2 border-black">
                     <span className="font-gt-alpina text-lg font-bold">
                       Total Paid
                     </span>
                     <span className="text-xl font-gt-alpina font-bold">
-                      {paymentDetails.totalReward.toFixed(3)} cUSD
+                      {paymentDetails.totalReward.toFixed(3)} USDC
                     </span>
                   </div>
                 </div>

@@ -1,0 +1,28 @@
+{
+  "name": "@earnbase/openclaw-skill",
+  "version": "1.0.0",
+  "description": "Earnbase plugin for the OpenClaw Agent Framework",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "agent",
+    "openclaw",
+    "earnbase",
+    "celo",
+    "human-feedback"
+  ],
+  "author": "Earnbase",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.10.0",
+    "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

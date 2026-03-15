@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseAbiItem, decodeEventLog, erc20Abi } from 'viem';
 import { celo, celoAlfajores } from 'viem/chains';
-import { USDCAddress } from '@/contexts/constants';
+import { USDCAddress } from '@/blockchain/constants';
 import { PaymentData } from './types';
 
 // Standard ERC20 Transfer Event
