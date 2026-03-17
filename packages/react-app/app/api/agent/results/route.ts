@@ -7,8 +7,6 @@ export async function GET(req: NextRequest) {
         // However, since it's just querying results (which are public on IPFS anyway), 
         // we can allow open querying by agentRequestId.
 
-        console.log("we hit the endpoint.")
-
         const url = new URL(req.url);
         const agentRequestId = url.searchParams.get("agentRequestId") || url.searchParams.get("requestId");
 

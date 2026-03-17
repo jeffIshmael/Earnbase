@@ -600,7 +600,7 @@ export default function FormGenerator({
               <div className="text-xs font-inter">
                 {responses[subtask.id] ? (
                   <span className="font-heavy text-celo-purple">
-                    RATING: {responses[subtask.id]}/10
+                    RATING: {responses[subtask.id]}/5
                   </span>
                 ) : (
                   "TAP A NUMBER TO RATE"
