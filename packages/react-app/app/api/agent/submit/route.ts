@@ -258,10 +258,11 @@ export async function POST(request: Request) {
             }
         });
 
+        // Return internal taskId and the agentRequestId used for external tracking
         return Response.json({
             success: true,
             taskId: task.id,
-            agentRequestId: task.agentRequestId,
+            agentRequestId: task.agentRequestId, // This is the ID the external agent uses
             status: "active",
             explorerUrl: `https://earnbase.vercel.app/tasks/${task.id}`
         });

@@ -11,8 +11,9 @@ import {
   RefreshCw,
   LucideArrowDownLeftSquare,
   ArrowUpDown,
+  LogOut,
 } from "lucide-react";
-import { useAccount, useConnect, useSwitchChain } from "wagmi";
+import { useAccount, useConnect, useSwitchChain, useDisconnect } from "wagmi";
 import { injected } from "@wagmi/connectors";
 import { celo } from "wagmi/chains";
 import { motion } from "framer-motion";
@@ -49,6 +50,7 @@ interface Quote {
 export default function WalletPage() {
   const { address, isConnected, chain } = useAccount();
   const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
   const { switchChain, isPending } = useSwitchChain();
   const { smartAccount } = useUserSmartAccount();
 
@@ -257,300 +259,110 @@ export default function WalletPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-celo-lt-tan flex items-center justify-center p-4">
-        <div className="bg-white border-4 border-black p-8 max-w-md w-full text-center">
-          <Wallet className="w-16 h-16 text-celo-body mx-auto mb-4" />
-          <h1 className="text-h3 font-gt-alpina font-thin text-black mb-2">
-            CONNECT WALLET
-          </h1>
-          <p className="text-body-m text-celo-body mb-6 font-inter">
-            Please connect your wallet to view your wallet information.
+      <div className="min-h-screen bg-[#FFF9F3] flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white border-2 border-black p-8 max-w-md w-full text-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-3xl"
+        >
+          <div className="w-20 h-20 bg-celo-yellow/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-black">
+            <Wallet className="w-10 h-10 text-black" />
+          </div>
+          <h1 className="text-3xl font-gt-alpina font-bold text-black mb-4 uppercase">SECURE VAULT</h1>
+          <p className="text-lg text-celo-body font-inter mb-8">
+            Please connect your wallet to access your earnings and manage your assets.
           </p>
           <button
             onClick={handleConnect}
-            className="bg-celo-purple text-white px-8 py-3 border-4 border-black font-inter font-heavy hover:bg-black hover:text-celo-purple transition-all duration-200"
+            className="w-full bg-celo-purple text-white px-8 py-5 border-2 border-black font-inter font-heavy rounded-2xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-y-1 transition-all active:scale-95 shadow-none"
           >
             CONNECT WALLET
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-celo-lt-tan pb-28">
-      <div className="p-4 space-y-8">
+    <div className="min-h-screen bg-[#FFF9F3] pb-28 relative overflow-hidden">
+      {/* Decorative SVG elements */}
+      <div className="fixed inset-0 pointer-events-none opacity-20">
+        <svg className="absolute top-40 left-10 w-48 h-48 text-celo-purple" viewBox="0 0 100 100">
+          <path d="M10,50 Q25,25 50,50 T90,50" fill="none" stroke="currentColor" strokeWidth="0.5" />
+        </svg>
+      </div>
+
+      <div className="p-6 space-y-8 relative">
+        {/* Header with Title */}
+        <div className="flex items-center justify-between pointer-events-none">
+          <div>
+            <h1 className="text-3xl font-gt-alpina font-heavy text-black uppercase tracking-tight">WALLET</h1>
+            <p className="text-xs font-inter font-heavy text-black/50 uppercase tracking-widest leading-none mt-1">Manage Assets</p>
+          </div>
+          <div className="w-12 h-12 bg-white border-2 border-black rounded-2xl flex items-center justify-center shadow-[3px_3px_0_0_rgba(0,0,0,1)] rotate-6">
+            <RefreshCw className={`w-6 h-6 text-black ${isLoading ? 'animate-spin' : ''}`} onClick={fetchBalances} />
+          </div>
+          <button
+            onClick={() => disconnect()}
+            className="w-12 h-12 bg-red-100 border-2 border-black rounded-2xl flex items-center justify-center shadow-[3px_3px_0_0_rgba(0,0,0,1)] -rotate-3 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:scale-90 hover:cursor-pointer"
+            title="Disconnect Wallet"
+          >
+            <LogOut className="w-6 h-6 text-red-600" />
+          </button>
+        </div>
+
         {/* Unified Wallet Card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-black border-4 border-black rounded-3xl overflow-hidden shadow-[8px_8px_0_0_rgba(0,0,0,1)]"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-black border-2 border-black rounded-[40px] overflow-hidden shadow-[8px_8px_0_0_rgba(0,0,0,1)]"
         >
           {/* Main Balance Area */}
-          <div className="bg-celo-purple p-8 text-white relative">
-            <div className="absolute top-4 right-4 opacity-20">
-              <Image src="/static/usdclogo.png" alt="USDC" width={80} height={80} />
-            </div>
+          <div className="bg-celo-purple p-10 text-white relative">
+            {/* <div className="absolute top-6 right-6 opacity-20 bg-white/10 rounded-full p-4 border border-white/20 backdrop-blur-sm">
+              <Image src="/static/usdclogo.png" alt="USDC" width={80} height={80} className="rotate-12" />
+            </div> */}
 
-            <p className="text-eyebrow font-inter font-heavy uppercase tracking-widest mb-2 opacity-80">
-              USDC BALANCE
+            <p className="text-sm font-inter font-heavy uppercase tracking-[0.2em] mb-4 opacity-80">
+              BALANCE
             </p>
-            <div className="flex items-baseline space-x-2 mb-8">
-              <h2 className="text-h1 font-gt-alpina font-normal">
-                {isLoading ? "..." : usdcBalance || "0.000"}
-              </h2>
-              <span className="text-h4 font-gt-alpina opacity-80">USDC</span>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-baseline space-x-3">
+                <h2 className="text-6xl font-gt-alpina font-normal tracking-tighter">
+                  {isLoading ? "..." : usdcBalance || "0.000"}
+                </h2>
+                <span className="text-2xl font-gt-alpina font-heavy opacity-70">USDC</span>
+              </div>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-[10px] font-inter font-heavy opacity-70 uppercase tracking-widest">WALLET ADDRESS</p>
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-1 px-2 py-0.5 bg-celo-success/20 rounded-full border border-celo-success/30">
-                    <span className="w-1.5 h-1.5 bg-celo-success rounded-full animate-pulse"></span>
-                    <span className="text-[10px] font-heavy text-celo-success">ACTIVE</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="font-mono text-xs truncate tracking-tighter opacity-90 max-w-[80%]">
-                  {address}
-                </p>
-                <button
-                  onClick={() => copyToClipboard(address!)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
+            <div className="flex items-center justify-between bg-black/20 p-4 rounded-2xl border border-white/10 hover:bg-black/30 transition-all group cursor-pointer" onClick={() => copyToClipboard(address!)}>
+              <p className="font-mono text-xs truncate tracking-tighter opacity-90 max-w-[85%]">
+                {address}
+              </p>
+              <div className="p-2 bg-white/10 rounded-xl group-hover:scale-110 transition-transform">
+                <Copy className="w-4 h-4" />
               </div>
             </div>
           </div>
 
           {/* Actions Area */}
-          <div className="bg-white p-4 flex gap-4 border-t-4 border-black">
+          <div className="bg-white p-6 flex gap-4 border-t-4 border-black relative">
             <button
               onClick={() => setShowTransferModal(true)}
-              className="flex-1 bg-celo-yellow text-black border-4 border-black font-inter font-heavy py-4 rounded-xl hover:bg-black hover:text-celo-yellow transition-all duration-200 flex items-center justify-center space-x-2 active:translate-y-[1px]"
+              className="flex-1 bg-celo-yellow text-black border-2 border-black font-inter font-heavy py-5 rounded-2xl hover:bg-black hover:text-celo-yellow transition-all flex items-center justify-center space-x-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:scale-[0.98]"
             >
-              <ArrowUpRight className="w-5 h-5" />
-              <span>SEND USDC</span>
+              <ArrowUpRight className="w-6 h-6" />
+              <span className="text-lg uppercase">SEND ASSETS</span>
             </button>
             <button
               onClick={() => openCeloScan(address!)}
-              className="bg-celo-dk-tan text-black border-4 border-black p-4 rounded-xl hover:bg-white transition-all flex items-center justify-center active:translate-y-[1px]"
+              className="bg-celo-lt-tan text-black border-2 border-black p-5 rounded-2xl hover:bg-white transition-all flex items-center justify-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
             >
-              <ExternalLink className="w-5 h-5" />
+              <ExternalLink className="w-6 h-6" />
             </button>
           </div>
         </motion.div>
 
-        {/* Swap Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white border-4 border-black p-6 rounded-2xl shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
-        >
-          <h3 className="text-h5 font-gt-alpina font-bold text-black mb-5 tracking-wide">
-            SWAP TOKENS
-          </h3>
-
-          <div className="space-y-6 relative z-0">
-            {/* From */}
-            <div>
-              <label className="text-body-s text-celo-body mb-2 block font-inter font-heavy">
-                FROM
-              </label>
-              <div className="bg-celo-lk-tan border-4 border-black p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Image
-                      src={
-                        currencyFrom === "cUSD"
-                          ? "/static/cusdLogo.jpg"
-                          : currencyFrom === "USDC"
-                            ? "/static/usdclogo.png"
-                            : "/static/celoLogo.png"
-                      }
-                      alt={currencyFrom || "Token"}
-                      width={28}
-                      height={28}
-                      className=" rounded-full"
-                    />
-                    <select
-                      value={currencyFrom || ""}
-                      onChange={(e) => {
-                        setAmountFrom("");
-                        setAmountTo("");
-                        setCurrencyFrom(
-                          e.target.value as "cUSD" | "USDC" | "CELO"
-                        );
-                      }}
-                      className="bg-white border-2 border-black text-body-s font-inter font-heavy text-black px-3 py-1 rounded-md focus:outline-none focus:border-black"
-                    >
-                      <option value="">SELECT</option>
-                      <option value="cUSD">CUSD</option>
-                      <option value="USDC">USDC</option>
-                      <option value="CELO">CELO</option>
-                    </select>
-                  </div>
-                  <input
-                    type="number"
-                    placeholder="0.0"
-                    value={amountFrom}
-                    onChange={async (e) => {
-                      const value = e.target.value;
-                      setAmountFrom(value);
-                      if (Number(value) > 0 && currencyFrom) {
-                        await getQuoteWithAmount(
-                          value,
-                          currencyFrom === "cUSD",
-                          currencyFrom === "CELO"
-                        );
-                      }
-                    }}
-                    className="bg-transparent text-right text-body-l font-inter font-heavy text-black placeholder-celo-body outline-none w-1/2"
-                  />
-                </div>
-                <div className="text-right text-body-s text-celo-body font-inter mt-2">
-                  Balance: {currencyFrom === "cUSD" ? (cUSDBalance || "0.000") : currencyFrom === "USDC" ? (usdcBalance || "0.000") : (celoBalance || "0.000")}
-                </div>
-              </div>
-            </div>
-
-            {/* Swap Arrow */}
-            <div className="absolute left-1/2 top-[32%] -translate-x-1/2 -translate-y-1/2 z-10">
-              <button
-                onClick={async () => {
-                  if (!currencyFrom) return;
-                  const newCurrencyFrom =
-                    currencyFrom === "cUSD"
-                      ? "USDC"
-                      : currencyFrom === "USDC"
-                        ? "CELO"
-                        : "cUSD";
-                  setCurrencyFrom(newCurrencyFrom);
-                  if (amountFrom) {
-                    await getQuoteWithAmount(
-                      amountFrom,
-                      newCurrencyFrom === "cUSD",
-                      newCurrencyFrom === "CELO"
-                    );
-                  }
-                }}
-                className="bg-celo-yellow border-4 border-black p-2 rounded-lg hover:bg-black hover:text-celo-yellow transition-all duration-200"
-              >
-                <ArrowUpDown className="w-5 h-5 text-black" />
-              </button>
-            </div>
-
-            {/* To */}
-            <div>
-              <label className="text-body-s text-celo-body mb-2 block font-inter font-heavy">
-                TO
-              </label>
-              <div className="bg-celo-dk-tan border-4 border-black p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Image
-                      src={
-                        currencyFrom === "cUSD"
-                          ? "/static/usdclogo.png"
-                          : currencyFrom === "USDC"
-                            ? "/static/cusdLogo.jpg"
-                            : "/static/cusdLogo.jpg"
-                      }
-                      alt="toToken"
-                      width={28}
-                      height={28}
-                      className="rounded-full"
-                    />
-                    <span className="font-inter font-heavy text-celo-body">
-                      {currencyFrom === "cUSD"
-                        ? "USDC"
-                        : currencyFrom === "USDC"
-                          ? "cUSD"
-                          : "cUSD"}
-                    </span>
-                  </div>
-                  {isFetchingQuote ? (
-                    <div className="flex items-center justify-end w-1/2">
-                      <div className="w-5 h-5 border-4 border-black border-t-transparent animate-spin"></div>
-                    </div>
-                  ) : (
-                    <input
-                      type="text"
-                      placeholder="0.0"
-                      value={amountTo}
-                      readOnly
-                      className="bg-transparent text-right text-body-l font-inter font-heavy text-celo-body outline-none w-1/2"
-                    />
-                  )}
-                </div>
-                <div className="text-right text-body-s text-celo-body font-inter mt-2">
-                  Balance: {currencyFrom === "cUSD" ? (usdcBalance || "0.000") : currencyFrom === "USDC" ? (cUSDBalance || "0.000") : (cUSDBalance || "0.000")}
-                </div>
-              </div>
-            </div>
-
-            {/* Exchange Rate */}
-            <div className="text-center pt-2">
-              {isFetchingQuote ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-3 h-3 border-4 border-black border-t-transparent animate-spin"></div>
-                  <p className="text-body-s text-celo-body font-inter">
-                    FETCHING RATE...
-                  </p>
-                </div>
-              ) : (
-                <p className="text-body-s text-celo-body font-inter">
-                  {exchangeRate}
-                </p>
-              )}
-            </div>
-
-            {/* Swap Button */}
-            <button
-              onClick={(e) =>
-                handleSwap(currencyFrom === "cUSD", currencyFrom === "CELO", e)
-              }
-              disabled={
-                !isConnected ||
-                isNaN(Number(amountFrom)) ||
-                Number(amountFrom) <= 0 ||
-                !amountFrom ||
-                !currencyFrom ||
-                isSwapping ||
-                isFetchingQuote ||
-                isApproving
-              }
-              className={cn(
-                "w-full bg-celo-yellow text-black border-4 border-black font-inter font-heavy py-4 rounded-xl transition-all duration-200",
-                (isNaN(Number(amountFrom)) ||
-                  Number(amountFrom) <= 0 ||
-                  !amountFrom ||
-                  !currencyFrom ||
-                  isFetchingQuote) &&
-                "opacity-50 cursor-not-allowed",
-                (isApproving || isSwapping) && "opacity-70 cursor-not-allowed"
-              )}
-            >
-              {isApproving ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-4 h-4 border-4 border-black border-t-transparent animate-spin"></div>
-                  <span>APPROVING TX...</span>
-                </div>
-              ) : isSwapping ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-4 h-4 border-4 border-black border-t-transparent animate-spin"></div>
-                  <span>SWAPPING...</span>
-                </div>
-              ) : (
-                "SWAP"
-              )}
-            </button>
-          </div>
-        </motion.div>
       </div>
 
       <TransferModal

@@ -24,17 +24,17 @@ export async function GET(
         }
 
         // Map Prisma TaskStatus to Agent Status
-        let agentStatus = "pending";
-        if (task.status === "ACTIVE") agentStatus = "active";
-        if (task.status === "COMPLETED" || task.status === "PAUSED") agentStatus = "completed"; // Or paused?
+        let agentStatus = "processing";
+        if (task.status === "COMPLETED") agentStatus = "completed";
+        if (task.status === "CANCELLED") agentStatus = "cancelled";
 
         return NextResponse.json({
-            requestId: task.agentRequestId,
             status: agentStatus,
+            requestId: task.agentRequestId,
             summary: {
                 participants: task.currentParticipants,
                 maxParticipants: task.maxParticipants,
-                completionRate: (task.currentParticipants / task.maxParticipants) * 100,
+                completionRate: Math.round((task.currentParticipants / task.maxParticipants) * 100),
             },
             createdAt: task.createdAt,
         });

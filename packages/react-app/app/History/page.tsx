@@ -31,17 +31,17 @@ export default function HistoryPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-celo-lt-tan flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#FFF9F3] flex items-center justify-center p-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border-4 border-black p-8 max-w-md w-full text-center shadow-[8px_8px_0_0_rgba(0,0,0,1)]"
+          className="bg-white border-2 border-black p-8 max-w-md w-full text-center shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-3xl"
         >
-          <div className="w-20 h-20 bg-celo-yellow/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-black/10">
+          <div className="w-20 h-20 bg-celo-yellow/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-black">
             <Clock className="w-10 h-10 text-black" />
           </div>
-          <h1 className="text-h3 font-gt-alpina font-bold text-black mb-4">CONNECT WALLET</h1>
-          <p className="text-body-m text-celo-body font-inter mb-8">
+          <h1 className="text-3xl font-gt-alpina font-bold text-black mb-4 uppercase">CONNECT WALLET</h1>
+          <p className="text-lg text-celo-body font-inter mb-8">
             Connect your wallet to track your progress and view your earned rewards.
           </p>
         </motion.div>
@@ -50,91 +50,104 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-celo-lt-tan pb-28 relative">
-      {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-celo-orange/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-celo-yellow/10 rounded-full blur-3xl"></div>
+    <div className="min-h-screen bg-[#FFF9F3] pb-28 relative overflow-hidden">
+      {/* Decorative SVG elements for hand-drawn feel */}
+      <div className="fixed inset-0 pointer-events-none opacity-20">
+        <svg className="absolute top-10 right-10 w-32 h-32 text-celo-orange" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="10 5" />
+        </svg>
+        <svg className="absolute bottom-20 left-10 w-24 h-24 text-celo-purple" viewBox="0 0 100 100">
+          <rect x="20" y="20" width="60" height="60" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(15)" />
+        </svg>
       </div>
 
-      <header className="bg-celo-orange border-b-4 border-black rounded-b-3xl sticky top-0 z-50 shadow-[0_6px_0_0_rgba(0,0,0,1)]">
-        <div className="px-6 py-5 flex items-center space-x-4">
-          <div className="w-10 h-10 bg-white border-2 border-black rounded-lg flex items-center justify-center shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
-            <Clock className="w-6 h-6 text-black" />
-          </div>
-          <div>
-            <h1 className="text-h4 font-gt-alpina font-bold text-black truncate tracking-tight">
-              YOUR HISTORY
-            </h1>
-            <div className="flex items-center space-x-2">
-              <span className="w-2 h-2 bg-celo-success rounded-full animate-pulse"></span>
-              <p className="text-eyebrow font-inter text-black/70 uppercase tracking-widest leading-none">
+      <header className="bg-celo-orange border-b-2 border-black rounded-b-[40px] sticky top-0 z-50 shadow-[0_4px_0_0_rgba(0,0,0,1)]">
+        <div className="px-6 py-6 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-white border-2 border-black rounded-2xl flex items-center justify-center shadow-[3px_3px_0_0_rgba(0,0,0,1)] -rotate-3">
+              <Clock className="w-7 h-7 text-black" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-gt-alpina font-heavy text-black uppercase tracking-tight">
+                ACTIVITY
+              </h1>
+              <p className="text-[10px] font-inter font-heavy text-black/60 uppercase tracking-widest">
                 Earning Journey
               </p>
             </div>
           </div>
+          <div className="w-10 h-10 bg-celo-yellow border-2 border-black rounded-full flex items-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+            <Filter className="w-5 h-5 text-black" />
+          </div>
         </div>
       </header>
 
-      <div className="relative p-4 space-y-4">
+      <div className="relative p-6 space-y-6">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-16 h-16 border-4 border-black border-t-celo-orange rounded-full animate-spin mb-4"></div>
-            <p className="font-inter font-heavy uppercase tracking-widest text-celo-body">Fetching History...</p>
+            <div className="w-16 h-16 border-4 border-black border-t-celo-yellow rounded-full animate-spin mb-4 shadow-md"></div>
+            <p className="font-gt-alpina font-heavy uppercase tracking-widest text-black">Scanning the Ledger...</p>
           </div>
         ) : submissions.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-20 bg-white border-4 border-black rounded-3xl shadow-[6px_6px_0_0_rgba(0,0,0,1)] px-6"
+            className="text-center py-24 bg-white border-2 border-black rounded-[40px] shadow-[6px_6px_0_0_rgba(0,0,0,1)] px-8"
           >
-            <div className="w-24 h-24 bg-celo-lt-tan border-4 border-black mx-auto mb-6 flex items-center justify-center rotate-3">
-              <Search className="w-12 h-12 text-black" />
+            <div className="w-28 h-28 bg-celo-lt-tan border-2 border-black mx-auto mb-8 flex items-center justify-center rotate-6 shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
+              <Search className="w-14 h-14 text-black" />
             </div>
-            <h3 className="text-h3 font-gt-alpina font-bold text-black mb-2">NO TASKS YET</h3>
-            <p className="text-body-m text-celo-body font-inter mb-8">
-              You haven&apos;t participated in any tasks yet. Head over to Home to start earning USDC!
+            <h3 className="text-3xl font-gt-alpina font-bold text-black mb-4 uppercase">Quiet on the Front</h3>
+            <p className="text-lg text-celo-body font-inter mb-10 leading-relaxed">
+              You haven&apos;t participated in any tasks yet. Head over to the Marketplace to start earning!
             </p>
             <button
               onClick={() => router.push('/Start')}
-              className="bg-celo-orange text-black border-2 border-black font-inter font-heavy px-8 py-3 rounded-xl hover:bg-black hover:text-celo-orange transition-all active:scale-95"
+              className="w-full bg-celo-orange text-black border-2 border-black font-inter font-heavy px-8 py-5 rounded-2xl shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] transition-all active:scale-95 active:shadow-none"
             >
-              BROWSE TASKS
+              FIND NEW TASKS
             </button>
           </motion.div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <AnimatePresence>
               {submissions.map((submission, index) => (
                 <motion.div
                   key={submission.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="bg-white border-4 border-black p-5 flex flex-col space-y-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -4, rotate: index % 2 === 0 ? 0.5 : -0.5 }}
+                  className="bg-white border-2 border-black p-6 flex flex-col space-y-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-all cursor-pointer rounded-3xl group"
                   onClick={() => router.push(`/Task/${submission.taskId}`)}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h4 className="text-h5 font-gt-alpina font-bold text-black mb-1 truncate">
-                        {submission.task.title}
-                      </h4>
+                    <div className="flex-1 space-y-1">
                       <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-0.5 border-2 border-black text-[10px] font-inter font-heavy uppercase ${submission.status === 'REWARDED' ? 'bg-celo-success/20 text-celo-success' :
+                        <Award className={`w-5 h-5 ${submission.status === 'REWARDED' ? 'text-celo-success' : 'text-celo-orange'}`} />
+                        <h4 className="text-xl font-gt-alpina font-bold text-black group-hover:text-celo-purple transition-colors">
+                          {submission.task.title}
+                        </h4>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <span className={`px-3 py-1 border-2 border-black text-[10px] font-inter font-heavy uppercase rounded-lg shadow-[2px_2px_0_0_rgba(0,0,0,1)] ${submission.status === 'REWARDED' ? 'bg-celo-success/20 text-celo-success' :
                           submission.status === 'PENDING' ? 'bg-celo-yellow text-black' : 'bg-red-100 text-red-600'
                           }`}>
                           {submission.status}
                         </span>
-                        <p className="text-[10px] text-celo-body font-inter uppercase">
-                          {new Date(submission.submittedAt).toLocaleDateString()}
-                        </p>
+                        <div className="flex items-center text-[10px] text-black/50 font-inter font-bold space-x-1">
+                          <Clock className="w-3 h-3" />
+                          <span>{new Date(submission.submittedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-h4 font-gt-alpina font-bold text-black">
-                        {submission.reward ? (Number(submission.reward) / 1000000).toFixed(2) : "0.00"}
-                      </p>
-                      <p className="text-[10px] font-inter font-heavy text-celo-body">USDC EARNED</p>
+                      <div className="bg-celo-lt-tan border-2 border-black p-2 rounded-xl shadow-[3px_3px_0_0_rgba(0,0,0,1)] group-hover:bg-celo-yellow transition-colors">
+                        <p className="text-2xl font-gt-alpina font-heavy text-black leading-none">
+                          {submission.reward ? (Number(submission.reward)).toFixed(2) : "0.00"}
+                        </p>
+                        <p className="text-[8px] font-inter font-heavy text-black/60 uppercase">USDC</p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

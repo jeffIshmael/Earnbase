@@ -1,3 +1,5 @@
+"use server";
+
 import { PinataSDK } from "pinata";
 import prisma from "@/lib/prisma";
 
@@ -7,6 +9,28 @@ const pinata = new PinataSDK({
     pinataJwt: process.env.PINATA_JWT || "",
     pinataGateway: process.env.PINATA_GATEWAY || "gateway.pinata.cloud",
 });
+
+/**
+ * Uploads a single file to IPFS via Pinata (Server Side).
+ * Returns the IPFS hash (CID).
+ */
+export async function uploadFileToIpfs(formData: FormData): Promise<string> {
+    try {
+        const file = formData.get("file") as File;
+        if (!file) {
+            throw new Error("No file provided in FormData");
+        }
+
+        console.log(`Uploading file ${file.name} to IPFS via Server Action...`);
+        const upload: any = await pinata.upload.public.file(file);
+        const returnCid = upload.IpfsHash || upload.cid;
+        console.log(`Successfully uploaded file to IPFS. CID: ${returnCid}`);
+        return returnCid;
+    } catch (error) {
+        console.error("Error uploading file to IPFS on server:", error);
+        throw error;
+    }
+}
 
 /**
  * Aggregates all submissions for a task and pins the JSON result to IPFS.

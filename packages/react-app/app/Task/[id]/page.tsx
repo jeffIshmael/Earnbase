@@ -26,7 +26,6 @@ import {
   Plus,
   Minus,
   Zap,
-  ChevronRight,
   CalendarDays,
   Tag,
   Award as AwardIcon,
@@ -37,6 +36,7 @@ import {
   Share2,
   Bookmark,
   X,
+  HelpCircle,
 } from "lucide-react";
 import {
   getTaskById,
@@ -53,6 +53,8 @@ import {
   getTaskSubmissionsForLeaderboard,
 } from "@/lib/Prismafnctns";
 import { useAccount } from "wagmi";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 const TaskDetailPage = () => {
   const params = useParams();
@@ -76,8 +78,14 @@ const TaskDetailPage = () => {
     []
   );
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [showSelfInfoModal, setShowSelfInfoModal] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const taskId = params.id as string;
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const loadTask = async () => {
@@ -166,178 +174,82 @@ const TaskDetailPage = () => {
     }
   };
 
-  if (loading) {
+  if (loading || !isMounted) {
     return (
-      <div className="min-h-screen bg-celo-lt-tan">
-        {/* Header Skeleton */}
-        <div className="relative bg-celo-yellow border-b-4 border-black sticky top-0 z-50">
-          <div className="px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-black animate-pulse"></div>
-                <div className="space-y-2">
-                  <div className="h-6 w-48 bg-black animate-pulse"></div>
-                  <div className="h-4 w-32 bg-black animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-[#FFF9F3] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.2, 0.1]
+            }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-celo-yellow rounded-full blur-[100px]"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.1, 0.15, 0.1]
+            }}
+            transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+            className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-celo-purple rounded-full blur-[80px]"
+          />
         </div>
 
-        <div className="relative px-4 py-6 pb-24 space-y-6">
-          {/* Hero Card Skeleton */}
-          <div className="bg-white border-4 border-black p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3 flex-1 min-w-0">
-                <div className="w-16 h-16 bg-celo-purple animate-pulse"></div>
-                <div className="min-w-0 flex-1 space-y-3">
-                  <div className="h-8 w-3/4 bg-black animate-pulse"></div>
-                  <div className="h-5 w-24 bg-black animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Reward and Status Skeleton */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="h-10 w-40 bg-celo-yellow animate-pulse"></div>
-              <div className="h-8 w-20 bg-celo-forest animate-pulse"></div>
-            </div>
-
-            <div className="space-y-3 mb-6">
-              <div className="h-5 w-full bg-black animate-pulse"></div>
-              <div className="h-5 w-5/6 bg-black animate-pulse"></div>
-              <div className="h-5 w-4/5 bg-black animate-pulse"></div>
-            </div>
-
-            {/* Quick Stats Skeleton */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="bg-celo-lt-tan border-4 border-black p-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-4 h-4 bg-black animate-pulse"></div>
-                  <div className="h-4 w-24 bg-black animate-pulse"></div>
-                </div>
-                <div className="h-8 w-20 bg-black animate-pulse"></div>
-              </div>
-
-              <div className="bg-celo-lt-tan border-4 border-black p-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-4 h-4 bg-black animate-pulse"></div>
-                  <div className="h-4 w-20 bg-black animate-pulse"></div>
-                </div>
-                <div className="h-8 w-24 bg-black animate-pulse"></div>
-              </div>
-            </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative z-10 text-center"
+        >
+          <div className="relative mb-8">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-[-20px] border-2 border-dashed border-black/10 rounded-full"
+            />
+            <motion.div
+              animate={{ scale: [0.95, 1.05, 0.95] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="w-24 h-24 bg-white border-4 border-black rounded-[2rem] flex items-center justify-center shadow-[8px_8px_0_0_rgba(0,0,0,1)] mx-auto overflow-hidden"
+            >
+              <Image
+                src="/self-logo.png"
+                alt="Self"
+                width={48}
+                height={48}
+                className="object-contain"
+              />
+            </motion.div>
           </div>
 
-          {/* Action Button Skeleton */}
-          <div className="w-full h-14 bg-celo-yellow border-4 border-black animate-pulse"></div>
-
-          {/* Verification Status Skeleton */}
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 bg-celo-forest animate-pulse"></div>
-              <div className="h-4 w-32 bg-celo-forest animate-pulse"></div>
-            </div>
-          </div>
-
-          {/* Tab Navigation Skeleton */}
-          <div className="bg-white border-4 border-black p-1">
-            <div className="flex">
-              <div className="flex-1 h-12 bg-celo-yellow animate-pulse mx-1"></div>
-              <div className="flex-1 h-12 bg-celo-purple animate-pulse mx-1"></div>
-              <div className="flex-1 h-12 bg-celo-forest animate-pulse mx-1"></div>
-            </div>
-          </div>
-
-          {/* Tab Content Skeleton */}
           <div className="space-y-4">
-            {/* Creator Card Skeleton */}
-            <div className="bg-white border-4 border-black p-5">
-              <div className="flex items-center mb-4">
-                <div className="w-5 h-5 bg-celo-purple rounded mr-2 animate-pulse"></div>
-                <div className="h-6 w-16 bg-black animate-pulse"></div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-celo-purple rounded-full animate-pulse"></div>
-                <div className="flex-1 min-w-0 space-y-2">
-                  <div className="h-5 w-32 bg-black animate-pulse"></div>
-                  <div className="h-4 w-24 bg-black animate-pulse"></div>
-                </div>
-                <div className="h-6 w-16 bg-celo-forest rounded-full animate-pulse"></div>
-              </div>
-            </div>
-
-            {/* Requirements Card Skeleton */}
-            <div className="bg-white border-4 border-black p-5">
-              <div className="flex items-center mb-4">
-                <div className="w-5 h-5 bg-celo-orange rounded mr-2 animate-pulse"></div>
-                <div className="h-6 w-24 bg-black animate-pulse"></div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3 p-3 bg-celo-lt-tan border-2 border-black">
-                  <div className="w-4 h-4 bg-black animate-pulse"></div>
-                  <div className="space-y-1">
-                    <div className="h-3 w-20 bg-black animate-pulse"></div>
-                    <div className="h-4 w-24 bg-black animate-pulse"></div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 p-3 bg-celo-lt-tan border-2 border-black">
-                  <div className="w-4 h-4 bg-black animate-pulse"></div>
-                  <div className="space-y-1">
-                    <div className="h-3 w-16 bg-black animate-pulse"></div>
-                    <div className="h-4 w-20 bg-black animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Budget Cards Skeleton */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-celo-yellow border-4 border-black p-5 text-center">
-                <div className="w-8 h-8 bg-black rounded mx-auto mb-3 animate-pulse"></div>
-                <div className="h-4 w-20 bg-black rounded mx-auto mb-1 animate-pulse"></div>
-                <div className="h-6 w-24 bg-black rounded mx-auto animate-pulse"></div>
-              </div>
-              <div className="bg-celo-purple border-4 border-black p-5 text-center">
-                <div className="w-8 h-8 bg-white rounded mx-auto mb-3 animate-pulse"></div>
-                <div className="h-4 w-16 bg-white rounded mx-auto mb-1 animate-pulse"></div>
-                <div className="h-6 w-20 bg-white rounded mx-auto animate-pulse"></div>
-              </div>
-            </div>
-
-            {/* Timeline Skeleton */}
-            <div className="bg-white border-4 border-black p-5">
-              <div className="flex items-center mb-4">
-                <div className="w-5 h-5 bg-celo-purple rounded mr-2 animate-pulse"></div>
-                <div className="h-6 w-20 bg-black animate-pulse"></div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-celo-lt-tan border-2 border-black">
-                  <div className="h-4 w-16 bg-black animate-pulse"></div>
-                  <div className="h-4 w-24 bg-black animate-pulse"></div>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-celo-lt-tan border-2 border-black">
-                  <div className="h-4 w-12 bg-black animate-pulse"></div>
-                  <div className="h-4 w-20 bg-black animate-pulse"></div>
-                </div>
+            <h2 className="text-2xl font-gt-alpina font-heavy text-black uppercase tracking-tighter">
+              Securing Task Assets
+            </h2>
+            <div className="flex items-center justify-center space-x-2">
+              <span className="text-sm font-inter font-heavy text-black/40 uppercase tracking-[0.2em]">
+                Identity Verification Active
+              </span>
+              <div className="flex space-x-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                    className="w-1.5 h-1.5 bg-celo-forest rounded-full"
+                  />
+                ))}
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Loading indicator */}
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-white border-4 border-black px-6 py-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-6 h-6 border-2 border-celo-purple rounded-full animate-spin"></div>
-                <div className="w-4 h-4 border-2 border-celo-forest border-t-transparent rounded-full animate-spin absolute top-1 left-1"></div>
-              </div>
-              <div className="text-black text-sm font-inter font-heavy">
-                LOADING TASK DETAILS...
-              </div>
-            </div>
-          </div>
+        {/* Brand Meta */}
+        <div className="absolute bottom-12 left-0 right-0 text-center">
+          <p className="text-[10px] font-inter font-heavy text-black/20 uppercase tracking-[0.3em]">
+            Powered by Earnbase × Self Protocol
+          </p>
         </div>
       </div>
     );
@@ -400,13 +312,12 @@ const TaskDetailPage = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+  const formatDate = (date: Date) => {
+    if (!isMounted) return "";
+    return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+      day: "numeric"
     });
   };
 
@@ -467,12 +378,12 @@ const TaskDetailPage = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-h4 font-gt-alpina font-bold text-black truncate tracking-tight">
+            <h1 className="text-h4 font-gt-alpina font-bold text-black">
               {task.title}
             </h1>
             <div className="flex items-center space-x-2">
               <span className="w-2 h-2 bg-celo-success rounded-full animate-pulse"></span>
-              <p className="text-eyebrow font-inter text-black/70 uppercase tracking-widest">
+              <p className="text-eyebrow font-inter text-black/70">
                 Agent Powered Task
               </p>
             </div>
@@ -592,14 +503,6 @@ const TaskDetailPage = () => {
                   <div className="grid grid-cols-2 gap-4 text-body-s">
                     <div>
                       <span className="text-celo-forest font-inter font-heavy">
-                        AI RATING:
-                      </span>
-                      <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
-                        {userSubmission.aiRating}/10
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-celo-forest font-inter font-heavy">
                         REWARD EARNED:
                       </span>
                       <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
@@ -648,7 +551,7 @@ const TaskDetailPage = () => {
                   </>
                 ) : hasRequirements ? (
                   <>
-                    <Shield className="w-5 h-5" />
+                    <Image src="/self-logo.png" alt="Self Logo" width={24} height={24} />
                     <span>VERIFY IDENTITY TO START</span>
                   </>
                 ) : (
@@ -678,8 +581,17 @@ const TaskDetailPage = () => {
                     </div>
                   ) : (
                     <div className="flex items-center justify-center space-x-2 text-celo-orange text-body-s font-inter font-heavy">
-                      <AlertCircle className="w-4 h-4" />
-                      <span>IDENTITY VERIFICATION REQUIRED</span>
+
+                      <span>SELF VERIFICATION REQUIRED</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowSelfInfoModal(true);
+                        }}
+                        className="hover:scale-110 transition-transform flex items-center"
+                      >
+                        <HelpCircle className="w-4 h-4 ml-1" />
+                      </button>
                     </div>
                   )}
                 </div>
@@ -785,7 +697,7 @@ const TaskDetailPage = () => {
                         CREATED
                       </span>
                       <span className="font-inter font-heavy text-black text-body-s">
-                        {task.createdAt.toLocaleDateString()}
+                        {isMounted ? task.createdAt.toLocaleDateString() : "..."}
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-celo-lt-tan border-2 border-black">
@@ -793,9 +705,7 @@ const TaskDetailPage = () => {
                         EXPIRES
                       </span>
                       <span className="font-inter font-heavy text-celo-error text-body-s">
-                        {task.expiresAt
-                          ? task.expiresAt.toLocaleDateString()
-                          : "No expiry"}
+                        {isMounted ? (task.expiresAt ? task.expiresAt.toLocaleDateString() : "No expiry") : "..."}
                       </span>
                     </div>
                   </div>
@@ -882,11 +792,11 @@ const TaskDetailPage = () => {
                               <h4 className="font-inter font-heavy text-black truncate">
                                 {subtask.title}
                               </h4>
-                              {subtask.required && (
+                              {/* {subtask.required && (
                                 <span className="bg-celo-error text-white px-2 py-1 border-2 border-black text-eyebrow font-inter font-heavy">
-                                  REQUIRED
+                                  *
                                 </span>
-                              )}
+                              )} */}
                             </div>
                             <p className="text-celo-body text-body-s font-inter truncate">
                               {subtask.description}
@@ -975,7 +885,7 @@ const TaskDetailPage = () => {
                         : undefined,
                     countries:
                       task.countryRestriction && task.countries
-                        ? [task.countries]
+                        ? [task.countries] as any
                         : undefined,
                   }}
                   onVerificationSuccess={handleVerificationSuccess}
@@ -986,6 +896,41 @@ const TaskDetailPage = () => {
           </div>
         )
       }
+
+      {/* Self Protocol Info Modal */}
+      {showSelfInfoModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white border-4 border-black p-6 max-w-sm w-full animate-in fade-in-0 zoom-in-95 duration-200 shadow-[8px_8px_0_0_rgba(0,0,0,1)]">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-h4 font-gt-alpina font-bold text-black">WHAT IS SELF?</h3>
+              <button
+                onClick={() => setShowSelfInfoModal(false)}
+                className="p-1 hover:bg-celo-lt-tan transition-colors border-2 border-transparent hover:border-black"
+              >
+                <X className="w-6 h-6 text-black" />
+              </button>
+            </div>
+            <div className="space-y-4 text-body-s font-inter text-black/70">
+              <p>
+                Self is a privacy-first identity protocol using zero-knowledge proofs.
+              </p>
+              <p>
+                It allows you to prove your identity, age, or humanity by scanning your ID document with your phone&apos;s NFC reader, without revealing your personal data.
+              </p>
+              <div className="bg-celo-lt-tan p-3 border-2 border-black">
+                <p className="font-heavy text-black mb-1 uppercase text-eyebrow tracking-wider">Scan. Prove. Share.</p>
+                <p>Secure identity verification with total privacy.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowSelfInfoModal(false)}
+              className="w-full mt-6 py-4 bg-celo-yellow border-4 border-black font-heavy text-black hover:bg-black hover:text-celo-yellow transition-all duration-300 shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+            >
+              GOT IT!
+            </button>
+          </div>
+        </div>
+      )}
     </div >
   );
 };
