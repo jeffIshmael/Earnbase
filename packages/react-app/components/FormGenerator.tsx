@@ -983,8 +983,12 @@ export default function FormGenerator({
             className="bg-white border-4 border-black rounded-2xl shadow-[10px_10px_0_0_rgba(0,0,0,1)] max-w-sm w-full overflow-hidden"
           >
             <div className="p-6 space-y-5">
+              {/* Header */}
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-gt-alpina font-bold">Agent Rating</h3>
+                <div>
+                  <h3 className="text-xl font-gt-alpina font-bold">How Was Your Experience?</h3>
+                  <p className="text-xs text-gray-400 font-inter mt-0.5">Task #{task.id}</p>
+                </div>
                 <button
                   onClick={() => {
                     setShowRatingModal(false);
@@ -1000,59 +1004,68 @@ export default function FormGenerator({
               {!feedbackSubmitted ? (
                 <>
                   <p className="text-sm font-inter text-gray-600">
-                    How would you categorize this task for the agent&apos;s reputation?
+                    Rate your experience and tell us what stood out — your feedback shapes the platform.
                   </p>
 
-                  <div className="space-y-4">
-                    <div className="bg-gray-50 border-2 border-black rounded-xl p-4 space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-heavy">AGENT RATING</span>
-                        <span className={`text-lg font-bold ${agentRating >= 70 ? 'text-celo-forest' : agentRating >= 40 ? 'text-celo-orange' : 'text-celo-error'}`}>
+                  {/* Rating Slider */}
+                  <div className="bg-gray-50 border-2 border-black rounded-xl p-4 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-heavy">YOUR RATING</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-base">
+                          {agentRating >= 80 ? "🤩" : agentRating >= 60 ? "😊" : agentRating >= 40 ? "😐" : agentRating >= 20 ? "😕" : "😞"}
+                        </span>
+                        <span className={`text-lg font-bold ${agentRating >= 70 ? 'text-celo-forest' : agentRating >= 40 ? 'text-celo-orange' : 'text-celo-error'
+                          }`}>
                           {agentRating}/100
                         </span>
                       </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value={agentRating}
-                        onChange={(e) => setAgentRating(parseInt(e.target.value))}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-celo-purple border border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-                      />
-                      <div className="flex justify-between text-[10px] font-bold text-gray-400">
-                        <span>POOR</span>
-                        <span>EXCELLENT</span>
-                      </div>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={agentRating}
+                      onChange={(e) => setAgentRating(parseInt(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-celo-purple border border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+                    />
+                    <div className="flex justify-between text-[10px] font-bold text-gray-400">
+                      <span>POOR</span>
+                      <span>EXCELLENT</span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { id: "RLHF", label: "RLHF", icon: <Zap className="w-3 h-3" /> },
-                      { id: "User Feedback", label: "User Feedback", icon: <User className="w-3 h-3" /> },
-                      { id: "Tagging", label: "Tagging", icon: <Hash className="w-3 h-3" /> },
-                      { id: "Data Labeling", label: "Data Labeling", icon: <FileText className="w-3 h-3" /> },
-                      { id: "Content", label: "Content", icon: <Sparkles className="w-3 h-3" /> },
-                      { id: "Verification", label: "Verification", icon: <CheckCircle2 className="w-3 h-3" /> },
-                    ].map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id)}
-                        className={`flex items-center gap-2 p-3 rounded-xl border-2 border-black text-xs font-heavy transition-all ${selectedCategory === cat.id
-                          ? "bg-celo-purple text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] -translate-y-0.5"
-                          : "bg-white text-black hover:bg-celo-yellow hover:-translate-y-0.5"
-                          }`}
-                      >
-                        {/* {cat.icon} */}
-                        <span className="truncate">{cat.label}</span>
-                      </button>
-                    ))}
+                  {/* User-Facing Categories */}
+                  <div>
+                    <p className="text-xs font-heavy text-gray-500 mb-2">WHAT ARE YOU RATING?</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: "task-clarity", label: "Task Clarity", icon: <FileText className="w-3 h-3" /> },
+                        { id: "reward-fairness", label: "Reward Fairness", icon: <Zap className="w-3 h-3" /> },
+                        { id: "platform-experience", label: "Platform Feel", icon: <Sparkles className="w-3 h-3" /> },
+                        { id: "payment-speed", label: "Payment Speed", icon: <CheckCircle2 className="w-3 h-3" /> },
+                        { id: "instructions-quality", label: "Instructions", icon: <Hash className="w-3 h-3" /> },
+                        { id: "overall", label: "Overall", icon: <User className="w-3 h-3" /> },
+                      ].map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedCategory(cat.id)}
+                          className={`flex items-center gap-2 p-3 rounded-xl border-2 border-black text-xs font-heavy transition-all ${selectedCategory === cat.id
+                              ? "bg-celo-purple text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] -translate-y-0.5"
+                              : "bg-white text-black hover:bg-celo-yellow hover:-translate-y-0.5"
+                            }`}
+                        >
+                          <span className="truncate">{cat.label}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
+                  {/* Submit Button */}
                   <button
                     onClick={handleSubmitFeedback}
-                    disabled={isSubmittingFeedback}
+                    disabled={isSubmittingFeedback || !selectedCategory}
                     className="w-full bg-celo-orange text-white border-4 border-black py-4 rounded-xl font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isSubmittingFeedback ? (
@@ -1061,21 +1074,21 @@ export default function FormGenerator({
                         <span>SUBMITTING...</span>
                       </>
                     ) : (
-                      <>
-                        {/* <Sparkles className="w-5 h-5" /> */}
-                        <span>SUBMIT RATING</span>
-                      </>
+                      <span>SUBMIT FEEDBACK</span>
                     )}
                   </button>
                 </>
               ) : (
+                /* Success State */
                 <div className="bg-celo-success/10 border-2 border-celo-success rounded-2xl p-6 text-center space-y-4">
                   <div className="w-16 h-16 bg-celo-success rounded-full flex items-center justify-center mx-auto shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
                     <CheckCircle2 className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <p className="text-celo-forest font-heavy text-lg">Thank You!</p>
-                    <p className="text-celo-body text-sm font-inter">Your feedback has been recorded.</p>
+                    <p className="text-celo-forest font-heavy text-lg">Thanks for the Feedback!</p>
+                    <p className="text-celo-body text-sm font-inter">
+                      Your rating has been recorded on-chain and helps improve the platform for everyone.
+                    </p>
                   </div>
                   <button
                     onClick={() => {

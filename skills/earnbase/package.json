@@ -1,0 +1,9 @@
+{
+    "name": "@earnbase/agent-tasks",
+    "version": "1.0.0",
+    "description": "Earnbase plugin for human feedback tasks",
+    "main": "scripts/index.ts",
+    "dependencies": {
+        "viem": "^2.0.0"
+    }
+}
