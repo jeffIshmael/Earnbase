@@ -1,9 +1,7 @@
 "use server"
-// Task marketplace functions
 import { PrismaClient, TaskStatus, ContactMethod, SubtaskType, SubmissionStatus } from "@prisma/client";
 import { parseEther } from 'viem';
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 import { finalizeAgentTask } from "@/lib/agentCompletion";
 
 // function to create a new task

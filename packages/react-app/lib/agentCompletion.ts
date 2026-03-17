@@ -20,7 +20,11 @@ export async function finalizeAgentTask(taskId: number) {
         // 1. Mark task as completing in DB to prevent duplicate triggers
         await prisma.task.update({
             where: { id: taskId },
-            data: { status: "COMPLETED" }
+            data: {
+                status: "COMPLETED",
+                completed: true,
+                claimed: true
+            }
         });
 
         // 2. Aggregate submissions and pin to IPFS

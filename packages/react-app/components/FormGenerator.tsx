@@ -28,9 +28,10 @@ import {
   User,
   Hash,
   SquareArrowOutUpRight,
+  ArrowUpRight
 } from "lucide-react";
 import { makePaymentToUser } from "@/lib/WriteFunctions";
-import { useAccount } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 import { toast } from "sonner";
 import Confetti from "react-confetti";
 import {
@@ -45,6 +46,14 @@ import { useRouter } from "next/navigation";
 import { getTask } from "@/lib/ReadFunctions";
 import { sendFarcasterNotification } from "@/lib/FarcasterNotify";
 import { payoutTaskerAction } from "@/lib/payoutActions";
+import { uploadFileToIpfs } from "@/lib/ipfs";
+import { reputationAbi, reputationRegistryAddress } from "@/blockchain/constants";
+import { prepareContractCall, getContract, sendTransaction, createThirdwebClient } from "thirdweb";
+import { celo } from "thirdweb/chains";
+
+const twClient = createThirdwebClient({
+  clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID || "",
+});
 
 interface FormGeneratorProps {
   task: TaskWithEligibility;
@@ -98,6 +107,15 @@ export default function FormGenerator({
   const [taskBalance, setTaskBalance] = useState(0);
   const { isConnected } = useAccount();
   const router = useRouter();
+
+  // On-chain Feedback State
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("RLHF");
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [agentRating, setAgentRating] = useState(100);
+  const [isUploading, setIsUploading] = useState(false);
+  const { writeContractAsync } = useWriteContract();
 
   // Initialize responses for all subtasks
   useEffect(() => {
@@ -221,42 +239,19 @@ export default function FormGenerator({
       toast.error("Please connect your wallet first");
       return;
     }
-    // check whether the user has already submitted the task
-    const userSubmission = await hasUserSubmittedToTask(
-      address as string,
-      task.id
-    );
-    if (userSubmission) {
-      toast.error("You have already submitted for this task.");
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      const feedbackToCreator = task.subtasks
-        .filter((subtask) => responses[subtask.id])
-        .map((subtask) => {
-          const response = responses[subtask.id];
-          let formattedResponse = "";
-
-          // Format response based on type
-          if (Array.isArray(response)) {
-            // Multiple choice responses
-            formattedResponse = response.join(", ");
-          } else if (typeof response === "number") {
-            // Rating responses
-            formattedResponse = `${response}/10`;
-          } else if (typeof response === "string") {
-            // Text responses
-            formattedResponse = response;
-          } else {
-            formattedResponse = String(response);
-          }
-
-          return `📝 ${subtask.title}\n💬 ${formattedResponse}`;
-        })
-        .join("\n\n");
+      // check whether the user has already submitted the task
+      const userSubmission = await hasUserSubmittedToTask(
+        address as string,
+        task.id
+      );
+      if (userSubmission) {
+        toast.error("You have already submitted for this task.");
+        setIsSubmitting(false);
+        return;
+      }
 
       // Process rewards directly
       const baseRewardRaw = BigInt(task.baseReward);
@@ -299,12 +294,30 @@ export default function FormGenerator({
 
       setShowPaymentModal(true);
 
-      // Prepare submission data for database
-      const subtaskResponses = task.subtasks.map((subtask) => ({
-        subtaskId: subtask.id,
-        response: JSON.stringify(responses[subtask.id]),
-        fileUrl: files[subtask.id] ? files[subtask.id]?.name : undefined,
+      // Upload files to IPFS and prepare submission data
+      setIsUploading(true);
+      const subtaskResponses = await Promise.all(task.subtasks.map(async (subtask) => {
+        let fileUrl = undefined;
+        const file = files[subtask.id];
+        if (file) {
+          try {
+            const formData = new FormData();
+            formData.append("file", file);
+            const cid = await uploadFileToIpfs(formData);
+            fileUrl = `https://gateway.pinata.cloud/ipfs/${cid}`;
+            console.log(`Subtask ${subtask.id} file uploaded: ${fileUrl}`);
+          } catch (error) {
+            console.error(`Failed to upload file for subtask ${subtask.id}:`, error);
+          }
+        }
+
+        return {
+          subtaskId: subtask.id,
+          response: JSON.stringify(responses[subtask.id]),
+          fileUrl: fileUrl,
+        };
       }));
+      setIsUploading(false);
 
       // Save submission to database
       const dbSubmission = await createTaskSubmissionWithResponses(
@@ -319,20 +332,6 @@ export default function FormGenerator({
       if (!dbSubmission) {
         throw new Error("Failed to save submission to database");
       }
-
-      // get task balance
-      const finalTaskBalance = await getTaskBalance();
-
-      // Send notification to creator based on contact method
-      const notificationData = {
-        taskTitle: task.title,
-        participant:
-          address?.slice(0, 6) + "..." + address?.slice(-4) || "Unknown",
-        response: feedbackToCreator,
-        aiRating: "10",
-        Reward: totalRewardFormatted.toFixed(3).toString(),
-        TaskBalance: finalTaskBalance.toFixed(3),
-      };
 
       // Prepare submission data for UI
       const submission: TaskSubmission = {
@@ -378,6 +377,45 @@ export default function FormGenerator({
       setIsSubmitting(false);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!isConnected || !address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
+    setIsSubmittingFeedback(true);
+    try {
+      toast.loading("Submitting feedback on-chain...");
+
+      const hash = await writeContractAsync({
+        address: reputationRegistryAddress as `0x${string}`,
+        abi: reputationAbi,
+        functionName: 'giveFeedback',
+        args: [
+          BigInt(130), // agentId
+          BigInt(agentRating), // value
+          0, // valueDecimals
+          selectedCategory, // tag1
+          "verified-worker", // tag2
+          "", // endpoint
+          `https://earnbase.vercel.app/tasks/${task.id}`, // feedbackURI
+          "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`, // feedbackHash
+        ],
+      });
+
+      console.log("Feedback submitted:", hash);
+      toast.dismiss();
+      toast.success("Feedback submitted on-chain!");
+      setFeedbackSubmitted(true);
+    } catch (error: any) {
+      console.error("Feedback error:", error);
+      toast.dismiss();
+      toast.error(error.message || "Failed to submit feedback");
+    } finally {
+      setIsSubmittingFeedback(false);
     }
   };
 
@@ -508,7 +546,7 @@ export default function FormGenerator({
                   <div className="space-y-1">
                     <Upload className="w-6 h-6 text-black mx-auto" />
                     <p className="text-xs font-inter">
-                      <span className="font-heavy text-celo-purple">
+                      <span className="font-heavy text-white">
                         TAP TO UPLOAD
                       </span>
                     </p>
@@ -526,7 +564,7 @@ export default function FormGenerator({
               />
               <label
                 htmlFor={`file-${subtask.id}`}
-                className="mt-2 inline-flex items-center px-3 py-1 text-xs font-inter font-heavy border-2 border-black bg-celo-purple hover:bg-black hover:text-celo-purple transition-all cursor-pointer"
+                className="mt-2 inline-flex items-center px-3 py-1 text-xs font-inter font-heavy border-2 border-black bg-celo-purple text-white hover:bg-black hover:text-gray-300 transition-all cursor-pointer"
               >
                 {files[subtask.id] ? "CHANGE FILE" : "CHOOSE FILE"}
               </label>
@@ -544,7 +582,7 @@ export default function FormGenerator({
         return (
           <div className="space-y-2">
             <div className="grid grid-cols-5 gap-1">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
+              {[1, 2, 3, 4, 5].map((rating) => (
                 <button
                   key={rating}
                   type="button"
@@ -787,7 +825,7 @@ export default function FormGenerator({
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Submitting...</span>
+                <span>{isUploading ? "Uploading to IPFS..." : "Submitting..."}</span>
               </>
             ) : (
               <>
@@ -857,7 +895,7 @@ export default function FormGenerator({
               </p>
             </div>
 
-            {/* Receipt */}
+            {/* Receipt & Feedback Container */}
             <div className="p-6 space-y-6">
               <div className="bg-celo-lt-tan border-4 border-black rounded-xl p-5">
                 <div className="flex items-center justify-between mb-3">
@@ -883,16 +921,8 @@ export default function FormGenerator({
                       <Hash className="w-4 h-4 mr-2" /> Transaction
                     </span>
                     <span className="font-mono bg-celo-success text-white border-2 border-black px-2 py-1 rounded">
-                      {paymentDetails.transactionHash?.slice(0, 8)}...
+                      {paymentDetails?.transactionHash.slice(0, 8)}...
                     </span>
-                  </div>
-                  <div className="flex justify-between border-b-2 border-black pb-2">
-                    <span className="font-bold text-gray-700">Base Reward</span>
-                    <span>{paymentDetails.baseReward.toFixed(3)} USDC</span>
-                  </div>
-                  <div className="flex justify-between border-b-2 border-black pb-2 text-celo-purple">
-                    <span className="font-bold">Quality Bonus</span>
-                    <span>+{paymentDetails.bonusReward.toFixed(3)} USDC</span>
                   </div>
                   <div className="flex justify-between items-center bg-celo-forest text-white px-3 py-3 border-2 border-black">
                     <span className="font-gt-alpina text-lg font-bold">
@@ -908,29 +938,157 @@ export default function FormGenerator({
               {/* Buttons */}
               <div className="flex gap-3">
                 <button
-                  onClick={() =>
-                    window.open(
-                      `https://celoscan.io/tx/${paymentDetails.transactionHash}`,
-                      "_blank"
-                    )
-                  }
-                  className="flex-1 bg-celo-blue text-white border-4 border-black rounded-xl py-3 font-semibold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-blue transition-all"
-                >
-                  View on Chain
-                </button>
-                <button
                   onClick={() => {
                     setShowPaymentModal(false);
                     setResponses({});
                     setPaymentDetails(null);
-                    closeFormGenerator?.();
-                    router.push("/Start");
+
+                    // Guard against self-feedback error
+                    const isTaskCreator = address?.toLowerCase() === task.creator?.walletAddress?.toLowerCase();
+                    if (isTaskCreator) {
+                      toast.info("Self-feedback is not allowed for this contract.");
+                      closeFormGenerator?.();
+                      router.push("/Start");
+                    } else {
+                      setShowRatingModal(true);
+                    }
                   }}
                   className="flex-1 bg-celo-success text-white border-4 border-black rounded-xl py-3 font-semibold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-success transition-all"
                 >
-                  Complete
+                  Close
+                </button>
+                <button
+                  onClick={() =>
+                    window.open(
+                      `https://celoscan.io/tx/${paymentDetails?.transactionHash}`,
+                      "_blank"
+                    )
+                  }
+                  className="flex justify-center gap-1 bg-celo-blue text-white border-4 border-black rounded-xl py-3 font-semibold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black hover:text-celo-blue transition-all"
+                >
+                  View on Chain <ArrowUpRight className="w-4 h-4" />
                 </button>
               </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Rating Modal - Small separate modal */}
+      {showRatingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white border-4 border-black rounded-2xl shadow-[10px_10px_0_0_rgba(0,0,0,1)] max-w-sm w-full overflow-hidden"
+          >
+            <div className="p-6 space-y-5">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-gt-alpina font-bold">Agent Rating</h3>
+                <button
+                  onClick={() => {
+                    setShowRatingModal(false);
+                    closeFormGenerator?.();
+                    router.push("/Start");
+                  }}
+                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {!feedbackSubmitted ? (
+                <>
+                  <p className="text-sm font-inter text-gray-600">
+                    How would you categorize this task for the agent's reputation?
+                  </p>
+
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 border-2 border-black rounded-xl p-4 space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-heavy">AGENT RATING</span>
+                        <span className={`text-lg font-bold ${agentRating >= 70 ? 'text-celo-forest' : agentRating >= 40 ? 'text-celo-orange' : 'text-celo-error'}`}>
+                          {agentRating}/100
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={agentRating}
+                        onChange={(e) => setAgentRating(parseInt(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-celo-purple border border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+                      />
+                      <div className="flex justify-between text-[10px] font-bold text-gray-400">
+                        <span>POOR</span>
+                        <span>EXCELLENT</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: "RLHF", label: "RLHF", icon: <Zap className="w-3 h-3" /> },
+                      { id: "User Feedback", label: "User Feedback", icon: <User className="w-3 h-3" /> },
+                      { id: "Tagging", label: "Tagging", icon: <Hash className="w-3 h-3" /> },
+                      { id: "Data Labeling", label: "Data Labeling", icon: <FileText className="w-3 h-3" /> },
+                      { id: "Content", label: "Content", icon: <Sparkles className="w-3 h-3" /> },
+                      { id: "Verification", label: "Verification", icon: <CheckCircle2 className="w-3 h-3" /> },
+                    ].map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => setSelectedCategory(cat.id)}
+                        className={`flex items-center gap-2 p-3 rounded-xl border-2 border-black text-xs font-heavy transition-all ${selectedCategory === cat.id
+                          ? "bg-celo-purple text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] -translate-y-0.5"
+                          : "bg-white text-black hover:bg-celo-yellow hover:-translate-y-0.5"
+                          }`}
+                      >
+                        {/* {cat.icon} */}
+                        <span className="truncate">{cat.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleSubmitFeedback}
+                    disabled={isSubmittingFeedback}
+                    className="w-full bg-celo-orange text-white border-4 border-black py-4 rounded-xl font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:bg-black transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSubmittingFeedback ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>SUBMITTING...</span>
+                      </>
+                    ) : (
+                      <>
+                        {/* <Sparkles className="w-5 h-5" /> */}
+                        <span>SUBMIT RATING</span>
+                      </>
+                    )}
+                  </button>
+                </>
+              ) : (
+                <div className="bg-celo-success/10 border-2 border-celo-success rounded-2xl p-6 text-center space-y-4">
+                  <div className="w-16 h-16 bg-celo-success rounded-full flex items-center justify-center mx-auto shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                    <CheckCircle2 className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-celo-forest font-heavy text-lg">Thank You!</p>
+                    <p className="text-celo-body text-sm font-inter">Your feedback has been recorded.</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowRatingModal(false);
+                      closeFormGenerator?.();
+                      router.push("/Start");
+                    }}
+                    className="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-celo-forest transition-colors"
+                  >
+                    FINISH
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>

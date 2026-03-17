@@ -10,7 +10,7 @@ import {
   type SelfApp,
 } from "@selfxyz/qrcode";
 import { useAccount } from "wagmi";
-import { X, AlertCircle, CheckCircle, Info, Copy, SquareArrowOutUpRight } from "lucide-react";
+import { X, AlertCircle, CheckCircle, Info, Copy, SquareArrowOutUpRight, Check } from "lucide-react";
 import { url } from "@/blockchain/constants";
 import { type Country3LetterCode } from "@selfxyz/common";
 
@@ -215,15 +215,15 @@ export default function SelfModal({
           <button
             onClick={copyLink}
             disabled={!universalLink || isVerifying}
-            className="w-full bg-celo-forest text-white border-2 border-black py-3 font-inter font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-md hover:bg-celo-purple hover:text-celo-yellow transition"
+            className="w-full flex justify-center gap-2 bg-celo-forest text-white border-2 border-black py-3 font-inter font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-md hover:bg-celo-purple hover:text-celo-yellow transition"
           >
-            {linkCopied ? "Copied!" : "Copy Universal Link"} <Copy className="w-5 h-5" />
+            {linkCopied ? "Copied!" : "Copy Universal Link"}{!linkCopied ? <Copy className="w-5 h-5" /> : <Check className="w-5 h-5" />}
           </button>
 
           <button
             onClick={openSelfApp}
             disabled={!universalLink || isVerifying}
-            className="w-full bg-celo-yellow text-black border-2 border-black py-3 font-inter font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-md hover:bg-celo-purple hover:text-celo-yellow transition"
+            className="w-full flex justify-center gap-2 bg-celo-yellow text-black border-2 border-black py-3 font-inter font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-md hover:bg-celo-purple hover:text-celo-yellow transition"
           >
             Open Self App <SquareArrowOutUpRight className="w-5 h-5" />
           </button>

@@ -1,9 +1,7 @@
 "use server"
-// this file contains prisma functions
 import { PrismaClient, TaskStatus, ContactMethod, SubtaskType, SubmissionStatus } from "@prisma/client";
 import { parseUnits } from "viem";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 import { finalizeAgentTask } from "@/lib/agentCompletion";
 
 // function to check if the user is registered
@@ -786,7 +784,7 @@ export async function createTaskSubmissionWithResponses(
       throw new Error("User already submitted to this task");
     }
 
-    // Wrap everything in a transaction
+    // Wrap everything in a transaction with 30s timeout
     const result = await prisma.$transaction(async (tx) => {
       // Create the submission
       const submission = await tx.taskSubmission.create({
@@ -847,6 +845,8 @@ export async function createTaskSubmissionWithResponses(
           }
         }
       });
+    }, {
+      timeout: 30000
     });
 
     return result;

@@ -116,6 +116,7 @@ const TransferModal: React.FC<TransferModalProps> = ({
         message: `Complex Task Created! ID: ${result.taskId}`,
         txHash: lastTxHash
       });
+      console.log("the creation result", result);
     } catch (e) {
       // Error handled in utility
     }
@@ -242,23 +243,23 @@ const TransferModal: React.FC<TransferModalProps> = ({
                 <ArrowUpRight className="text-celo-yellow w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-h4 font-gt-alpina font-bold text-black tracking-wide">
+                <h3 className="text-h4 font-gt-alpina font-bold text-black">
                   SEND USDC
                 </h3>
-                {isAgentTestMode && (
+                {/* {isAgentTestMode && (
                   <span className="text-[10px] bg-black text-white px-2 py-0.5 rounded-full font-heavy tracking-widest uppercase">
                     Agent Test Mode
                   </span>
-                )}
+                )} */}
 
-                {isAgentTestMode && !transferStatus?.success && (
+                {/* {isAgentTestMode && !transferStatus?.success && (
                   <div className="mt-4 pt-4 border-t-2 border-black border-dashed space-y-3">
                     <p className="text-[10px] font-heavy text-black mb-1 flex items-center">
                       <TestTube className="w-3 h-3 mr-1" />
                       X402 REFINED TOOLS
                     </p>
 
-                    {/* Flow A: Human Browser Automatic */}
+                  
                     <button
                       onClick={handleAutoFlow}
                       disabled={isAutoFlowRunning}
@@ -273,7 +274,7 @@ const TransferModal: React.FC<TransferModalProps> = ({
 
                     <div className="h-0.5 bg-black/5" />
 
-                    {/* Flow B: Granular Agent/Skill Flow */}
+                  
                     <button
                       onClick={handlePopWalletOnly}
                       disabled={isInitializingTest}
@@ -301,7 +302,7 @@ const TransferModal: React.FC<TransferModalProps> = ({
                       </p>
                     )}
                   </div>
-                )}
+                )} */}
               </div>
             </div>
             <div className="flex items-center space-x-2">
