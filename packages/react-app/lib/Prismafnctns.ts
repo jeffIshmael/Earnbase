@@ -16,8 +16,22 @@ export async function getUser(address: string) {
       submissions: true,
     }
   })
-  if (!user) return null;
   return user;
+}
+
+// function to get all user FIDs
+export async function getAllUserFids(): Promise<number[]> {
+  const users = await prisma.user.findMany({
+    where: {
+      fid: {
+        not: null,
+      },
+    },
+    select: {
+      fid: true,
+    },
+  });
+  return users.map((u) => u.fid as number);
 }
 
 // function to register a user
@@ -358,6 +372,13 @@ export async function createCompleteTask(
         include: { subtasks: true, creator: true },
       });
     });
+
+    if (result) {
+      const { notifyAllUsersOfNewTask } = await import("./FarcasterNotify");
+      const { formatUnits } = await import("viem");
+      const amountFormatted = formatUnits(BigInt(result.baseReward), 6);
+      notifyAllUsersOfNewTask(amountFormatted).catch(err => console.error("Failed to send new task notification:", err));
+    }
 
     return result;
   } catch (error) {

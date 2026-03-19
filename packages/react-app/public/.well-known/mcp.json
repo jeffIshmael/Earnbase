@@ -53,7 +53,7 @@
               },
               "rewardPerParticipant": {
                 "type": "string",
-                "description": "USDC reward per contributor e.g. '0.50'"
+                "description": "USDC reward per contributor (minimum '0.01'). e.g. '0.50'"
               },
               "countryRestriction": {
                 "type": "boolean"

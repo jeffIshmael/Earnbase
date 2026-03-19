@@ -46,7 +46,6 @@ import {
   getTaskDetails,
   updateTaskStatus,
 } from "@/lib/Prismafnctns";
-import { getTask } from "@/lib/ReadFunctions";
 import BottomNavigation from "@/components/BottomNavigation";
 import { toast } from "sonner";
 import { useAccount, useWriteContract } from "wagmi";
@@ -125,26 +124,26 @@ const MyTaskDetailPage = () => {
         const taskData = await getTaskDetails(parseInt(taskId));
         if (taskData) {
           // Get blockchain data
-          const blockchainTask = await getTask(BigInt(taskData.blockChainId));
+          // const blockchainTask = await getTask(BigInt(taskData.blockChainId));
 
-          const taskWithBlockchain: TaskWithBlockchainData = {
-            id: taskData.id,
-            title: taskData.title,
-            description: taskData.description,
-            blockChainId: taskData.blockChainId,
-            status: taskData.status,
-            totalAmount: blockchainTask.totalAmount,
-            paidAmount: blockchainTask.paidAmount,
-            currentAmount:
-              blockchainTask.totalAmount - blockchainTask.paidAmount,
-            maxParticipants: taskData.maxParticipants,
-            currentParticipants: taskData.currentParticipants,
-            createdAt: taskData.createdAt,
-            expiresAt: taskData.expiresAt,
-            responses: [], // Will be populated from Prisma submissions
-          };
+          // const taskWithBlockchain: TaskWithBlockchainData = {
+          //   id: taskData.id,
+          //   title: taskData.title,
+          //   description: taskData.description,
+          //   blockChainId: taskData.blockChainId,
+          //   status: taskData.status,
+          //   totalAmount: blockchainTask.totalAmount,
+          //   paidAmount: blockchainTask.paidAmount,
+          //   currentAmount:
+          //     blockchainTask.totalAmount - blockchainTask.paidAmount,
+          //   maxParticipants: taskData.maxParticipants,
+          //   currentParticipants: taskData.currentParticipants,
+          //   createdAt: taskData.createdAt,
+          //   expiresAt: taskData.expiresAt,
+          //   responses: [], // Will be populated from Prisma submissions
+          // };
 
-          setTask(taskWithBlockchain);
+          // setTask(taskWithBlockchain);
 
           // Load responses from database
           if (taskData.submissions && taskData.submissions.length > 0) {
@@ -241,16 +240,16 @@ const MyTaskDetailPage = () => {
       }
 
       // 2. Call addFundsForTask
-      const addFundsTx = await writeContractAsync({
-        address: contractAddress,
-        abi: contractAbi,
-        functionName: "depositForTask",
-        args: [taskIdInBigInt, amountInWei],
-      });
-      if (!addFundsTx) {
-        toast.error("Failed to add funds");
-        return;
-      }
+      // const addFundsTx = await writeContractAsync({
+      //   address: contractAddress,
+      //   abi: contractAbi,
+      //   functionName: "depositForTask",
+      //   args: [taskIdInBigInt, amountInWei],
+      // });
+      // if (!addFundsTx) {
+      //   toast.error("Failed to add funds");
+      //   return;
+      // }
       toast.success(`${addFundsAmount} cUSD added to the task`);
       // Update task budget (in real app, this would update blockchain)
       if (task) {
@@ -308,16 +307,16 @@ const MyTaskDetailPage = () => {
     setIsDeleting(true);
     try {
       // delete task from blockchain
-      const deleteTx = await writeContractAsync({
-        address: contractAddress,
-        abi: contractAbi,
-        functionName: "closeTask",
-        args: [BigInt(task.blockChainId)],
-      });
-      if (!deleteTx) {
-        toast.error("Failed to delete task");
-        return;
-      }
+      // const deleteTx = await writeContractAsync({
+      //   address: contractAddress,
+      //   abi: contractAbi,
+      //   functionName: "closeTask",
+      //   args: [BigInt(task.blockChainId)],
+      // });
+      // if (!deleteTx) {
+      //   toast.error("Failed to delete task");
+      //   return;
+      // }
 
       // delete task from database
       const deleted = await dbDeleteTask(task.id);

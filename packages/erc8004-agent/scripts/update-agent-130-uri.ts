@@ -6,7 +6,7 @@ async function main() {
     const AGENT_ID = 130; // Your Agent ID
 
     // Updated metadata URI - IPFS hosted
-    const METADATA_URI = "ipfs://bafkreigk6dfrrb7a7s3kliy74rbxmkkdarryw43buhxshtr2nhhbz5elf4";
+    const METADATA_URI = "ipfs://bafkreig47hj27ltkskkkvmynqbrutwvmeliadiife6yfr4qco24jof6nfm";
 
     // Option 2: Upload to IPFS and use that URI
     // const METADATA_URI = "ipfs://bafkrei..."; // Replace with actual IPFS hash

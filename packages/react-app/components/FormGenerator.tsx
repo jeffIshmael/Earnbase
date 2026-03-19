@@ -250,6 +250,7 @@ export default function FormGenerator({
       if (userSubmission) {
         toast.error("You have already submitted for this task.");
         setIsSubmitting(false);
+        router.push("/Start");
         return;
       }
 
@@ -354,14 +355,8 @@ export default function FormGenerator({
 
       if (userDetails?.fid) {
         try {
-          await sendFarcasterNotification(
-            [userDetails.fid],
-            "💵 Reward Received!",
-            `You’ve just earned ${totalRewardFormatted.toFixed(
-              3
-            )} USDC for completing “${task.title
-            }” on Earnbase. Keep sharing valuable feedback and earn more!`
-          );
+          const { notifyUserOfPayment } = await import("@/lib/FarcasterNotify");
+          await notifyUserOfPayment(userDetails.fid, totalRewardFormatted.toFixed(3));
         } catch (error) {
           console.error("Failed to send Farcaster notification:", error);
         }
@@ -1052,8 +1047,8 @@ export default function FormGenerator({
                           key={cat.id}
                           onClick={() => setSelectedCategory(cat.id)}
                           className={`flex items-center gap-2 p-3 rounded-xl border-2 border-black text-xs font-heavy transition-all ${selectedCategory === cat.id
-                              ? "bg-celo-purple text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] -translate-y-0.5"
-                              : "bg-white text-black hover:bg-celo-yellow hover:-translate-y-0.5"
+                            ? "bg-celo-purple text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] -translate-y-0.5"
+                            : "bg-white text-black hover:bg-celo-yellow hover:-translate-y-0.5"
                             }`}
                         >
                           <span className="truncate">{cat.label}</span>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {  DollarSign, Users, Eye, Edit, Target } from 'lucide-react';
 import BottomNavigation from '@/components/BottomNavigation';
 import { getAllTasks, getCreatorTasks } from '@/lib/Prismafnctns';
-import { getTask } from '@/lib/ReadFunctions';
+// import { getTask } from '@/lib/ReadFunctions';
 import { useAccount } from 'wagmi';
 
 type MyTask = Awaited<ReturnType<typeof getAllTasks>>[0] & { 
@@ -35,34 +35,34 @@ const MyTasksPage = () => {
         await new Promise(resolve => setTimeout(resolve, 800));
         
         const allTasks = await getCreatorTasks(address as string);
-        const myTasks: MyTask[] = await Promise.all(
-          allTasks.map(async (task) => {
-            try {
-              // Get blockchain data for this task
-              const blockchainTask = await getTask(BigInt(task.blockChainId));
+        // const myTasks: MyTask[] = await Promise.all(
+        //   allTasks.map(async (task) => {
+        //     try {
+        //       // Get blockchain data for this task
+        //       const blockchainTask = await getTask(BigInt(task.blockChainId));
               
-              return {
-                ...task,
-                responses: task._count.submissions, // Will be updated with Prisma data
-                totalAmount: blockchainTask.totalAmount,
-                paidAmount: blockchainTask.paidAmount,
-                balance: blockchainTask.totalAmount - blockchainTask.paidAmount,
-              };
-            } catch (error) {
-              console.error(`Error fetching blockchain data for task ${task.id}:`, error);
-              // Fallback with default values
-              return {
-                ...task,
-                responses: task._count.submissions,
-                totalAmount: BigInt(0),
-                paidAmount: BigInt(0),
-                balance: BigInt(0),
-              };
-            }
-          })
-        );
+        //       return {
+        //         ...task,
+        //         responses: task._count.submissions, // Will be updated with Prisma data
+        //         totalAmount: blockchainTask.totalAmount,
+        //         paidAmount: blockchainTask.paidAmount,
+        //         balance: blockchainTask.totalAmount - blockchainTask.paidAmount,
+        //       };
+        //     } catch (error) {
+        //       console.error(`Error fetching blockchain data for task ${task.id}:`, error);
+        //       // Fallback with default values
+        //       return {
+        //         ...task,
+        //         responses: task._count.submissions,
+        //         totalAmount: BigInt(0),
+        //         paidAmount: BigInt(0),
+        //         balance: BigInt(0),
+        //       };
+        //     }
+        //   })
+        // );
         
-        setTasks(myTasks);
+        // setTasks(myTasks);
       } catch (error) {
         console.error('Error loading my tasks:', error);
       } finally {

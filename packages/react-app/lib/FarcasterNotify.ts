@@ -21,13 +21,13 @@ export async function sendFarcasterNotification(
 ) {
   try {
     // Farcaster notification body has a 128 character limit
-    const truncatedBody = message.length > 128 
-      ? message.substring(0, 125) + "..." 
+    const truncatedBody = message.length > 128
+      ? message.substring(0, 125) + "..."
       : message;
-    
+
     // Use provided target_url or default to the frame homeUrl (without trailing slash to match frame config)
     const notificationTargetUrl = "https://earnbase.vercel.app";
-    
+
     const notification = {
       title,
       body: truncatedBody,
@@ -40,10 +40,11 @@ export async function sendFarcasterNotification(
     });
 
     console.log("Farcaster response:", response);
-    
+
     // Check for invalid target_url status and log a warning
-    if (response.notification_deliveries) {
-      const invalidUrls = response.notification_deliveries.filter(
+    const deliveries = (response as any).notification_deliveries;
+    if (deliveries) {
+      const invalidUrls = deliveries.filter(
         (delivery: any) => delivery.status === "invalid_target_url"
       );
       if (invalidUrls.length > 0) {
@@ -52,20 +53,46 @@ export async function sendFarcasterNotification(
         );
       }
     }
-    
+
     return response;
   } catch (error: any) {
     console.error("Error sending Farcaster notification:", error);
-    
+
     // Log detailed error information
     if (error.response?.data) {
       console.error("API Error Details:", JSON.stringify(error.response.data, null, 2));
     }
-    
+
     if (error.response?.data?.errors) {
       console.error("Validation Errors:", error.response.data.errors);
     }
-    
+
     throw error;
+  }
+}
+
+export async function notifyAllUsersOfNewTask(amount: string) {
+  try {
+    const { getAllUserFids } = await import("./Prismafnctns");
+    const fids = await getAllUserFids();
+
+    if (!fids || fids.length === 0) return;
+
+    const message = `Reward: ${amount} USDC. Check it out! 🚀`;
+
+    return await sendFarcasterNotification(fids, "🆕 New Task!", message);
+  } catch (error) {
+    console.error("Error in notifyAllUsersOfNewTask:", error);
+  }
+}
+
+export async function notifyUserOfPayment(fid: number, amount: string) {
+  try {
+    const title = "💸 Payment Received!";
+    const message = `You received ${amount} USDC from your task.Thanks for your contribution!`;
+
+    return await sendFarcasterNotification([fid], title, message);
+  } catch (error) {
+    console.error("Error in notifyUserOfPayment:", error);
   }
 }
