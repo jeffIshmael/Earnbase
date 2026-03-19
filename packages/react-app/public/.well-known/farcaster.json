@@ -1,20 +1,20 @@
 {
-    "frame": {
-      "name": "Earnbase",
-      "version": "1",
-      "iconUrl": "https://earnbase.vercel.app/logo.png",
-      "homeUrl": "https://earnbase.vercel.app",
-      "imageUrl": "https://earnbase.vercel.app/logo.png",
-      "splashImageUrl": "https://earnbase.vercel.app/logo.png",
-      "splashBackgroundColor": "#C5CAE9",
-      "webhookUrl": "https://earnbase.vercel.app/api/webhook",
-      "subtitle": "AI feedback-reward platform",
-      "description": "Complete tasks, share feedback, and earn rewards based on your impact.",
-      "primaryCategory": "finance"
-    },
-    "accountAssociation": {
-      "header": "eyJmaWQiOjEwNzc5MzIsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhiYzM1OGM5OEI4OEI5Mjg4NjRlMmMzYzVkMTc2NjcxMzU0MTAzNTg3In0",
-      "payload": "eyJkb21haW4iOiJlYXJuYmFzZS52ZXJjZWwuYXBwIn0",
-      "signature": "MHg2YWUxOGZiOTIxMWQwMzJmNjM3YjRkMjdmNzhkMmE3MzU4Y2ZhZTI0ODdkYmRjOWIzMTZlMWVjZDA2OWM0MWVlMjA0N2Q5MmE1ZjhiODAzZGM5Njc1MTIyOWFkMTM0ZDc4OWM5Nzg5NmY5ZDc5NjQ3OTU1ZTJmYTI1ZDdhYzk0OTFj"
-    }
+  "frame": {
+    "name": "Earnbase",
+    "version": "1",
+    "iconUrl": "https://earnbase.vercel.app/logo.png",
+    "homeUrl": "https://earnbase.vercel.app",
+    "imageUrl": "https://earnbase.vercel.app/logo.png",
+    "splashImageUrl": "https://earnbase.vercel.app/logo.png",
+    "splashBackgroundColor": "#C5CAE9",
+    "webhookUrl": "https://api.neynar.com/f/app/d99795a5-172e-44be-a4a8-328a85bc224e/event",
+    "subtitle": "AI feedback-reward platform",
+    "description": "Complete tasks, share feedback, and earn rewards based on your impact.",
+    "primaryCategory": "finance"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjEwNzc5MzIsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhiYzM1OGM5OEI4OEI5Mjg4NjRlMmMzYzVkMTc2NjcxMzU0MTAzNTg3In0",
+    "payload": "eyJkb21haW4iOiJlYXJuYmFzZS52ZXJjZWwuYXBwIn0",
+    "signature": "MHg2YWUxOGZiOTIxMWQwMzJmNjM3YjRkMjdmNzhkMmE3MzU4Y2ZhZTI0ODdkYmRjOWIzMTZlMWVjZDA2OWM0MWVlMjA0N2Q5MmE1ZjhiODAzZGM5Njc1MTIyOWFkMTM0ZDc4OWM5Nzg5NmY5ZDc5NjQ3OTU1ZTJmYTI1ZDdhYzk0OTFj"
   }
+}
