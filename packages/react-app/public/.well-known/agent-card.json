@@ -44,7 +44,7 @@
       "tokenAddress": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
       "pricingModel": "per-request",
       "formula": "(participants × rewardPerParticipant) + 1% platform fee",
-      "minimumAmount": "0.001 USDC",
+      "minimumAmount": "0.01 USDC",
       "platformFeePercent": 1,
       "feeSemantics": "Platform fee is deducted from total payment; remainder is reserved exclusively for contributor rewards"
     }

@@ -250,6 +250,7 @@ export default function FormGenerator({
       if (userSubmission) {
         toast.error("You have already submitted for this task.");
         setIsSubmitting(false);
+        router.push("/Start");
         return;
       }
 

@@ -66,6 +66,14 @@ export async function POST(request: Request) {
         const platformFee = totalAmount * 0.01; // 1% fee
         const finalPrice = Math.max(totalAmount + platformFee, 0.000001).toFixed(6); // Prevent 0
 
+        // Enforce 0.01 USDC minimum reward
+        if (Number(rewardPerParticipant) < 0.01) {
+            return Response.json({
+                error: "Minimum reward per participant is 0.01 USDC",
+                details: `Value provided: ${rewardPerParticipant} USDC`
+            }, { status: 400 });
+        }
+
         if (!cachedSmartWallet) {
             const { agentSmartWallet } = await getAgentSmartWallet();
             cachedSmartWallet = { address: agentSmartWallet.address };
@@ -259,13 +267,25 @@ export async function POST(request: Request) {
         });
 
         // Return internal taskId and the agentRequestId used for external tracking
-        return Response.json({
+        const responseData = {
             success: true,
             taskId: task.id,
             agentRequestId: task.agentRequestId, // This is the ID the external agent uses
             status: "active",
             explorerUrl: `https://earnbase.vercel.app/tasks/${task.id}`
-        });
+        };
+
+        // Trigger Farcaster notification for the new task
+        try {
+            const { notifyAllUsersOfNewTask } = await import("@/lib/FarcasterNotify");
+            notifyAllUsersOfNewTask(rewardPerParticipant.toString()).catch(err =>
+                console.error("Failed to send new task notification:", err)
+            );
+        } catch (notifyError) {
+            console.error("Failed to import/trigger Farcaster notification:", notifyError);
+        }
+
+        return Response.json(responseData);
 
     } catch (error) {
         console.error("Agent Submit Error:", error);

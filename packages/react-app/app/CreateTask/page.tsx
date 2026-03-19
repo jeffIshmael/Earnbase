@@ -330,14 +330,14 @@ const TaskCreationForm = () => {
       }
 
       // 2. Call createTask
-      const registerTx = await writeContractAsync({
-        address: contractAddress,
-        abi: contractAbi,
-        functionName: "createTask",
-        args: [amountInWei, maxAmountUserGetsInWei],
-      });
+      // const registerTx = await writeContractAsync({
+      //   address: contractAddress,
+      //   abi: contractAbi,
+      //   functionName: "createTask",
+      //   args: [amountInWei, maxAmountUserGetsInWei],
+      // });
 
-      await waitForTransactionReceipt(wagmiConfig, { hash: registerTx });
+      await waitForTransactionReceipt(wagmiConfig, { hash: "0x123" });
 
       // 3. Save task in DB
       const createdTask = await createCompleteTask(
