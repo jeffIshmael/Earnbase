@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://earnbase.vercel.app/logo.png" alt="EarnBase Logo" width="200"/>
+  <img src="https://earnbase.vercel.app/logo.png" alt="EarnBase Logo" width="200" />
 </p>
 
 # EarnBase: Human Feedback as a Service (HFaaS)
