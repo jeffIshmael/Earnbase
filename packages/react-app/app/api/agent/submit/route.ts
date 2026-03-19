@@ -37,11 +37,11 @@ let cachedSmartWallet: { address: string } | null = null;
 export async function POST(request: Request) {
     try {
 
+        const body = await request.json();
         const paymentData =
             request.headers.get("PAYMENT-SIGNATURE") ||
-            request.headers.get("X-PAYMENT");
-
-        const body = await request.json();
+            request.headers.get("X-PAYMENT") ||
+            body.paymentTxHash;
 
         // Generate unique Agent Request ID and its hash for on-chain
         const agentRequestId = body.agentRequestId || crypto.randomUUID();
