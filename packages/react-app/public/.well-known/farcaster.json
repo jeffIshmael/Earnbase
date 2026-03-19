@@ -8,8 +8,8 @@
     "splashImageUrl": "https://earnbase.vercel.app/logo.png",
     "splashBackgroundColor": "#C5CAE9",
     "webhookUrl": "https://api.neynar.com/f/app/d99795a5-172e-44be-a4a8-328a85bc224e/event",
-    "subtitle": "AI feedback-reward platform",
-    "description": "Complete tasks, share feedback, and earn rewards based on your impact.",
+    "subtitle": "Task-Reward Platform",
+    "description": "Complete tasks and earn rewards in USDC.",
     "primaryCategory": "finance"
   },
   "accountAssociation": {

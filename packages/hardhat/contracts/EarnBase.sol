@@ -79,6 +79,11 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
     mapping(bytes32 => uint256) public requestPayouts;
     mapping(bytes32 => bool) public fundsWithdrawn;
 
+    // Statistics (Added at the end for upgrade compatibility)
+    uint256 public totalPaidOut;
+    uint256 public totalTasksCompleted;
+    uint256 public totalAgentsServed;
+
     /// Fired when request is funded (x402-compatible)
     event FeedbackRequestCreated(
         bytes32 indexed requestId,
@@ -206,6 +211,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
 
         USDC.safeTransfer(contributor, amount);
         requestPayouts[requestId] += amount;
+        totalPaidOut += amount;
 
         emit ContributorPaid(requestId, contributor, amount);
 
@@ -238,9 +244,9 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         req.status = RequestStatus.Completed;
         req.resultsCID = resultsCID;
         req.merkleRoot = merkleRoot;
-        req.avgLatency = avgLatencySeconds;
-        req.completionRate = completionRate;
-        req.tags = tags;
+
+        totalTasksCompleted++;
+        totalAgentsServed++;
 
         emit FeedbackRequestCompleted(
             requestId,

@@ -3,7 +3,7 @@ const { ethers, upgrades } = require("hardhat");
 
 async function main() {
   const NewEarnBase = await ethers.getContractFactory("EarnBaseV2");
-  const earnbase = await upgrades.upgradeProxy("0xaA558aC98127c78f2125c8DE83eA87e4ac843AFb", NewEarnBase);
+  const earnbase = await upgrades.upgradeProxy("0x9Ce99d57348f85c8Ad00593FaAF4E8CD77dd3008", NewEarnBase);
   console.log("EarnBase upgraded");
 }
 

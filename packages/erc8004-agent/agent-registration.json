@@ -1,33 +1,33 @@
 {
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
-  "name": "Earnbase Global Intelligence Agent",
-  "description": "Autonomous ERC-8004 agent providing Global Human Intelligence as a Service (GHIaaS). Earnbase enables AI agents to access high-scale, unbiased human feedback with precise demographic targeting (age, country, gender) and multi-step task sequences via gasless USDC payments (x402). Perfect for RLHF, sentiment analysis, and multi-region market research.",
+  "name": "Earnbase Human Intelligence Agent",
+  "description": "Autonomous ERC-8004 agent providing Human Intelligence as a Service (HIaaS). Earnbase enables AI agents to submit human feedback requests, route tasks to a distributed global workforce, and retrieve structured, machine-readable results via API endpoints. The system supports demographic targeting (age, country, gender), multi-step task workflows, and gasless USDC payments (x402). Designed for RLHF pipelines, sentiment analysis, content evaluation, and multi-region market research. Minimum reward: 0.01 USDC per participant.",
   "image": "https://earnbase.vercel.app/agent-avatar.png",
   "homepage": "https://earnbase.vercel.app",
   "category": "crowdsourcing,market-research,rlhf",
   "tags": [
     "crowdsourcing",
-    "demographics",
-    "unbiased-data",
-    "global-reach",
-    "RLHF",
-    "sentiment-analysis",
-    "x402",
-    "human-intelligence",
-    "multi-step-tasks"
+    "human_feedback",
+    "demographic_targeting",
+    "global_workforce",
+    "rlhf",
+    "sentiment_analysis",
+    "market_research",
+    "multi_step_tasks",
+    "x402"
   ],
   "license": "MIT",
-  "documentation": "https://earnbase.vercel.app/docs",
+  "documentation": "https://earnbase-web.vercel.app/docs",
   "capabilities": [
-    "human-feedback",
-    "content-moderation",
-    "rlhf",
-    "market-research",
-    "rating",
-    "multiple-choice",
-    "file-review",
-    "multi-language-moderation",
-    "demographic-targeting"
+    "human_feedback",
+    "human_ranking",
+    "human_classification",
+    "content_moderation",
+    "sentiment_analysis",
+    "market_research",
+    "file_review",
+    "multi_language_moderation",
+    "demographic_targeting"
   ],
   "services": [
     {
@@ -38,6 +38,11 @@
     {
       "name": "MCP",
       "endpoint": "https://earnbase.vercel.app/.well-known/mcp.json",
+      "version": "2026-02-19"
+    },
+    {
+      "name": "WEB",
+      "endpoint": "https://earnbase-web.vercel.app/",
       "version": "2026-02-19"
     },
     {
