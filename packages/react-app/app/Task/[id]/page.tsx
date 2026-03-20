@@ -176,80 +176,52 @@ const TaskDetailPage = () => {
 
   if (loading || !isMounted) {
     return (
-      <div className="min-h-screen bg-[#FFF9F3] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 pointer-events-none">
-          <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.1, 0.2, 0.1]
-            }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-celo-yellow rounded-full blur-[100px]"
-          />
-          <motion.div
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0.1, 0.15, 0.1]
-            }}
-            transition={{ duration: 5, repeat: Infinity, delay: 1 }}
-            className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-celo-purple rounded-full blur-[80px]"
-          />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative z-10 text-center"
-        >
-          <div className="relative mb-8">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-[-20px] border-2 border-dashed border-black/10 rounded-full"
-            />
-            <motion.div
-              animate={{ scale: [0.95, 1.05, 0.95] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="w-24 h-24 bg-white border-4 border-black rounded-[2rem] flex items-center justify-center shadow-[8px_8px_0_0_rgba(0,0,0,1)] mx-auto overflow-hidden"
-            >
-              <Image
-                src="/self-logo.png"
-                alt="Self"
-                width={48}
-                height={48}
-                className="object-contain"
-              />
-            </motion.div>
-          </div>
-
-          <div className="space-y-4">
-            <h2 className="text-2xl font-gt-alpina font-heavy text-black uppercase tracking-tighter">
-              Securing Task Assets
-            </h2>
-            <div className="flex items-center justify-center space-x-2">
-              <span className="text-sm font-inter font-heavy text-black/40 uppercase tracking-[0.2em]">
-                Identity Verification Active
-              </span>
-              <div className="flex space-x-1">
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    animate={{ opacity: [0, 1, 0] }}
-                    transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                    className="w-1.5 h-1.5 bg-celo-forest rounded-full"
-                  />
-                ))}
-              </div>
+      <div className="min-h-screen bg-celo-lt-tan flex flex-col">
+        {/* Header Skeleton */}
+        <div className="bg-celo-yellow border-b-4 border-black rounded-b-3xl px-6 py-5 shadow-[0_6px_0_0_rgba(0,0,0,1)]">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-white border-2 border-black rounded-lg animate-pulse" />
+            <div className="flex-1 space-y-2">
+              <div className="h-6 bg-black/10 rounded w-2/3 animate-pulse" />
+              <div className="h-4 bg-black/5 rounded w-1/3 animate-pulse" />
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Brand Meta */}
-        <div className="absolute bottom-12 left-0 right-0 text-center">
-          <p className="text-[10px] font-inter font-heavy text-black/20 uppercase tracking-[0.3em]">
-            Powered by Earnbase × Self Protocol
-          </p>
+        <div className="px-4 py-8 space-y-6">
+          {/* Main Card Skeleton */}
+          <div className="bg-white border-4 border-black p-6 space-y-4">
+            <div className="flex justify-end">
+              <div className="w-20 h-6 bg-celo-forest/20 border-2 border-black animate-pulse" />
+            </div>
+            <div className="space-y-3">
+              <div className="h-8 bg-black/10 rounded w-3/4 animate-pulse" />
+              <div className="h-4 bg-black/5 rounded w-full animate-pulse" />
+              <div className="h-4 bg-black/5 rounded w-5/6 animate-pulse" />
+            </div>
+            <div className="flex items-center justify-between pt-4">
+              <div className="h-10 bg-celo-success/20 rounded w-1/3 animate-pulse border-2 border-black" />
+            </div>
+          </div>
+
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-2 gap-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="bg-white border-4 border-black p-4 space-y-2">
+                <div className="h-3 bg-celo-purple/20 rounded w-1/2 animate-pulse" />
+                <div className="h-8 bg-black/10 rounded w-3/4 animate-pulse" />
+              </div>
+            ))}
+          </div>
+
+          {/* Button Skeleton */}
+          <div className="h-16 bg-celo-yellow/30 border-4 border-black w-full animate-pulse" />
+
+          {/* Tabs Skeleton */}
+          <div className="bg-white border-4 border-black p-1 flex">
+            <div className="flex-1 h-12 bg-black/5 animate-pulse" />
+            <div className="flex-1 h-12 bg-white" />
+          </div>
         </div>
       </div>
     );

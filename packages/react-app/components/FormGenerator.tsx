@@ -43,13 +43,16 @@ import {
 import { parseUnits, formatUnits } from "viem";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { getTask } from "@/lib/ReadFunctions";
+// import { getTask } from "@/lib/ReadFunctions";
 import { sendFarcasterNotification } from "@/lib/FarcasterNotify";
 import { payoutTaskerAction } from "@/lib/payoutActions";
 import { uploadFileToIpfs } from "@/lib/ipfs";
-import { reputationAbi, reputationRegistryAddress } from "@/blockchain/constants";
+import { reputationAbi, reputationRegistryAddress, contractAddress, contractAbi } from "@/blockchain/constants";
 import { prepareContractCall, getContract, sendTransaction, createThirdwebClient } from "thirdweb";
-import { celo } from "thirdweb/chains";
+import { celo as thirdwebCelo } from "thirdweb/chains";
+import { readContract } from "@wagmi/core";
+import { wagmiConfig } from "@/providers/AppProvider";
+import { celo } from "viem/chains";
 
 const twClient = createThirdwebClient({
   clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID || "",
@@ -115,6 +118,7 @@ export default function FormGenerator({
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [agentRating, setAgentRating] = useState(100);
   const [isUploading, setIsUploading] = useState(false);
+  const [contractAgentId, setContractAgentId] = useState<bigint | null>(null);
   const { writeContractAsync } = useWriteContract();
 
   // Initialize responses for all subtasks
@@ -130,20 +134,25 @@ export default function FormGenerator({
       }
     });
     setResponses(initialResponses);
+
+    // Fetch public agent ID from contract for feedback
+    const fetchAgentId = async () => {
+      try {
+        const id = await readContract(wagmiConfig, {
+          address: contractAddress as `0x${string}`,
+          abi: contractAbi,
+          functionName: 'publicAgentId',
+        });
+        if (id) setContractAgentId(id as bigint);
+      } catch (error) {
+        console.error("Error fetching public agent ID:", error);
+        setContractAgentId(BigInt(130)); // Fallback to 130
+      }
+    };
+    fetchAgentId();
   }, [task]);
 
-  // getting task balance
-  const getTaskBalance = async () => {
-    const thisTaskBalance = await getTask(BigInt(task.blockChainId));
-    setTaskBalance(
-      Number(thisTaskBalance.totalAmount - thisTaskBalance.paidAmount) /
-      Math.pow(10, 18)
-    );
-    return (
-      Number(thisTaskBalance.totalAmount - thisTaskBalance.paidAmount) /
-      Math.pow(10, 18)
-    );
-  };
+  const { chain } = useAccount();
 
   const handleInputChange = (subtaskId: number, value: any) => {
     setResponses((prev) => ({ ...prev, [subtaskId]: value }));
@@ -383,20 +392,25 @@ export default function FormGenerator({
 
     setIsSubmittingFeedback(true);
     try {
-      toast.loading("Submitting feedback on-chain...");
+      if (chain?.id !== celo.id) {
+        toast.error(`Please switch your wallet to the Celo network.`);
+        return;
+      }
+
+      toast.info("Submitting feedback on-chain...");
 
       const hash = await writeContractAsync({
         address: reputationRegistryAddress as `0x${string}`,
         abi: reputationAbi,
         functionName: 'giveFeedback',
         args: [
-          BigInt(130), // agentId
+          contractAgentId || BigInt(130), // agentId
           BigInt(agentRating), // value
           0, // valueDecimals
           selectedCategory, // tag1
           "verified-worker", // tag2
           "", // endpoint
-          `https://earnbase.vercel.app/tasks/${task.id}`, // feedbackURI
+          `${window.location.origin}/Task/${task.id}`, // feedbackURI
           "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`, // feedbackHash
         ],
       });
