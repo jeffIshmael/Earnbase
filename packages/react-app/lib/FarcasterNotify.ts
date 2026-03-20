@@ -89,7 +89,7 @@ export async function notifyAllUsersOfNewTask(amount: string) {
 export async function notifyUserOfPayment(fid: number, amount: string) {
   try {
     const title = "💸 Payment Received!";
-    const message = `You received ${amount} USDC from your task.Thanks for your contribution!`;
+    const message = `You received ${amount} USDC from a task.Thanks for your contribution!`;
 
     return await sendFarcasterNotification([fid], title, message);
   } catch (error) {

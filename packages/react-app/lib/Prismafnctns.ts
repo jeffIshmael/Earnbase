@@ -841,14 +841,6 @@ export async function createTaskSubmissionWithResponses(
         }
       });
 
-      // Automatically finalize if participant limit reached for agent tasks
-      if (updatedTask.agentRequestId && updatedTask.currentParticipants >= updatedTask.maxParticipants) {
-        // Trigger after transaction commits
-        setTimeout(() => {
-          finalizeAgentTask(taskId).catch(err => console.error("Finalization failed:", err));
-        }, 0);
-      }
-
       // Return submission with responses
       return tx.taskSubmission.findUnique({
         where: { id: submission.id },
@@ -869,6 +861,22 @@ export async function createTaskSubmissionWithResponses(
     }, {
       timeout: 30000
     });
+
+    // Automatically finalize if participant limit reached for agent tasks - after transaction commits
+    if (result && result.id) {
+      // We need to check if the participant limit was reached in the transaction
+      // Instead of re-fetching, we can check a flag or just use the result if we include the task
+      const task = await prisma.task.findUnique({
+        where: { id: taskId },
+        select: { agentRequestId: true, currentParticipants: true, maxParticipants: true }
+      });
+
+      if (task && task.agentRequestId && task.currentParticipants >= task.maxParticipants) {
+        console.log(`Participant limit reached for task ${taskId}. Triggering finalization...`);
+        // We don't await to avoid blocking the user, but we remove setTimeout for better serverless compatibility
+        finalizeAgentTask(taskId).catch(err => console.error("Finalization failed:", err));
+      }
+    }
 
     return result;
   } catch (error) {
