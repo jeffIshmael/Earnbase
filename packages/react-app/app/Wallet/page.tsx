@@ -387,14 +387,14 @@ export default function WalletPage() {
           </div>
         </motion.div>
 
-        <button
+        {/* <button
           onClick={() => sendUSDT()}
           className="w-full bg-celo-yellow border-2 border-black rounded-2xl flex items-center justify-center shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:scale-90 hover:cursor-pointer"
           title="sending USDT"
         >
           <ArrowUpRight className="w-6 h-6 text-black" />
           <span className="text-lg uppercase">{sendingUSDT ? "Sending..." : `Send USDT ${cUSDBalance} USDT`}</span>
-        </button>
+        </button> */}
 
       </div>
 
