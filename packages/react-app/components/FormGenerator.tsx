@@ -391,13 +391,15 @@ export default function FormGenerator({
     }
 
     setIsSubmittingFeedback(true);
+    const loadingToast = toast.loading("Submitting feedback on-chain...");
+
     try {
       if (chain?.id !== celo.id) {
+        toast.dismiss(loadingToast);
         toast.error(`Please switch your wallet to the Celo network.`);
+        setIsSubmittingFeedback(false);
         return;
       }
-
-      toast.info("Submitting feedback on-chain...");
 
       const hash = await writeContractAsync({
         address: reputationRegistryAddress as `0x${string}`,
@@ -407,7 +409,7 @@ export default function FormGenerator({
           contractAgentId || BigInt(130), // agentId
           BigInt(agentRating), // value
           0, // valueDecimals
-          selectedCategory, // tag1
+          selectedCategory || "overall", // tag1
           "verified-worker", // tag2
           "", // endpoint
           `${window.location.origin}/Task/${task.id}`, // feedbackURI
@@ -415,14 +417,28 @@ export default function FormGenerator({
         ],
       });
 
-      console.log("Feedback submitted:", hash);
-      toast.dismiss();
+      console.log("Feedback transaction submitted:", hash);
+      toast.dismiss(loadingToast);
       toast.success("Feedback submitted on-chain!");
       setFeedbackSubmitted(true);
+
+      // Auto-close after a delay so user sees success
+      setTimeout(() => {
+        setShowRatingModal(false);
+        closeFormGenerator?.();
+        router.push("/Start");
+      }, 2000);
+
     } catch (error: any) {
-      console.error("Feedback error:", error);
-      toast.dismiss();
-      toast.error(error.message || "Failed to submit feedback");
+      console.error("Feedback error details:", error);
+      toast.dismiss(loadingToast);
+
+      const isUserReject = error?.message?.includes("User rejected") || error?.shortMessage?.includes("User rejected");
+      if (isUserReject) {
+        toast.error("Transaction was cancelled. You can try again or skip.");
+      } else {
+        toast.error(`Feedback failed: ${error?.shortMessage || error?.message || "Unknown error"}`);
+      }
     } finally {
       setIsSubmittingFeedback(false);
     }
@@ -1085,6 +1101,18 @@ export default function FormGenerator({
                     ) : (
                       <span>SUBMIT FEEDBACK</span>
                     )}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowRatingModal(false);
+                      closeFormGenerator?.();
+                      router.push("/Start");
+                    }}
+                    disabled={isSubmittingFeedback}
+                    className="w-full text-gray-500 font-inter font-heavy text-xs py-2 hover:text-black transition-colors"
+                  >
+                    SKIP FOR NOW
                   </button>
                 </>
               ) : (

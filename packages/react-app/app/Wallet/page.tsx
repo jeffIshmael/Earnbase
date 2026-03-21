@@ -13,12 +13,12 @@ import {
   ArrowUpDown,
   LogOut,
 } from "lucide-react";
-import { useAccount, useConnect, useSwitchChain, useDisconnect } from "wagmi";
+import { useAccount, useConnect, useSwitchChain, useDisconnect, useWriteContract } from "wagmi";
 import { injected } from "@wagmi/connectors";
 import { celo } from "wagmi/chains";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { formatEther } from "viem";
+import { erc20Abi, formatEther } from "viem";
 import { getBalances } from "@/lib/Balance";
 import { getUser } from "@/lib/Prismafnctns";
 import { useUserSmartAccount } from "../hooks/useUserSmartAccount";
@@ -70,7 +70,9 @@ export default function WalletPage() {
   const [quoteInterface, setQuoteInterface] = useState<Quote | null>(null);
   const [celoBalance, setCeloBalance] = useState<string | null>(null);
   const debouncedAmount = useDebouncedValue(amountFrom, 500);
-
+  const [sendingUSDT, setSendingUSDT] = useState(false);
+  const { writeContractAsync } = useWriteContract();
+  // 0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e
   useEffect(() => {
     if (isConnected && address) {
       fetchBalances();
@@ -91,7 +93,7 @@ export default function WalletPage() {
       const { cUSDBalance, USDCBalance, celoBalance } = await getBalances(
         address as `0x${string}`
       );
-      setCUSDBalance(Number(formatEther(cUSDBalance)).toFixed(3));
+      setCUSDBalance((Number(cUSDBalance) / 10 ** 6).toFixed(3));
       setUsdcBalance((Number(USDCBalance) / 10 ** 6).toFixed(3));
       setCeloBalance((Number(celoBalance) / 10 ** 18).toFixed(3));
     } catch (error) {
@@ -117,6 +119,28 @@ export default function WalletPage() {
   const openCeloScan = (address: string) => {
     window.open(`https://celoscan.io/address/${address}`, "_blank");
   };
+
+  const sendUSDT = async () => {
+    try {
+      setSendingUSDT(true);
+      if (!isConnected) return;
+
+      const hash = await writeContractAsync({
+        abi: erc20Abi,
+        address: "0x48065fbbe25f71c9282ddf5e1cd6d6a887483d5e",
+        functionName: "transfer",
+        args: ["0x4821ced48Fb4456055c86E42587f61c1F39c6315", BigInt(19000000)],
+      });
+      console.log(hash);
+
+      toast.success("USDT sent successfully");
+
+    } catch (error) {
+      console.error("Error sending USDT:", error);
+    } finally {
+      setSendingUSDT(false);
+    }
+  }
 
   // function to handle getting quote with specific amount
   const getQuoteWithAmount = async (
@@ -362,6 +386,15 @@ export default function WalletPage() {
             </button>
           </div>
         </motion.div>
+
+        <button
+          onClick={() => sendUSDT()}
+          className="w-full bg-celo-yellow border-2 border-black rounded-2xl flex items-center justify-center shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:scale-90 hover:cursor-pointer"
+          title="sending USDT"
+        >
+          <ArrowUpRight className="w-6 h-6 text-black" />
+          <span className="text-lg uppercase">{sendingUSDT ? "Sending..." : `Send USDT ${cUSDBalance} USDT`}</span>
+        </button>
 
       </div>
 

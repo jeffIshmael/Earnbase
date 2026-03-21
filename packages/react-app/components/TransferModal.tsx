@@ -170,41 +170,6 @@ const TransferModal: React.FC<TransferModalProps> = ({
         message: 'Transfer successful!',
         txHash: transactionHash
       });
-
-      // If in Agent Test Mode, complete the lifecycle by notifying the backend
-      if (isAgentTestMode) {
-        try {
-          toast.loading("Transfer confirmed. Finalizing Agent Task...");
-          const finalResponse = await fetch('/api/agent/submit', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Agent-Type': 'ERC8004',
-              'PAYMENT-SIGNATURE': transactionHash
-            },
-            body: JSON.stringify(complexDummyTask)
-          });
-
-          if (finalResponse.ok) {
-            const result = await finalResponse.json();
-            toast.dismiss();
-            toast.success("Agent Task Successfully Created!");
-            setTransferStatus({
-              success: true,
-              message: `Task Created! ID: ${result.taskId}`,
-              txHash: transactionHash
-            });
-            setIsAgentTestMode(false);
-          } else {
-            const err = await finalResponse.json();
-            throw new Error(err.error || "Failed to finalize task creation");
-          }
-        } catch (fError: any) {
-          console.error("Finalization Error:", fError);
-          toast.dismiss();
-          toast.error("Transfer succeeded but task creation failed: " + fError.message);
-        }
-      }
     } catch (error: any) {
       console.error("Transfer Error:", error);
       toast.error(error?.shortMessage || "Transfer failed. Please try again.");

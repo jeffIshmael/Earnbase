@@ -350,15 +350,15 @@ const TaskDetailPage = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-h4 font-gt-alpina font-bold text-black">
+            <h1 className="text-h4 font-gt-alpina font-bold text-black truncate">
               {task.title}
             </h1>
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <span className="w-2 h-2 bg-celo-success rounded-full animate-pulse"></span>
               <p className="text-eyebrow font-inter text-black/70">
                 Agent Powered Task
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </header>
