@@ -873,8 +873,7 @@ export async function createTaskSubmissionWithResponses(
 
       if (task && task.agentRequestId && task.currentParticipants >= task.maxParticipants) {
         console.log(`Participant limit reached for task ${taskId}. Triggering finalization...`);
-        // We don't await to avoid blocking the user, but we remove setTimeout for better serverless compatibility
-        finalizeAgentTask(taskId).catch(err => console.error("Finalization failed:", err));
+        await finalizeAgentTask(taskId).catch(err => console.error("Finalization failed:", err));
       }
     }
 
