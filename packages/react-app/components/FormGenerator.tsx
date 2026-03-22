@@ -45,6 +45,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 // import { getTask } from "@/lib/ReadFunctions";
 import { sendFarcasterNotification } from "@/lib/FarcasterNotify";
+import { useIsFarcaster } from "@/app/context/isFarcasterContext";
 import { payoutTaskerAction } from "@/lib/payoutActions";
 import { uploadFileToIpfs } from "@/lib/ipfs";
 import { reputationAbi, reputationRegistryAddress, contractAddress, contractAbi } from "@/blockchain/constants";
@@ -109,6 +110,7 @@ export default function FormGenerator({
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [taskBalance, setTaskBalance] = useState(0);
   const { isConnected } = useAccount();
+  const { isFarcaster } = useIsFarcaster();
   const router = useRouter();
 
   // On-chain Feedback State
@@ -970,8 +972,12 @@ export default function FormGenerator({
 
                     // Guard against self-feedback error
                     const isTaskCreator = address?.toLowerCase() === task.creator?.walletAddress?.toLowerCase();
-                    if (isTaskCreator) {
-                      toast.info("Self-feedback is not allowed for this contract.");
+                    if (isTaskCreator || isFarcaster) {
+                      if (isTaskCreator) {
+                        toast.info("Self-feedback is not allowed for this contract.");
+                      } else if (isFarcaster) {
+                        toast.success("Task completed! Thanks for your contribution.");
+                      }
                       closeFormGenerator?.();
                       router.push("/Start");
                     } else {

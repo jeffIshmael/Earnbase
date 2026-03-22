@@ -80,7 +80,16 @@ export async function notifyAllUsersOfNewTask(amount: string) {
 
     const message = `Reward: ${amount} USDC. Check it out! 🚀`;
 
-    return await sendFarcasterNotification(fids, "🆕 New Task!", message);
+    // Neynar bulk notifications have a limit (usually 100). Batch them.
+    const batchSize = 100;
+    const results = [];
+    for (let i = 0; i < fids.length; i += batchSize) {
+      const batch = fids.slice(i, i + batchSize);
+      const response = await sendFarcasterNotification(batch, "🆕 New Task!", message);
+      results.push(response);
+    }
+
+    return results;
   } catch (error) {
     console.error("Error in notifyAllUsersOfNewTask:", error);
   }

@@ -83,6 +83,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
     uint256 public totalPaidOut;
     uint256 public totalTasksCompleted;
     uint256 public totalAgentsServed;
+    uint256 public totalAccumulatedFee;
 
     /// Fired when request is funded (x402-compatible)
     event FeedbackRequestCreated(
@@ -178,18 +179,22 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
 
         // Transfer funds from requester (Feedback Agent wallet) to this contract
         USDC.safeTransferFrom(msg.sender, address(this), amount);
-
-        // We can't initialize the struct with the dynamic array 'tags' in one go easily
-        // correctly in all solidity versions, so we init then set if needed.
-        // Or just leave empty for now.
+        
+        // Calculate platform fee (1% of amount)
+        uint256 fee = (amount * platformFeeBps) / 10000;
+        uint256 escrowAmount = amount - fee;
         
         FeedbackRequest storage req = requests[requestId];
         req.requestId = requestId;
         req.requester = msg.sender;
-        req.escrowAmount = amount;
+        req.escrowAmount = escrowAmount;
         req.participantCount = participants;
         req.createdAt = block.timestamp;
         req.status = RequestStatus.Pending;
+
+        // update the platform fee
+        totalAccumulatedFee += fee;
+
 
         emit FeedbackRequestCreated(
             requestId,
@@ -308,7 +313,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         _withdrawFunds(requestId);
     }
 
-    function withdrawUnusedFunds(bytes32 requestId) external nonReentrant {
+    function withdrawUnusedFunds(bytes32 requestId) external onlyAuthorisedAgent nonReentrant {
         // Anyone can call, but funds go to requester.
         // Useful if auto-refund failed or wasn't triggered.
         FeedbackRequest storage req = requests[requestId];

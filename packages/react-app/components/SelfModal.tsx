@@ -128,14 +128,14 @@ export default function SelfModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-      <div className="relative w-full max-w-sm bg-white border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] rounded-2xl p-6 space-y-6">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-start justify-center p-4 overflow-y-auto pt-12 md:items-center md:pt-4">
+      <div className="relative w-full max-w-sm bg-white border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] rounded-2xl p-6 my-auto space-y-6">
         {/* Header */}
         <div className="text-center relative">
           {onClose && (
             <button
               onClick={onClose}
-              className="absolute top-0 right-0 p-2 border-2 border-black rounded-md hover:bg-black hover:text-yellow-400 transition"
+              className="absolute -top-2 -right-2 p-2 bg-white border-4 border-black rounded-lg hover:bg-black hover:text-celo-yellow transition-all shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
             >
               <X className="w-5 h-5" />
             </button>
@@ -227,14 +227,6 @@ export default function SelfModal({
           >
             Open Self App <SquareArrowOutUpRight className="w-5 h-5" />
           </button>
-        </div>
-
-        {/* Address */}
-        <div className="text-center">
-          <p className="uppercase text-xs font-bold text-gray-600">Address</p>
-          <div className="bg-gray-100 border-4 border-black p-3 text-xs mt-2 break-all font-mono shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-md">
-            {address || "Not connected"}
-          </div>
         </div>
 
         {/* Toast */}

@@ -278,7 +278,7 @@ export async function POST(request: Request) {
         // Trigger Farcaster notification for the new task
         try {
             const { notifyAllUsersOfNewTask } = await import("@/lib/FarcasterNotify");
-            notifyAllUsersOfNewTask(rewardPerParticipant.toString()).catch(err =>
+            await notifyAllUsersOfNewTask(rewardPerParticipant.toString()).catch(err =>
                 console.error("Failed to send new task notification:", err)
             );
         } catch (notifyError) {
