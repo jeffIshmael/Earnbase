@@ -112,6 +112,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
     
     event FeedbackRequestCancelled(bytes32 indexed requestId);
     event FundsWithdrawn(bytes32 indexed requestId, address indexed requester, uint256 amount);
+    event FeesWithdrawn(address indexed to, uint256 amount);
 
     /// ERC-8004 hook events (Selfclaw / 8004Scan)
     event ERC8004ContributorReputation(
@@ -362,5 +363,16 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
 
     function setPublicAgentId(uint256 agentId) external onlyOwner {
         publicAgentId = agentId;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                        FEE MANAGEMENT
+    //////////////////////////////////////////////////////////////*/
+
+    function withdrawPlatformFees(uint256 amount, address to) external onlyAuthorisedAgent nonReentrant {
+        require(amount <= totalAccumulatedFee, "Insufficient accumulated fees");
+        totalAccumulatedFee -= amount;
+        USDC.safeTransfer(to, amount);
+        emit FeesWithdrawn(to, amount);
     }
 }
