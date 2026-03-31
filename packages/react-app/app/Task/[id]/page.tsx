@@ -710,9 +710,6 @@ const TaskDetailPage = () => {
                             >
                               <div className="p-4">
                                 <div className="flex items-center space-x-3 mb-3">
-                                  <div className="w-8 h-8 bg-celo-forest border-2 border-black flex items-center justify-center text-white text-sm font-inter font-heavy flex-shrink-0">
-                                    {index + 1}
-                                  </div>
                                   <div className="flex-1 min-w-0">
                                     <h4 className="font-inter font-heavy text-black">
                                       {subtask.title}

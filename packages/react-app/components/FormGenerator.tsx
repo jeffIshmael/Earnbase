@@ -410,13 +410,7 @@ export default function FormGenerator({
               </div>
             </div>
             
-            {validationStatus === 'invalid' && (
-              <div className="text-[10px] font-bold text-red-600 bg-red-50 p-1 border border-red-200 rounded">
-                AI Validation: {validationReason}
-              </div>
-            )}
-
-            {hasError && validationStatus !== 'invalid' && (
+            {hasError && (
               <div className="flex items-center space-x-2 text-white text-xs bg-celo-error p-2 border border-black">
                 <AlertCircle className="w-3 h-3" />
                 <span className="font-inter font-heavy">{hasError}</span>
@@ -571,15 +565,14 @@ export default function FormGenerator({
             <div key={subtask.id} className="bg-white border-2 border-black rounded-xl transition-all hover:translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
               <div className="p-5 space-y-4">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-black text-lg font-black bg-celo-yellow text-black flex-shrink-0">
-                    {index + 1}
-                  </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <h3 className="font-bold text-black text-lg">{subtask.title}</h3>
                       {subtask.required && <Star className="w-4 h-4 text-celo-orange fill-celo-orange" />}
                     </div>
-                    <p className="text-gray-500 text-sm font-medium">{subtask.description}</p>
+                    {subtask.description && (
+                      <p className="text-gray-500 text-sm font-medium">{subtask.description}</p>
+                    )}
                   </div>
                 </div>
                 {renderSubtaskForm(subtask)}
