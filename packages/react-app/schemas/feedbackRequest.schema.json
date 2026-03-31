@@ -1,34 +1,18 @@
 {
     "type": "object",
     "required": [
-        "feedbackType",
-        "prompt",
-        "constraints"
+        "title",
+        "description",
+        "constraints",
+        "subtasks"
     ],
     "properties": {
-        "feedbackType": {
-            "type": "string",
-            "enum": [
-                "multiple_choice",
-                "single_choice",
-                "text_input",
-                "file_upload",
-                "rating"
-            ]
-        },
-        "prompt": {
-            "type": "string",
-            "description": "Instruction shown to human contributors"
-        },
         "title": {
             "type": "string"
         },
-        "options": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "description": "Required for choice-based feedback"
+        "description": {
+            "type": "string",
+            "description": "An explanation of the title of task"
         },
         "constraints": {
             "type": "object",
@@ -81,11 +65,9 @@
             "items": {
                 "type": "object",
                 "properties": {
-                    "title": {
-                        "type": "string"
-                    },
-                    "description": {
-                        "type": "string"
+                    "prompt": {
+                        "type": "string",
+                        "description": "This is the prompt of what is needed from the human. More like the question itself"
                     },
                     "type": {
                         "type": "string",

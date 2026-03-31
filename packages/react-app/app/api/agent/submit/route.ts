@@ -49,9 +49,9 @@ export async function POST(request: Request) {
 
         // Basic Schema Validation (Extract necessary fields)
         // TODO: Use full AJV/Zod validation against feedbackRequest.schema.json
-        const { feedbackType, prompt, constraints, options, title } = body;
+        const { title, description, constraints, subtasks } = body;
 
-        if (!feedbackType || !prompt || !constraints) {
+        if (!title || !description || !constraints || !subtasks) {
             return Response.json({ error: "Missing required fields" }, { status: 400 });
         }
 
@@ -152,7 +152,7 @@ export async function POST(request: Request) {
                 price: { amount: parseUnits(finalPrice.toString(), 6).toString(), asset: { address: USDC_CELO, decimals: 6, symbol: "USDC" } },
                 facilitator: thirdwebFacilitator,
                 routeConfig: {
-                    description: `Agent Feedback Request: ${title || prompt.substring(0, 30)}...`,
+                    description: `Agent Feedback Request: ${title || description.substring(0, 30)}...`,
                     mimeType: "application/json",
                     maxTimeoutSeconds: 60 * 60 * 24,
                 },
@@ -176,7 +176,7 @@ export async function POST(request: Request) {
                             symbol: "USDC"
                         }
                     },
-                    description: `Agent Feedback Request: ${title || prompt.substring(0, 30)}...`
+                    description: `Agent Feedback Request: ${title || description.substring(0, 30)}...`
                 };
             }
 
@@ -211,24 +211,17 @@ export async function POST(request: Request) {
         // Payment Successful -> Create Task
         // Map Agent Request to Task Model
 
-        // Determine Subtask Type
-        let dbSubtaskType: any = 'TEXT_INPUT'; // Default
-        if (feedbackType === 'multiple_choice') dbSubtaskType = 'MULTIPLE_CHOICE';
-        if (feedbackType === 'file_upload') dbSubtaskType = 'FILE_UPLOAD';
-        if (feedbackType === 'rating') dbSubtaskType = 'RATING';
-
         // Create the task with restrictions and subtasks
         const task = await prisma.task.create({
             data: {
                 title: title || "Agent Feedback Request",
-                description: prompt,
+                description: description,
                 maxParticipants: parseInt(participants),
                 baseReward: parseUnits(rewardPerParticipant.toString(), 6).toString(),
                 maxBonusReward: "0",
                 totalDeposited: parseUnits(finalPrice.toString(), 6).toString(),
                 status: 'ACTIVE',
                 aiCriteria: JSON.stringify(constraints),
-                feedbackType: feedbackType,
                 agentRequestId: agentRequestId,
                 blockChainId: onchainHash || "0",
                 paymentTxHash: (paymentData && paymentData.length === 66) ? paymentData : undefined,
@@ -245,23 +238,15 @@ export async function POST(request: Request) {
 
                 // Create subtasks
                 subtasks: {
-                    create: body.subtasks && Array.isArray(body.subtasks)
-                        ? body.subtasks.map((st: any, index: number) => ({
-                            title: st.title || prompt,
-                            description: st.description || "",
-                            type: st.type || dbSubtaskType,
-                            required: st.required !== false,
-                            order: st.order || index + 1,
-                            options: st.options ? JSON.stringify(st.options) : undefined,
-                            fileTypes: st.fileTypes ? JSON.stringify(st.fileTypes) : undefined,
-                        }))
-                        : [{
-                            title: prompt,
-                            type: dbSubtaskType,
-                            required: true,
-                            order: 1,
-                            options: options ? JSON.stringify(options) : undefined,
-                        }]
+                    create: subtasks.map((st: any, index: number) => ({
+                        title: st.prompt || "Subtask",
+                        description: "",
+                        type: st.type,
+                        required: st.required !== false,
+                        order: st.order || index + 1,
+                        options: st.options ? JSON.stringify(st.options) : undefined,
+                        fileTypes: st.fileTypes ? JSON.stringify(st.fileTypes) : undefined,
+                    }))
                 }
             }
         });
