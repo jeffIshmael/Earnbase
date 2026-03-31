@@ -18,31 +18,13 @@
       "inputSchema": {
         "type": "object",
         "properties": {
-          "feedbackType": {
-            "type": "string",
-            "enum": [
-              "multiple_choice",
-              "single_choice",
-              "text_input",
-              "file_upload",
-              "rating"
-            ],
-            "description": "Type of feedback to collect from human contributors"
-          },
-          "prompt": {
-            "type": "string",
-            "description": "The question or instruction shown to human contributors"
-          },
           "title": {
             "type": "string",
             "description": "Short title for the task (max 100 chars)"
           },
-          "options": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Answer options — required for multiple_choice and single_choice"
+          "description": {
+            "type": "string",
+            "description": "An explanation of the title of the task"
           },
           "constraints": {
             "type": "object",
@@ -95,11 +77,9 @@
             "items": {
               "type": "object",
               "properties": {
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
+                "prompt": {
+                  "type": "string",
+                  "description": "The question or instruction shown to human contributors for this subtask"
                 },
                 "type": {
                   "type": "string",
@@ -129,7 +109,8 @@
                     "type": "string"
                   }
                 }
-              }
+              },
+              "required": ["prompt", "type"]
             }
           },
           "requestId": {
@@ -138,9 +119,10 @@
           }
         },
         "required": [
-          "feedbackType",
-          "prompt",
-          "constraints"
+          "title",
+          "description",
+          "constraints",
+          "subtasks"
         ]
       }
     },
@@ -210,55 +192,73 @@
       "prompt": "Get human feedback on which of these two product descriptions is more compelling",
       "tool": "submit_feedback_request",
       "input": {
-        "feedbackType": "multiple_choice",
         "title": "Product description preference",
-        "prompt": "Which product description is more compelling to you as a consumer?",
-        "options": [
-          "Description A: ...",
-          "Description B: ..."
-        ],
+        "description": "Evaluating consumer appeal for new product marketing copy.",
         "constraints": {
           "participants": 10,
           "rewardPerParticipant": "0.25"
-        }
+        },
+        "subtasks": [
+          {
+            "prompt": "Which product description is more compelling to you as a consumer?",
+            "type": "MULTIPLE_CHOICE",
+            "options": [
+              "Description A: ...",
+              "Description B: ..."
+            ],
+            "required": true
+          }
+        ]
       }
     },
     {
       "prompt": "Moderate this piece of content for safety",
       "tool": "submit_feedback_request",
       "input": {
-        "feedbackType": "single_choice",
         "title": "Content moderation review",
-        "prompt": "Does this content violate community safety guidelines?",
-        "options": [
-          "Safe",
-          "Unsafe - violence",
-          "Unsafe - hate speech",
-          "Unsafe - other"
-        ],
+        "description": "Reviewing user-generated content for community safety guidelines.",
         "constraints": {
           "participants": 3,
           "rewardPerParticipant": "0.10"
-        }
+        },
+        "subtasks": [
+          {
+            "prompt": "Does this content violate community safety guidelines?",
+            "type": "CHOICE_SELECTION",
+            "options": [
+              "Safe",
+              "Unsafe - violence",
+              "Unsafe - hate speech",
+              "Unsafe - other"
+            ],
+            "required": true
+          }
+        ]
       }
     },
     {
       "prompt": "Collect RLHF preference data between two AI responses",
       "tool": "submit_feedback_request",
       "input": {
-        "feedbackType": "multiple_choice",
         "title": "AI response preference",
-        "prompt": "Which AI response is more helpful and accurate?",
-        "options": [
-          "Response A",
-          "Response B",
-          "Both equally good",
-          "Neither is good"
-        ],
+        "description": "Comparing AI response quality for model refinement.",
         "constraints": {
           "participants": 5,
           "rewardPerParticipant": "0.20"
-        }
+        },
+        "subtasks": [
+          {
+            "prompt": "Which AI response is more helpful and accurate?",
+            "type": "MULTIPLE_CHOICE",
+            "options": [
+              "Response A",
+              "Response B",
+              "Both equally good",
+              "Neither is good"
+            ],
+            "required": true
+          }
+        ]
       }
     }
   ],

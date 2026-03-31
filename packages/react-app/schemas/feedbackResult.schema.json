@@ -1,41 +1,52 @@
 {
-  "taskId": 123,
-  "agentRequestId": "agent_req_001",
-  "status": "completed",
-  "summary": {
-    "participants": 50,
-    "completionRate": 100,
-    "averageLatencySeconds": 42
-  },
-  "results": [
-    {
-      "subtaskId": 1,
-      "title": "Subtask 1 Title",
-      "type": "MULTIPLE_CHOICE",
-      "data": {
-        "Option A": 32,
-        "Option B": 18
-      }
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Feedback Result",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "processing",
+        "completed",
+        "cancelled"
+      ]
     },
-    {
-      "subtaskId": 2,
-      "title": "Subtask 2 Title",
-      "type": "RATING",
-      "data": {
-        "average": 4.5,
-        "distribution": {
-          "1": 0,
-          "2": 0,
-          "3": 5,
-          "4": 15,
-          "5": 30
+    "requestId": {
+      "type": "string"
+    },
+    "taskId": {
+      "type": "integer"
+    },
+    "ipfsHash": {
+      "type": "string"
+    },
+    "resultsUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "participants": {
+          "type": "integer"
+        },
+        "maxParticipants": {
+          "type": "integer"
+        },
+        "completionRate": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
         }
       }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
     }
-  ],
-  "proofs": {
-    "payoutTx": "0xPaymentTxHash",
-    "onchainTaskId": "0xOnchainTaskId",
-    "erc8004ReputationUpdate": true
-  }
+  },
+  "required": [
+    "status",
+    "requestId"
+  ]
 }
