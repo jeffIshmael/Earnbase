@@ -31,7 +31,10 @@ export async function getAllUserFids(): Promise<number[]> {
       fid: true,
     },
   });
-  return users.map((u) => u.fid as number);
+  // Use Set to ensure unique FIDs
+  const uniqueFids = Array.from(new Set(users.map((u) => u.fid as number).filter(fid => !!fid)));
+  console.log(`[Notification] Found ${uniqueFids.length} unique FIDs to notify.`);
+  return uniqueFids;
 }
 
 // function to register a user

@@ -461,45 +461,77 @@ const TaskDetailPage = () => {
 
             {/* Action Button */}
             {userSubmission ? (
-              <div className="w-full bg-celo-forest border-4 border-black p-6 text-center">
-                <div className="w-16 h-16 bg-celo-yellow flex items-center justify-center mx-auto mb-4 border-2 border-black">
-                  <CheckCircle className="w-8 h-8 text-black" />
-                </div>
-                <h3 className="text-h3 font-gt-alpina font-thin text-white mb-2 tracking-tight">
-                  TASK COMPLETED! 🎉
-                </h3>
-                <p className="text-body-s font-inter text-white/90 mb-4">
-                  You&apos;ve already completed this task
-                </p>
-                <div className="bg-white border-4 border-black p-4 mb-4">
-                  <div className="grid grid-cols-2 gap-4 text-body-s">
-                    <div>
-                      <span className="text-celo-forest font-inter font-heavy">
-                        REWARD EARNED:
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full bg-celo-forest border-4 border-black p-8 text-center relative overflow-hidden shadow-[8px_8px_0_0_rgba(0,0,0,1)]"
+              >
+                {/* Background Decoration */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-celo-yellow/10 rounded-full -translate-y-16 translate-x-16 blur-2xl" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-celo-purple/10 rounded-full translate-y-12 -translate-x-12 blur-xl" />
+
+                <div className="relative z-10">
+                  <div className="w-20 h-20 bg-celo-yellow flex items-center justify-center mx-auto mb-6 border-4 border-black rotate-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                    <Trophy className="w-10 h-10 text-black" />
+                  </div>
+                  
+                  <h3 className="text-h2 font-gt-alpina font-thin text-white mb-2 leading-tight tracking-tighter uppercase italic">
+                    Task <span className="font-heavy not-italic">Completed!</span>
+                  </h3>
+                  
+                  <div className="flex items-center justify-center space-x-2 mb-6">
+                    <Zap className="w-4 h-4 text-celo-yellow fill-celo-yellow" />
+                    <p className="text-body-s font-inter font-heavy text-celo-yellow tracking-widest uppercase">
+                      Rewards Unlocked
+                    </p>
+                    <Zap className="w-4 h-4 text-celo-yellow fill-celo-yellow" />
+                  </div>
+
+                  <div className="bg-white border-4 border-black p-6 mb-8 relative">
+                    <div className="absolute -top-3 -right-3 bg-celo-yellow border-2 border-black p-1">
+                      <Star className="w-4 h-4 text-black fill-black" />
+                    </div>
+                    
+                    <div className="space-y-1 mb-4">
+                      <span className="text-celo-forest font-inter font-heavy text-eyebrow uppercase tracking-tighter">
+                        Total Reward Earned
                       </span>
-                      <div className="text-h4 font-gt-alpina font-thin text-black tracking-tight">
-                        {Number(userSubmission.reward).toFixed(4)} USDC
+                      <div className="text-h1 font-gt-alpina font-thin text-black tracking-tighter leading-none">
+                        {parseFloat(userSubmission.reward).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                        <span className="text-h4 ml-2 font-heavy italic uppercase">USDC</span>
                       </div>
                     </div>
+
+                    {userSubmission.aiFeedback && (
+                      <div className="pt-4 border-t-2 border-dashed border-black/20 text-left">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <HelpCircle className="w-4 h-4 text-celo-forest" />
+                          <span className="text-celo-forest font-inter font-heavy text-body-s uppercase tracking-tight">
+                            AI Feedback & Insight
+                          </span>
+                        </div>
+                        <div className="bg-celo-lt-tan/50 p-4 border-2 border-black italic font-gt-alpina text-body-m text-black/80 relative">
+                           &ldquo;{userSubmission.aiFeedback}&rdquo;
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  {userSubmission.aiFeedback && (
-                    <div className="mt-3 text-left">
-                      <span className="text-celo-forest font-inter font-heavy text-body-s">
-                        AI FEEDBACK:
-                      </span>
-                      <p className="text-black/70 font-inter text-body-s mt-1">
-                        {userSubmission.aiFeedback}
-                      </p>
-                    </div>
-                  )}
+
+                  <button
+                    onClick={() => setActiveTab("subtasks")}
+                    className="w-full py-4 bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow transition-all duration-300 text-body-l font-inter font-heavy border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] group"
+                  >
+                    <span className="flex items-center justify-center space-x-2">
+                      <Eye className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                      <span>VIEW YOUR RESPONSES</span>
+                    </span>
+                  </button>
+                  
+                  <p className="mt-4 text-white/60 font-inter text-eyebrow tracking-widest uppercase">
+                    Earnbase &bull; AI Powered
+                  </p>
                 </div>
-                <button
-                  onClick={() => setActiveTab("subtasks")}
-                  className="px-6 py-2 bg-celo-yellow text-black hover:bg-black hover:text-celo-yellow transition-colors text-body-s font-inter font-heavy border-2 border-black"
-                >
-                  VIEW YOUR RESPONSES
-                </button>
-              </div>
+              </motion.div>
             ) : (
               <button
                 onClick={handleStartTask}
