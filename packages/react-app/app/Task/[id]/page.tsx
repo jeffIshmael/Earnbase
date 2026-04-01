@@ -478,20 +478,9 @@ const TaskDetailPage = () => {
                   <h3 className="text-h2 font-gt-alpina font-thin text-white mb-2 leading-tight tracking-tighter uppercase italic">
                     Task <span className="font-heavy not-italic">Completed!</span>
                   </h3>
-                  
-                  <div className="flex items-center justify-center space-x-2 mb-6">
-                    <Zap className="w-4 h-4 text-celo-yellow fill-celo-yellow" />
-                    <p className="text-body-s font-inter font-heavy text-celo-yellow tracking-widest uppercase">
-                      Rewards Unlocked
-                    </p>
-                    <Zap className="w-4 h-4 text-celo-yellow fill-celo-yellow" />
-                  </div>
 
                   <div className="bg-white border-4 border-black p-6 mb-8 relative">
-                    <div className="absolute -top-3 -right-3 bg-celo-yellow border-2 border-black p-1">
-                      <Star className="w-4 h-4 text-black fill-black" />
-                    </div>
-                    
+                       
                     <div className="space-y-1 mb-4">
                       <span className="text-celo-forest font-inter font-heavy text-eyebrow uppercase tracking-tighter">
                         Total Reward Earned
@@ -501,20 +490,6 @@ const TaskDetailPage = () => {
                         <span className="text-h4 ml-2 font-heavy italic uppercase">USDC</span>
                       </div>
                     </div>
-
-                    {userSubmission.aiFeedback && (
-                      <div className="pt-4 border-t-2 border-dashed border-black/20 text-left">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <HelpCircle className="w-4 h-4 text-celo-forest" />
-                          <span className="text-celo-forest font-inter font-heavy text-body-s uppercase tracking-tight">
-                            AI Feedback & Insight
-                          </span>
-                        </div>
-                        <div className="bg-celo-lt-tan/50 p-4 border-2 border-black italic font-gt-alpina text-body-m text-black/80 relative">
-                           &ldquo;{userSubmission.aiFeedback}&rdquo;
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   <button
@@ -526,10 +501,6 @@ const TaskDetailPage = () => {
                       <span>VIEW YOUR RESPONSES</span>
                     </span>
                   </button>
-                  
-                  <p className="mt-4 text-white/60 font-inter text-eyebrow tracking-widest uppercase">
-                    Earnbase &bull; AI Powered
-                  </p>
                 </div>
               </motion.div>
             ) : (
