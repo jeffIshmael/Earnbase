@@ -260,15 +260,15 @@ export async function POST(request: Request) {
             explorerUrl: `https://earnbase.vercel.app/tasks/${task.id}`
         };
 
-        // Trigger Farcaster notification for the new task
-        try {
-            const { notifyAllUsersOfNewTask } = await import("@/lib/FarcasterNotify");
-            await notifyAllUsersOfNewTask(rewardPerParticipant.toString()).catch(err =>
-                console.error("Failed to send new task notification:", err)
+        // Trigger Farcaster notification for the new task (Non-blocking)
+        import("@/lib/FarcasterNotify").then(({ notifyAllUsersOfNewTask }) => {
+            console.log(`[Notification] Triggering for new task: ${title} (Reward: ${rewardPerParticipant})`);
+            notifyAllUsersOfNewTask(rewardPerParticipant.toString()).catch(err =>
+                console.error("[Notification] Failed to send new task notification:", err)
             );
-        } catch (notifyError) {
-            console.error("Failed to import/trigger Farcaster notification:", notifyError);
-        }
+        }).catch(notifyError => {
+            console.error("[Notification] Failed to import Farcaster notification lib:", notifyError);
+        });
 
         return Response.json(responseData);
 

@@ -4,15 +4,13 @@ import { NeynarAPIClient, Configuration } from "@neynar/nodejs-sdk";
 import dotenv from "dotenv";
 dotenv.config();
 
-if (!process.env.NEYNAR_API_KEY) {
-  throw new Error("NEYNAR_API_KEY not found in .env");
-}
-
-const config = new Configuration({
-  apiKey: process.env.NEYNAR_API_KEY,
-});
-
-const client = new NeynarAPIClient(config);
+const getNeynarClient = () => {
+  if (!process.env.NEYNAR_API_KEY) return null;
+  const config = new Configuration({
+    apiKey: process.env.NEYNAR_API_KEY,
+  });
+  return new NeynarAPIClient(config);
+};
 
 export async function sendFarcasterNotification(
   fid: number[],
@@ -34,24 +32,22 @@ export async function sendFarcasterNotification(
       target_url: notificationTargetUrl,
     };
 
+    const client = getNeynarClient();
+    if (!client) {
+      console.warn("[Notification] Neynar client unavailable.");
+      return null;
+    }
+
     const response = await client.publishFrameNotifications({
       targetFids: fid,
       notification,
     });
 
-    console.log("Farcaster response:", response);
+    console.log(`[Notification] Neynar Response (${fid.length} targets):`, JSON.stringify(response, null, 2));
 
-    // Check for invalid target_url status and log a warning
-    const deliveries = (response as any).notification_deliveries;
-    if (deliveries) {
-      const invalidUrls = deliveries.filter(
-        (delivery: any) => delivery.status === "invalid_target_url"
-      );
-      if (invalidUrls.length > 0) {
-        console.warn(
-          "⚠️ Some notifications have invalid target_url. Ensure the target_url matches your registered Farcaster frame URL."
-        );
-      }
+    const totalProcessed = (response.success_count || 0) + (response.failure_count || 0) + (response.not_attempted_count || 0);
+    if (totalProcessed < fid.length) {
+      console.warn(`[Notification] Discrepancy detected: Sent ${fid.length} FIDs, but response only accounts for ${totalProcessed}.`);
     }
 
     return response;
@@ -73,10 +69,20 @@ export async function sendFarcasterNotification(
 
 export async function notifyAllUsersOfNewTask(amount: string) {
   try {
-    const { getAllUserFids } = await import("./Prismafnctns");
+    if (!process.env.NEYNAR_API_KEY) {
+      console.warn("[Notification] NEYNAR_API_KEY not found. Skipping notification.");
+      return;
+    }
+
+    const { getAllUserFids } = await import("@/lib/Prismafnctns");
     const fids = await getAllUserFids();
 
-    if (!fids || fids.length === 0) return;
+    if (!fids || fids.length === 0) {
+      console.log("[Notification] No users with FIDs found. Skipping.");
+      return;
+    }
+
+    console.log(`[Notification] Sending new task alerts to ${fids.length} users...`);
 
     const message = `Reward: ${amount} USDC. Check it out! 🚀`;
 
@@ -85,10 +91,21 @@ export async function notifyAllUsersOfNewTask(amount: string) {
     const results = [];
     for (let i = 0; i < fids.length; i += batchSize) {
       const batch = fids.slice(i, i + batchSize);
-      const response = await sendFarcasterNotification(batch, "🆕 New Task!", message);
-      results.push(response);
+      try {
+        console.log(`[Notification] Dispatching batch ${Math.floor(i / batchSize) + 1} (${batch.length} FIDs)...`);
+        const response = await sendFarcasterNotification(batch, "🆕 New Task!", message);
+        results.push(response);
+      } catch (err: any) {
+        // If Neynar rejects a whole batch because ZERO users in it have tokens, we ignore and continue.
+        if (err.response?.data?.code === "NoNotificationTokens") {
+          console.warn(`[Notification] Batch ${Math.floor(i / batchSize) + 1} skipped: No users in this group have launched the frame.`);
+        } else {
+          console.error(`[Notification] Batch ${Math.floor(i / batchSize) + 1} failed:`, err.message);
+        }
+      }
     }
 
+    console.log(`[Notification] Successfully processed all reachable batches.`);
     return results;
   } catch (error) {
     console.error("Error in notifyAllUsersOfNewTask:", error);

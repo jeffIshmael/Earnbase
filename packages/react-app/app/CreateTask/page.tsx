@@ -27,7 +27,7 @@ import { createCompleteTask, getAllFarcasterUsers } from "@/lib/Prismafnctns";
 import { ContactMethod, SubtaskType } from "@prisma/client";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useAccount, useWriteContract } from "wagmi";
-import { getTotalTasks } from "@/lib/ReadFunctions";
+// import { getTotalTasks } from "@/lib/ReadFunctions";
 import {
   contractAbi,
   contractAddress,
@@ -240,7 +240,7 @@ const TaskCreationForm = () => {
     setIsSubmitting(true);
 
     try {
-      const blockChainId = (await getTotalTasks()).toString();
+      const blockChainId = "1";
 
       // Prepare task data
       const taskData = {
