@@ -22,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="talentapp:project_verification" content="cab32e115624f7588939229ebd1291ffac2903309387b2b6fad39d32a4c203d519e78dac829dd5420dbf9184ccfc49de7eab125eef1f6cd35c67d7d499f54465" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;500;600;700&family=Licorice:wght@400&family=Instrument+Serif:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Smooch+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
