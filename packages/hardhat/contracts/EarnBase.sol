@@ -113,6 +113,7 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
     event FeedbackRequestCancelled(bytes32 indexed requestId);
     event FundsWithdrawn(bytes32 indexed requestId, address indexed requester, uint256 amount);
     event FeesWithdrawn(address indexed to, uint256 amount);
+    event USDCWithdrawn(address indexed to, uint256 amount);
 
     /// ERC-8004 hook events (Selfclaw / 8004Scan)
     event ERC8004ContributorReputation(
@@ -374,5 +375,14 @@ contract EarnBaseV2 is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         totalAccumulatedFee -= amount;
         USDC.safeTransfer(to, amount);
         emit FeesWithdrawn(to, amount);
+    }
+
+    /// @notice Owner emergency withdraw of USDC held by the contract
+    function withdrawUSDC(uint256 amount, address to) external onlyOwner nonReentrant {
+        require(to != address(0), "Invalid recipient");
+        require(amount > 0, "Invalid amount");
+        require(amount <= USDC.balanceOf(address(this)), "Insufficient balance");
+        USDC.safeTransfer(to, amount);
+        emit USDCWithdrawn(to, amount);
     }
 }

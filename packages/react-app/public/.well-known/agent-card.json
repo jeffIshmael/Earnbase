@@ -1,41 +1,85 @@
 {
-  "name": "Earnbase Human Feedback Agent",
-  "description": "Autonomous ERC-8004 agent providing Human Feedback as a Service (HFaaS). Enables AI agents to request structured human feedback using gasless USDC payments, without managing human infrastructure, payouts, or moderation.",
-  "url": "https://earnbase.vercel.app",
-  "version": "1.0.0",
   "protocolVersion": "0.3.0",
+  "name": "Earnbase Human Feedback Agent",
+  "description": "Autonomous ERC-8004 agent providing Human Feedback as a Service (HFaaS). Lets AI agents request structured human feedback, paid with gasless USDC on Celo (x402), without managing human infrastructure, payouts, or moderation. Supports RLHF preference data, content moderation, data labeling, and demographic-targeted market research.",
+  "url": "https://earnbase.vercel.app/api/mcp",
+  "preferredTransport": "JSONRPC",
+  "version": "1.0.0",
   "provider": {
-    "name": "Earnbase",
+    "organization": "Earnbase",
     "url": "https://earnbase.vercel.app"
   },
   "iconUrl": "https://earnbase.vercel.app/agent-avatar.png",
+  "documentationUrl": "https://earnbase-web.vercel.app/docs",
   "capabilities": {
     "streaming": false,
     "pushNotifications": false,
-    "stateTransitionHistory": true,
-    "humanInTheLoop": true
+    "stateTransitionHistory": true
   },
-  "defaultInputModes": [
-    "application/json"
-  ],
-  "defaultOutputModes": [
-    "application/json"
-  ],
-  "authentication": {
-    "schemes": [
-      "x402"
-    ],
+  "securitySchemes": {
     "x402": {
-      "description": "Payment via X-PAYMENT header using x402 protocol. No API key or account required.",
-      "header": "X-PAYMENT",
-      "currency": "USDC",
-      "chain": "celo",
-      "chainId": 42220,
-      "tokenAddress": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
-      "enforcement": "Payment is verified and settled on-chain before any task is accepted. Requests without valid payment are rejected with HTTP 402."
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-PAYMENT",
+      "description": "x402 payment payload (USDC on Celo, chainId 42220). No account or API key required. Requests without a valid payment are rejected with HTTP 402."
     }
   },
-  "payments": {
+  "security": [{ "x402": [] }],
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"],
+  "skills": [
+    {
+      "id": "human_feedback_collection",
+      "name": "Human Feedback Collection",
+      "description": "Collects structured human feedback using configurable input types (multiple choice, single choice, free text, file upload, rating), multi-step subtasks, participant counts, rewards, and eligibility constraints.",
+      "tags": ["human-feedback", "rlhf", "evaluation", "crowdsourcing", "market-research"],
+      "examples": [
+        "Which of these two product descriptions is more compelling? Ask 10 people in Kenya.",
+        "Collect preference data between two AI responses from 5 contributors.",
+        "Rate this landing page from 1 to 5 and explain why, aged 25-40."
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "content_evaluation",
+      "name": "Content Evaluation & Moderation",
+      "description": "Routes content to human reviewers for safety checks, quality assessment, sentiment scoring, and policy evaluation.",
+      "tags": ["content-moderation", "quality-evaluation", "sentiment"],
+      "examples": [
+        "Does this user post violate community safety guidelines?",
+        "Score the sentiment of these 20 customer reviews."
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "data_labeling",
+      "name": "Human Data Labeling",
+      "description": "Collects labeled datasets from human contributors for text, image, and survey-based inputs.",
+      "tags": ["data-labeling", "annotation", "classification"],
+      "examples": [
+        "Classify these support tickets as billing, bug, or feature request.",
+        "Have contributors upload a photo of a local storefront and label its category."
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "feedback_audit",
+      "name": "Feedback Audit & Proof",
+      "description": "Returns verifiable summaries including participant counts, payout proofs, timestamps, and on-chain references.",
+      "tags": ["audit", "proof", "transparency", "on-chain"],
+      "examples": ["Give me the participant count and payout proof for request <requestId>."],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false,
+  "additionalInterfaces": [
+    { "url": "https://earnbase.vercel.app/api/mcp", "transport": "JSONRPC" }
+  ],
+  "extensions": {
     "x402": {
       "supported": true,
       "currency": "USDC",
@@ -44,71 +88,17 @@
       "tokenAddress": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
       "pricingModel": "per-request",
       "formula": "(participants × rewardPerParticipant) + 1% platform fee",
-      "minimumAmount": "0.01 USDC",
+      "minimumRewardPerParticipant": "0.01",
       "platformFeePercent": 1,
-      "feeSemantics": "Platform fee is deducted from total payment; remainder is reserved exclusively for contributor rewards"
+      "feeSemantics": "The 1% platform fee is charged on top of the total contributor rewards; 100% of participants × rewardPerParticipant is reserved for contributors."
+    },
+    "trust": {
+      "supportedTrust": ["reputation", "crypto-economic"],
+      "tee": { "status": "self-declared", "verified": false, "infrastructure": "Vercel", "attestationEndpoint": null }
+    },
+    "erc8004": {
+      "agentId": 130,
+      "agentRegistry": "eip155:42220:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
     }
-  },
-  "tee": {
-    "status": "self-declared",
-    "verified": false,
-    "infrastructure": "Vercel",
-    "attestationEndpoint": null
-  },
-  "skills": [
-    {
-      "id": "human_feedback_collection",
-      "name": "Human Feedback Collection",
-      "description": "Collects structured human feedback using configurable input types, multi-subtask sequences, participant counts, rewards, and eligibility constraints.",
-      "inputTypes": [
-        "multiple_choice",
-        "single_choice",
-        "free_text",
-        "file_upload",
-        "rating"
-      ],
-      "constraintsSupported": [
-        "age",
-        "gender",
-        "country (ISO 3-letter)"
-      ],
-      "tags": [
-        "human-feedback",
-        "rlhf",
-        "evaluation",
-        "crowdsourcing"
-      ]
-    },
-    {
-      "id": "content_evaluation",
-      "name": "Content Evaluation & Moderation",
-      "description": "Routes content to human reviewers for safety checks, quality assessment, sentiment scoring, and policy evaluation.",
-      "tags": [
-        "content-moderation",
-        "quality-evaluation",
-        "sentiment"
-      ]
-    },
-    {
-      "id": "data_labeling",
-      "name": "Human Data Labeling",
-      "description": "Collects labeled datasets from human contributors for text, image, and survey-based inputs.",
-      "tags": [
-        "data-labeling",
-        "annotation",
-        "classification"
-      ]
-    },
-    {
-      "id": "feedback_audit",
-      "name": "Feedback Audit & Proof",
-      "description": "Returns verifiable summaries including participant counts, payout proofs, timestamps, and on-chain references.",
-      "tags": [
-        "audit",
-        "proof",
-        "transparency",
-        "on-chain"
-      ]
-    }
-  ]
+  }
 }
