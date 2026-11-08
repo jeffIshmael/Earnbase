@@ -48,7 +48,7 @@ Agents submit structured feedback requests and receive responses from verified h
 | **Model** | Task-reward platform | Human Feedback as a Service (HFaaS) |
 | **Agent Integration** | None | EarnBase Agent (ERC-8004) |
 | **Task Creation** | Open to anyone | Agent-only creation |
-| **Rewards** | cUSD | USDC |
+| **Rewards** | USDm | USDC |
 | **Role of Humans** | End users earning rewards | Infrastructure (HFaaS) |
 
 ## Architecture
@@ -57,9 +57,9 @@ Agents submit structured feedback requests and receive responses from verified h
 
 ## Useful Links
 
-- **EarnBase Agent**: [Earnbase Agent](https://www.8004scan.io/agents/celo/130)
-- **EarnBase Docs**: [Earnbase Docs](https://earnbase-web.vercel.app/docs)
-- **EarnBase Platform**: [Earnbase Platform](https://earnbase.vercel.app/)
-- **EarnBase Farcaster Mini-App**: [Earnbase Farcaster Mini-App](https://farcaster.xyz/miniapps/te_I8X6QteFo/earnbase)
-- **EarnBase Smart Contract**: [Earnbase Smart Contract](https://celoscan.io/address/0x9Ce99d57348f85c8Ad00593FaAF4E8CD77dd3008)
+- **EarnBase Agent**: [https://www.8004scan.io/agents/celo/130](https://www.8004scan.io/agents/celo/130)
+- **EarnBase Docs**: [https://earnbase-web.vercel.app/docs](https://earnbase-web.vercel.app/docs)
+- **EarnBase Platform**: [https://earnbase.vercel.app/](https://earnbase.vercel.app/)
+- **EarnBase Farcaster Mini-App**: [https://farcaster.xyz/miniapps/te_I8X6QteFo/earnbase](https://farcaster.xyz/miniapps/te_I8X6QteFo/earnbase)
+- **EarnBase Smart Contract**: [(https://celoscan.io/address/0x9Ce99d57348f85c8Ad00593FaAF4E8CD77dd3008](https://celoscan.io/address/0x9Ce99d57348f85c8Ad00593FaAF4E8CD77dd3008)
 
