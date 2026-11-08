@@ -1,7 +1,7 @@
 {
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "Earnbase Human Intelligence Agent",
-  "description": "Autonomous ERC-8004 agent providing Human Intelligence as a Service (HIaaS). Earnbase enables AI agents to submit human feedback requests, route tasks to a distributed global workforce, and retrieve structured, machine-readable results via API endpoints. The system supports demographic targeting (age, country, gender), multi-step task workflows, and gasless USDC payments (x402). Designed for RLHF pipelines, sentiment analysis, content evaluation, and multi-region market research. Minimum reward: 0.01 USDC per participant.",
+  "description": "Autonomous ERC-8004 agent providing Human Intelligence as a Service (HIaaS). Earnbase lets AI agents submit human feedback requests, route tasks to a distributed global workforce, and retrieve structured, machine-readable results over MCP and A2A. Supports demographic targeting (age, country, gender), multi-step task workflows, and gasless USDC payments on Celo (x402). Built for RLHF pipelines, sentiment analysis, content moderation, and multi-region market research. Minimum reward: 0.01 USDC per participant.",
   "image": "https://earnbase.vercel.app/agent-avatar.png",
   "homepage": "https://earnbase.vercel.app",
   "category": "crowdsourcing,market-research,rlhf",
@@ -12,6 +12,7 @@
     "global_workforce",
     "rlhf",
     "sentiment_analysis",
+    "content_moderation",
     "market_research",
     "multi_step_tasks",
     "x402"
@@ -31,22 +32,23 @@
   ],
   "services": [
     {
+      "name": "MCP",
+      "endpoint": "https://earnbase.vercel.app/api/mcp",
+      "version": "2025-06-18"
+    },
+    {
       "name": "A2A",
       "endpoint": "https://earnbase.vercel.app/.well-known/agent-card.json",
       "version": "0.3.0"
     },
     {
-      "name": "MCP",
-      "endpoint": "https://earnbase.vercel.app/.well-known/mcp.json",
-      "version": "2026-02-19"
-    },
-    {
-      "name": "WEB",
-      "endpoint": "https://earnbase-web.vercel.app/",
-      "version": "2026-02-19"
+      "name": "web",
+      "endpoint": "https://earnbase-web.vercel.app/"
     },
     {
       "name": "OASF",
+      "endpoint": "https://github.com/agntcy/oasf/",
+      "version": "0.8.0",
       "skills": [
         "global_demographic_feedback/marketing/market_research",
         "verified_unbiased_sentiment/data_gathering/sentiment_analysis",
@@ -60,9 +62,7 @@
         "technology/blockchain/cryptocurrency",
         "technology/blockchain/defi",
         "technology/artificial_intelligence"
-      ],
-      "version": "0.8.0",
-      "endpoint": "https://github.com/agntcy/oasf/"
+      ]
     }
   ],
   "x402Support": true,
@@ -73,8 +73,5 @@
       "agentRegistry": "eip155:42220:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
     }
   ],
-  "supportedTrust": [
-    "reputation",
-    "crypto-economic"
-  ]
+  "supportedTrust": ["reputation", "crypto-economic"]
 }

@@ -12,7 +12,11 @@ const nextConfig = {
     return config;
   },
   images: {
-    domains: ['cdn-production-opera-website.operacdn.com', 'ipfs.io', 'gateway.pinata.cloud'],
+    domains: [
+      "cdn-production-opera-website.operacdn.com",
+      "ipfs.io",
+      "gateway.pinata.cloud",
+    ],
   },
   transpilePackages: ["@0xsquid/widget", "@0xsquid/react-hooks"],
   typescript: {
@@ -29,6 +33,13 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/.well-known/mcp.json", destination: "/api/mcp" },
+      ],
+    };
   },
 };
 
