@@ -6,7 +6,7 @@ async function main() {
     const AGENT_ID = 130; // Your Agent ID
 
     // Updated metadata URI - IPFS hosted
-    const METADATA_URI = "ipfs://bafkreig47hj27ltkskkkvmynqbrutwvmeliadiife6yfr4qco24jof6nfm";
+    const METADATA_URI = "ipfs://bafkreicdlfirpbtqmurpvoucdsdv5duhbpbvt4bbssbccf5ccq64bbnbai";
 
     // Option 2: Upload to IPFS and use that URI
     // const METADATA_URI = "ipfs://bafkrei..."; // Replace with actual IPFS hash
@@ -55,3 +55,6 @@ main().catch((error) => {
     console.error(error);
     process.exitCode = 1;
 });
+
+
+// npx hardhat run scripts/update-agent-130-uri.ts --network celo
